@@ -22,8 +22,13 @@ export function usePageMeta({ title, description, canonical }: PageMeta) {
   useEffect(() => {
     document.title = title;
 
-    const link = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
-    if (link) link.href = canonical;
+    let link = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+    if (!link) {
+      link = document.createElement("link");
+      link.rel = "canonical";
+      document.head.appendChild(link);
+    }
+    link.href = canonical;
 
     setMetaContent('meta[name="description"]', description);
     setMetaContent('meta[property="og:title"]', title);

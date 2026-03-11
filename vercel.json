@@ -9,6 +9,27 @@
   ],
   "routes": [
     {
+      "src": "/$",
+      "headers": {
+        "Link": "<https://aicldbase.com/>; rel=\"canonical\""
+      },
+      "continue": true
+    },
+    {
+      "src": "/privacy$",
+      "headers": {
+        "Link": "<https://aicldbase.com/privacy>; rel=\"canonical\""
+      },
+      "continue": true
+    },
+    {
+      "src": "/terms$",
+      "headers": {
+        "Link": "<https://aicldbase.com/terms>; rel=\"canonical\""
+      },
+      "continue": true
+    },
+    {
       "src": "/(.*)",
       "headers": {
         "X-Frame-Options": "DENY",
