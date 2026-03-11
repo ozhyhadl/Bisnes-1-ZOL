@@ -5,6 +5,8 @@ Define a structured process for identifying, fixing, and verifying bugs to preve
 
 ## Flow Overview
 
+> **Orchestration**: Use **Compact Visible Mode** for single bugs, **Full Visible Mode** for multi-agent bug triage. See `docs/operations/visible-orchestration-mode.md`.
+
 ```
 Report → Reproduce → Diagnose → Fix → Verify → Deploy
 ```

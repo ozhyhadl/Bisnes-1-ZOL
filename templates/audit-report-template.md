@@ -6,6 +6,7 @@
 **Auditor**: [Agent name / tool used]
 **Scope**: [Pages or areas audited]
 **Trigger**: [Pre-release / Scheduled / Ad-hoc / Post-change]
+**Visibility**: [Orchestration event — `Result Returned` by this agent per `docs/operations/visible-orchestration-mode.md`]
 
 ---
 

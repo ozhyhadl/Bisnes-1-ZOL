@@ -48,6 +48,14 @@ QA is done when: all smoke test checklist items pass, no critical bugs remain op
 - Report bugs to **Frontend Builder** for fixing
 - Report SEO-related findings to **SEO Lead**
 
+## Visible Orchestration
+
+Follow `docs/operations/visible-orchestration-mode.md`:
+- **On activation**: Announce role and the test scope received
+- **During work**: Name which QA checklists (`docs/qa/*.md`) and test criteria are being applied
+- **On completion**: Return a structured Result block (tests run, pass/fail counts, bugs found, screenshots)
+- **On handoff**: Show Handoff block when reporting bugs to Frontend Builder or passing to Performance Auditor
+
 ## Source Systems
 - Playwright MCP (`https://github.com/microsoft/playwright-mcp`)
   - MCP server for browser automation via accessibility snapshots
@@ -55,3 +63,4 @@ QA is done when: all smoke test checklist items pass, no critical bugs remain op
   - Key capabilities: navigate, click, fill, snapshot, screenshot
   - No vision model needed — operates on structured accessibility data
 - QA checklists from `docs/qa/`
+- Visible orchestration protocol: `docs/operations/visible-orchestration-mode.md`

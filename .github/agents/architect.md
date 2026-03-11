@@ -46,6 +46,15 @@ Architecture is done when the technical spec is documented, reviewed, and Fronte
 - Hand off to **Frontend Builder** after architecture spec is approved
 - Escalate scope concerns to **Studio Orchestrator**
 
+## Visible Orchestration
+
+Follow `docs/operations/visible-orchestration-mode.md`:
+- **On activation**: Announce role and assigned subtask
+- **During work**: Name any architecture docs, patterns, or policies driving decisions
+- **On completion**: Return a structured Result block (what was decided, what was produced, recommended next agent)
+- **On handoff**: Show Handoff block when passing specs to Frontend Builder or escalating to Orchestrator
+
 ## Source Systems
 - GSD planning model (research → plan → verify pattern)
 - React / Vite / Tailwind best practices
+- Visible orchestration protocol: `docs/operations/visible-orchestration-mode.md`

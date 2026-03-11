@@ -51,9 +51,18 @@ Integration is done when: tool is configured, documentation is written, the requ
 - Escalate compatibility issues to **Architect**
 - Report security concerns to **Studio Orchestrator**
 
+## Visible Orchestration
+
+Follow `docs/operations/visible-orchestration-mode.md`:
+- **On activation**: Announce role and which integration request was received
+- **During work**: Name which tools, configs, or integration docs are being set up or verified
+- **On completion**: Return a structured Result block (tool configured, docs updated, requesting agent notified)
+- **On handoff**: Show Handoff block when handing configured tools back to the requesting agent
+
 ## Source Systems
 - Playwright MCP: `https://github.com/microsoft/playwright-mcp`
 - Lighthouse CI: `https://github.com/GoogleChrome/lighthouse-ci`
 - SiteOne Crawler: `https://github.com/janreges/siteone-crawler`
 - VS Code MCP configuration
 - GitHub Actions CI/CD
+- Visible orchestration protocol: `docs/operations/visible-orchestration-mode.md`

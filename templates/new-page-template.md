@@ -3,6 +3,8 @@
 ## Page: [Page Name]
 ## URL: /[page-slug]
 
+**Orchestration**: Full Visible Mode — follow `docs/operations/visible-orchestration-mode.md` for all agent handoffs during page creation.
+
 ---
 
 ## SEO Configuration

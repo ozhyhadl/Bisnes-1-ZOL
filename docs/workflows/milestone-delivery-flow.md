@@ -45,12 +45,16 @@ A milestone is a significant, measurable deliverable. Examples:
 - Identify risks or blockers
 - Set task order based on dependencies
 
+**Visibility**: Show `Stage Started` event with milestone name, all assigned agents, and task breakdown.
+
 ### 3. Execute
 For each task in the milestone:
 1. Follow the GSD-Inspired Execution Loop (discuss → plan → execute → verify)
 2. Mark task complete when verified
 3. Report progress to Orchestrator
 4. Escalate blockers immediately
+
+**Visibility**: Show `Agent Activated` when delegating each task. Show `Task Completed` and `Result Returned` after each task. Show `Handoff Started` between agents. Follow `docs/operations/visible-orchestration-mode.md` (Full Visible Mode).
 
 ### 4. Checkpoint
 At 50% task completion, Orchestrator checks:

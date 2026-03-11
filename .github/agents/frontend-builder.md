@@ -50,6 +50,15 @@ A feature is done when: code passes lint + type check + build, semantic HTML is 
 - Hand off to **QA Browser Tester** after build is deployable
 - Escalate architectural questions to **Architect**
 
+## Visible Orchestration
+
+Follow `docs/operations/visible-orchestration-mode.md`:
+- **On activation**: Announce role and the implementation task received
+- **During work**: Name specs, component patterns, or SEO requirements being followed
+- **On completion**: Return a structured Result block (what was built, files changed, build status)
+- **On handoff**: Show Handoff block when notifying SEO Lead or QA Browser Tester
+
 ## Source Systems
 - Vite + React + TypeScript + Tailwind + shadcn/ui
 - Accessibility best practices (WCAG 2.1 AA)
+- Visible orchestration protocol: `docs/operations/visible-orchestration-mode.md`

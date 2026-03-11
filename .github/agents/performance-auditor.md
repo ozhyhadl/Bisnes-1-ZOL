@@ -46,6 +46,14 @@ Audit is done when: all pages meet threshold scores, no regressions detected, re
 - Report SEO findings to **SEO Lead**
 - Report release readiness to **Studio Orchestrator**
 
+## Visible Orchestration
+
+Follow `docs/operations/visible-orchestration-mode.md`:
+- **On activation**: Announce role and the audit scope received
+- **During work**: Name which thresholds (`docs/qa/lighthouse-thresholds.md`), budgets, or optimization criteria are being checked
+- **On completion**: Return a structured Result block (scores, metrics, regressions, go/no-go signal)
+- **On handoff**: Show Handoff block when reporting to Frontend Builder (fixes) or Orchestrator (release signal)
+
 ## Source Systems
 - Lighthouse CI (`https://github.com/GoogleChrome/lighthouse-ci`)
   - Install: `npm install -g @lhci/cli@0.15.x`
@@ -53,3 +61,4 @@ Audit is done when: all pages meet threshold scores, no regressions detected, re
   - Run: `lhci autorun`
   - Assertions for quality gates
   - CI integration via GitHub Actions
+- Visible orchestration protocol: `docs/operations/visible-orchestration-mode.md`

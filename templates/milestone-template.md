@@ -6,6 +6,7 @@
 **Owner**: Studio Orchestrator
 **Status**: Not Started | In Progress | Complete
 **Target**: [Date or sprint identifier]
+**Visibility Mode**: Full Visible (per `docs/operations/visible-orchestration-mode.md`)
 
 ---
 

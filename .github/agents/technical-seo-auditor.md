@@ -48,9 +48,18 @@ Audit is done when: full crawl is complete, report is generated, all critical is
 - Hand off audit report to **SEO Lead** for prioritization
 - Hand off fix tasks to **Frontend Builder** (via SEO Lead)
 
+## Visible Orchestration
+
+Follow `docs/operations/visible-orchestration-mode.md`:
+- **On activation**: Announce role and the crawl/audit scope received from SEO Lead
+- **During work**: Name which crawl commands, policy docs, or validation criteria are being used
+- **On completion**: Return a structured Result block (crawl stats, issues found, fix recommendations)
+- **On handoff**: Show Handoff block when returning audit report to SEO Lead
+
 ## Source Systems
 - SiteOne Crawler (`https://github.com/janreges/siteone-crawler`)
   - External CLI tool — requires separate installation
   - Key commands: `./crawler --url=<URL> --output=text --extra-columns="Title,Description"`
   - HTML report: `--output-html-report=tmp/report.html`
   - JSON output: `--output-json-file=tmp/report.json`
+- Visible orchestration protocol: `docs/operations/visible-orchestration-mode.md`

@@ -14,6 +14,8 @@ Step-by-step process for launching a new page from concept to production. Ensure
 
 ## Workflow
 
+> **Orchestration**: This workflow uses **Full Visible Mode**. Every phase transition, agent delegation, and checklist reference must be surfaced per `docs/operations/visible-orchestration-mode.md`.
+
 ### Phase 1: Planning
 
 **Orchestrator** kicks off the workflow:

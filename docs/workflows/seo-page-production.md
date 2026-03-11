@@ -5,6 +5,8 @@ Specific workflow for producing pages that are optimized for search engine visib
 
 ## Pre-Production
 
+> **Orchestration**: This workflow uses **Full Visible Mode**. Each phase must declare the active agent, reference relevant SEO policy docs by name, and surface handoffs. See `docs/operations/visible-orchestration-mode.md`.
+
 ### Keyword Research
 1. Identify primary target keyword
 2. Identify 2–3 secondary keywords

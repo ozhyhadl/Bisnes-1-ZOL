@@ -50,7 +50,16 @@ Content is done when: copy is written per brief, heading hierarchy is correct, C
 - Hand off content review to **SEO Lead** for SEO validation
 - Request structured data markup from **SEO Lead** for FAQ content
 
+## Visible Orchestration
+
+Follow `docs/operations/visible-orchestration-mode.md`:
+- **On activation**: Announce role and the content task received (brief, review, or rewrite)
+- **During work**: Name which CRO frameworks, keyword briefs, or content policies are being applied
+- **On completion**: Return a structured Result block (copy delivered, changes made, CRO improvements)
+- **On handoff**: Show Handoff block when passing copy to Frontend Builder or returning review to SEO Lead
+
 ## Source Systems
 - Marketing Skills patterns (copywriting, page-cro, content-strategy, copy-editing)
 - CRO frameworks: AIDA, PAS, value proposition canvas
 - SEO content best practices
+- Visible orchestration protocol: `docs/operations/visible-orchestration-mode.md`

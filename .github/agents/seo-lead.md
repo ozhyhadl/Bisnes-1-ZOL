@@ -52,7 +52,16 @@ SEO is done when: metadata is complete, structured data validates, internal link
 - Hand off structured data implementation to **Frontend Builder**
 - Escalate conflicts to **Studio Orchestrator**
 
+## Visible Orchestration
+
+Follow `docs/operations/visible-orchestration-mode.md`:
+- **On activation**: Announce role and the SEO review or strategy task received
+- **During work**: Name which SEO policy docs (`docs/seo/*.md`), checklists, or audit criteria are being applied
+- **On completion**: Return a structured Result block (issues found, fixes applied, recommendations, SEO scores)
+- **On handoff**: Show Handoff block when passing work to Technical SEO Auditor, Content Strategist, or Frontend Builder
+
 ## Source Systems
 - Marketing Skills SEO patterns (seo-audit, ai-seo, schema-markup, site-architecture, programmatic-seo)
 - `docs/seo/` policy documents
 - Google Search documentation
+- Visible orchestration protocol: `docs/operations/visible-orchestration-mode.md`

@@ -12,6 +12,8 @@ Define the process for updating existing content on the site — text changes, i
 
 ## Flow Overview
 
+> **Orchestration**: Use **Compact Visible Mode** for simple text updates. Use **Full Visible Mode** when SEO metadata or structure changes require multi-agent review. See `docs/operations/visible-orchestration-mode.md`.
+
 ```
 Request → Impact Assessment → Update → SEO Check → QA → Deploy
 ```

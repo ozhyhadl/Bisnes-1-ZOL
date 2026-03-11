@@ -15,9 +15,13 @@ End-to-end workflow for running quality audits and converting findings into comp
 
 ## Workflow
 
+> **Orchestration**: This workflow uses **Full Visible Mode**. Each audit delegation, result collection, triage decision, and fix handoff must be surfaced per `docs/operations/visible-orchestration-mode.md`.
+
 ### Phase 1: Run Audits
 
 Orchestrator triggers audits in parallel:
+
+**Visibility**: Show `Agent Activated` and `Task Assigned` for each auditor. Show `Checklist Referenced` for any QA checklists used.
 
 | Audit | Agent | Tool | Focus |
 |---|---|---|---|

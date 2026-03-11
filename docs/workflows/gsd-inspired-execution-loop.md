@@ -9,6 +9,8 @@ GSD uses a structured approach: **discuss → plan → execute → verify**. We 
 
 ## The Execution Loop
 
+> **Orchestration**: Every stage transition in this loop must be visible per `docs/operations/visible-orchestration-mode.md`. Show `Stage Started` at each phase, `Agent Activated` on delegation, `Result Returned` on completion.
+
 ```
 DISCUSS → PLAN → EXECUTE → VERIFY → DELIVER
 ```

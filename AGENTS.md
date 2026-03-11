@@ -30,6 +30,33 @@ This repository operates as an **AI-driven mini IT-studio** — a single orchest
 └─────────────────────────────────────────────────────────────┘
 ```
 
+## Visible Orchestration Protocol
+
+> **Mandatory rule**: All orchestrated work must be transparent to the user. Hidden delegation is not allowed for major tasks. See `docs/operations/visible-orchestration-mode.md` for the full specification.
+
+### Transparency Requirements
+1. **Every agent activation must be visible** — declare who is working and why
+2. **Every handoff must be surfaced** — show from → to, task, and expected output
+3. **Every stage transition must be announced** — the user sees progress through phases
+4. **Skill/doc/checklist usage must be shown** — name the document when it drives a decision
+5. **Results must be summarized** — never end a subtask silently
+6. **Active agent must always be declared** — during any orchestration task
+
+### Visibility Modes
+- **Full Visible Mode** — for multi-agent, multi-phase tasks (milestones, audits, page launches). Show all events: activations, handoffs, doc references, result summaries, next steps.
+- **Compact Visible Mode** — for small, single-agent tasks. Show active agent, current task, completion summary. Skip detailed doc references.
+
+### Event Types
+The following events must be surfaced in chat when they occur:
+
+`Agent Activated` · `Stage Started` · `Skill Invoked` · `Workflow Referenced` · `Checklist Referenced` · `Handoff Started` · `Task Assigned` · `Task Completed` · `Result Returned` · `Next Agent Selected` · `Stage Completed`
+
+### Forbidden Patterns
+- No hidden delegation without user-visible trace
+- No result-only responses for multi-agent tasks
+- No silent agent switches
+- No unnamed skill/doc usage that drives decisions
+
 ## Agent Collaboration Rules
 
 ### Communication Protocol
@@ -37,18 +64,19 @@ This repository operates as an **AI-driven mini IT-studio** — a single orchest
 2. **Handoff via artifacts** — agents pass work through documented outputs (reports, checklists, code)
 3. **Escalation to orchestrator** — unresolved conflicts or cross-domain decisions escalate to studio-orchestrator
 4. **Sequential validation** — SEO review follows frontend build; QA follows SEO; performance audit follows QA
+5. **Visible orchestration** — all handoffs, activations, and results follow `docs/operations/visible-orchestration-mode.md`
 
 ### Handoff Logic
-| From | To | Trigger | Artifact |
-|------|-----|---------|----------|
-| Architect | Frontend Builder | Architecture approved | Architecture decision doc |
-| Frontend Builder | SEO Lead | Feature/page implemented | Page URL + component list |
-| SEO Lead | Technical SEO Auditor | SEO review complete | SEO review report |
-| SEO Lead | Content Strategist | Content gaps identified | Content brief |
-| Frontend Builder | QA Browser Tester | Build ready for testing | Build URL + test scope |
-| QA Browser Tester | Performance Auditor | Functional QA passed | QA report |
-| Performance Auditor | Studio Orchestrator | Audit complete | Lighthouse report |
-| Any Agent | Integrations Coordinator | External tool needed | Integration request |
+| From | To | Trigger | Artifact | Visibility |
+|------|-----|---------|----------|------------|
+| Architect | Frontend Builder | Architecture approved | Architecture decision doc | Handoff event |
+| Frontend Builder | SEO Lead | Feature/page implemented | Page URL + component list | Handoff event |
+| SEO Lead | Technical SEO Auditor | SEO review complete | SEO review report | Handoff event |
+| SEO Lead | Content Strategist | Content gaps identified | Content brief | Handoff event |
+| Frontend Builder | QA Browser Tester | Build ready for testing | Build URL + test scope | Handoff event |
+| QA Browser Tester | Performance Auditor | Functional QA passed | QA report | Handoff event |
+| Performance Auditor | Studio Orchestrator | Audit complete | Lighthouse report | Result event |
+| Any Agent | Integrations Coordinator | External tool needed | Integration request | Delegation event |
 
 ### Escalation Logic
 - **Technical conflict** → Architect makes final call
