@@ -17,6 +17,14 @@ const SiteFooter = () => {
           </a>
           <span className="text-terminal-foreground/20">|</span>
           <span>7-Day Money-Back Guarantee</span>
+          <span className="text-terminal-foreground/20">|</span>
+          <a href="/privacy" className="hover:text-terminal-foreground transition-colors">
+            Privacy
+          </a>
+          <span className="text-terminal-foreground/20">|</span>
+          <a href="/terms" className="hover:text-terminal-foreground transition-colors">
+            Terms
+          </a>
         </div>
         <p className="text-[10px] text-terminal-foreground/40 pt-2">
           &copy; {currentYear} AI Cloud Base. All rights reserved.

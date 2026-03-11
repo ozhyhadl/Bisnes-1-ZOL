@@ -7,7 +7,7 @@ const UpsellOfferSection = () => {
   const [added, setAdded] = useState(false);
 
   return (
-    <section className="py-10 px-4">
+    <section className="py-10 px-4" aria-label="Upsell offer">
       <ScrollReveal>
         <div className="max-w-2xl mx-auto">
           <div
@@ -16,7 +16,10 @@ const UpsellOfferSection = () => {
             {/* Thumbnail */}
             <img
               src={n8nImage}
-              alt="N8N Workflows preview"
+              alt="1,900+ N8N automation workflow templates preview"
+              loading="lazy"
+              width={96}
+              height={96}
               className="w-full sm:w-24 sm:h-24 h-40 rounded-lg object-cover shrink-0"
             />
 

@@ -14,7 +14,7 @@ const pricingItems = [
 
 const PricingSection = () => {
   return (
-    <section id="pricing" className="py-16 px-4 bg-card">
+    <section id="pricing" className="py-16 px-4 bg-card" aria-label="Pricing">
       <ScrollReveal>
         <TerminalWindow prompt="claude@skills ~ % cat pricing.conf">
           <h2 className="text-2xl md:text-4xl font-bold text-terminal-foreground mb-8">
@@ -51,13 +51,14 @@ const PricingSection = () => {
               className="text-center"
             >
               <div className="text-4xl md:text-5xl font-bold text-primary mb-2">$15</div>
-              <p className="text-xs text-terminal-foreground/50 mb-6">One-time payment • Lifetime access</p>
+              <p className="text-xs text-terminal-foreground/50 mb-6">One-time payment · Lifetime access · 7-day money-back guarantee</p>
               <a
                 href="#pricing"
                 className="inline-block bg-primary text-primary-foreground px-10 py-4 text-sm uppercase tracking-widest font-semibold rounded-lg hover:opacity-90 transition-opacity"
               >
                 Get Instant Access — $15
               </a>
+              <p className="text-[10px] text-terminal-foreground/40 mt-4">Secure checkout · Instant delivery to your email</p>
             </motion.div>
           </div>
         </TerminalWindow>

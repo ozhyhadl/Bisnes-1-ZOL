@@ -6,15 +6,15 @@ import ScrollReveal from "./ScrollReveal";
 const users = [
   { icon: "🚀", title: "Solopreneurs", desc: "You're the CEO, marketer, copywriter, and accountant. These skills handle every department so you can focus on growth." },
   { icon: "💻", title: "Freelancers & Consultants", desc: "Proposals, contracts, case studies, invoices — the admin side of client work, done in minutes instead of hours." },
-  { icon: "🏭", title: "Agency Owners", desc: "SOPs, onboarding systems, client dashboards, and reporting — systematize your agency without hiring an ops manager." },
+  { icon: "�", title: "Agency Owners", desc: "SOPs, onboarding systems, client dashboards, and reporting — systematize your agency without hiring an ops manager." },
   { icon: "💡", title: "Creators & Course Builders", desc: "Blog posts, video scripts, course outlines, email sequences — produce more content with less effort." },
   { icon: "🛒", title: "E-commerce Sellers", desc: "Product descriptions, ad copy, checkout optimization, shipping policies — everything your store needs to convert." },
-  { icon: "🚀", title: "Early-Stage Founders", desc: "Business plans, pitch decks, market research, financial forecasts — get investor-ready without a full team." },
+  { icon: "🎯", title: "Early-Stage Founders", desc: "Business plans, pitch decks, market research, financial forecasts — get investor-ready without a full team." },
 ];
 
 const TargetUsersSection = () => {
   return (
-    <section className="py-16 px-4">
+    <section className="py-16 px-4" aria-label="Who this is for">
       <ScrollReveal>
         <TerminalWindow prompt="claude@skills ~ % cat target-users.md">
           <h2 className="text-2xl md:text-4xl font-bold text-terminal-foreground mb-4">

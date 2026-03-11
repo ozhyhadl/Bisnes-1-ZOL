@@ -14,3 +14,5 @@ User-agent: *
 Allow: /
 
 Sitemap: https://aicldbase.com/sitemap.xml
+
+Sitemap: https://aicldbase.com/sitemap.xml

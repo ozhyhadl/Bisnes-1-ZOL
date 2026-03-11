@@ -20,11 +20,11 @@ const faqs = [
 
 const FAQSection = () => {
   return (
-    <section className="py-16 px-4">
+    <section className="py-16 px-4" aria-label="FAQ">
       <ScrollReveal>
         <TerminalWindow prompt="claude@skills ~ % man claude-skills">
           <h2 className="text-2xl md:text-4xl font-bold text-terminal-foreground mb-8">
-            Got Questions?
+            Common Questions, Straight Answers.
           </h2>
           <Accordion type="single" collapsible className="w-full">
             {faqs.map((faq, i) => (

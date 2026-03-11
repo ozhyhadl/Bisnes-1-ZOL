@@ -4,14 +4,14 @@ import CTAButton from "./CTAButton";
 import ScrollReveal from "./ScrollReveal";
 
 const steps = [
-  { num: "1", title: "Download", desc: "Grab the skill files and drop them into your skills folder. One-click setup guide included." },
-  { num: "2", title: "Ask Claude", desc: "Just describe what you need. Claude automatically detects the right skill and walks you through it. Or type /skill-name in Claude Code." },
-  { num: "3", title: "Done", desc: "Get polished, ready-to-use output. No prompt engineering required." },
+  { num: "1", title: "Download", desc: "Get the skill files and drop them into your Claude skills folder. Step-by-step setup guide included." },
+  { num: "2", title: "Tell Claude what you need", desc: "Claude detects the right skill automatically and walks you through it. Or type /skill-name in Claude Code." },
+  { num: "3", title: "Get polished output", desc: "Receive ready-to-use results — blog posts, contracts, ad copy, financial models — formatted and professional." },
 ];
 
 const StepsSection = () => {
   return (
-    <section className="py-16 px-4 bg-card">
+    <section className="py-16 px-4 bg-card" aria-label="How it works">
       <ScrollReveal>
         <TerminalWindow prompt="claude@skills ~ % ./install.sh">
           <h2 className="text-2xl md:text-4xl font-bold text-terminal-foreground mb-4">

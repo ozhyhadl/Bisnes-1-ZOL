@@ -24,11 +24,11 @@ const categories = [
 
 const SkillsListSection = () => {
   return (
-    <section className="py-16 px-4 bg-card">
+    <section className="py-16 px-4 bg-card" aria-label="Skills catalog">
       <ScrollReveal>
         <TerminalWindow prompt="claude@skills ~ % ls -la skills/">
           <h2 className="text-2xl md:text-4xl font-bold text-terminal-foreground mb-3">
-            500+ Skills. Every Part of Your Business.
+            Every Department. One Bundle.
           </h2>
           <p className="text-sm text-terminal-foreground/70 mb-8">
             Each skill asks the right questions and delivers polished, ready-to-use output. Here's a taste.

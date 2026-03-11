@@ -4,13 +4,13 @@ import ScrollReveal from "./ScrollReveal";
 
 const FinalCTASection = () => {
   return (
-    <section className="py-20 px-4 bg-card text-center">
+    <section className="py-20 px-4 bg-card text-center" aria-label="Final call to action">
       <ScrollReveal>
         <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-3">
           claude@skills ~ % sudo get-bundle –now
         </p>
         <p className="text-sm text-primary font-semibold mb-6">
-          7-Day Try Everything Guarantee
+          7-Day Money-Back Guarantee — Zero Risk
         </p>
         <motion.h2
           initial={{ opacity: 0, y: 30 }}
@@ -19,10 +19,11 @@ const FinalCTASection = () => {
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="text-2xl md:text-5xl font-bold mb-6"
         >
-          Run Your Business at<br />Command Speed.
+          You’re One Download Away From<br />
+          <span className="text-primary">Running Your Business Faster.</span>
         </motion.h2>
         <p className="max-w-xl mx-auto text-sm text-muted-foreground mb-10 leading-relaxed">
-          500+ skills. Every department covered. One command away. If they don't save you hours in the first week, get your money back.
+          500+ skills. Every department covered. If they don’t save you hours in the first week, get a full refund — no questions asked.
         </p>
         <CTAButton>Start Saving Hours Today — $15</CTAButton>
       </ScrollReveal>

@@ -11,11 +11,11 @@ const items = [
 
 const WhatAreSkillsSection = () => {
   return (
-    <section className="py-16 px-4">
+    <section className="py-16 px-4" aria-label="What are Claude Skills">
       <ScrollReveal>
         <TerminalWindow prompt="claude@skills ~ % cat basics.md">
           <h2 className="text-2xl md:text-4xl font-bold text-terminal-foreground mb-6">
-            What Are Claude Skills?
+            Not Prompts. Not Templates. Structured Skill Systems.
           </h2>
           <p className="text-sm text-terminal-foreground/70 mb-6 leading-relaxed">
             Skills are structured instruction files that extend what Claude can do. Each skill contains expert-level frameworks, step-by-step processes, and output templates — so Claude delivers polished, professional results instead of generic AI output.
