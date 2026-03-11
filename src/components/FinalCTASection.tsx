@@ -11,9 +11,8 @@ const FinalCTASection = () => {
         <p className="text-sm text-primary font-semibold mb-6">
           7-Day Money-Back Guarantee — Zero Risk
         </p>
-        <h2 className="text-2xl md:text-5xl font-bold mb-6">
-          One Bundle. Every Department.<br />
-          <span className="text-primary">Deploy and Ship.</span>
+        <h2 className="text-2xl md:text-5xl font-bold mb-6 max-w-4xl mx-auto">
+          One Bundle. Every Department. Deploy and Ship.
         </h2>
         <p className="max-w-xl mx-auto text-sm text-muted-foreground mb-10 leading-relaxed">
           500+ skills that handle the work you keep putting off. Blog posts, contracts, ad campaigns, financial models — finished, not drafted. $15 once, yours forever.

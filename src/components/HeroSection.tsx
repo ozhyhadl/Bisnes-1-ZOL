@@ -6,9 +6,8 @@ const HeroSection = () => {
       <div className="inline-block border border-border rounded-full px-5 py-1.5 mb-8">
         <span className="text-sm text-muted-foreground">⚡ AI Cloud Base</span>
       </div>
-      <h1 className="text-3xl md:text-6xl font-bold leading-tight mb-6">
-        Stop Prompting. Start<br />
-        <span className="text-primary">Running Your Business.</span>
+      <h1 className="text-3xl md:text-6xl font-bold leading-tight mb-6 max-w-3xl mx-auto">
+        Stop Prompting. Start Running Your Business.
       </h1>
       <p className="max-w-xl mx-auto text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
         500+ ready-made Claude skill files that turn a blank chat into a finished blog post, a signed contract, or a 90-day marketing plan — before your coffee gets cold.

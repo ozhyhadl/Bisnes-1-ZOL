@@ -1,6 +1,6 @@
 import { useState } from "react";
 import ScrollReveal from "./ScrollReveal";
-import n8nImage from "@/assets/n8n-workflows.jpg";
+import n8nImage from "@/assets/n8n-workflows.webp";
 
 const UpsellOfferSection = () => {
   const [added, setAdded] = useState(false);
