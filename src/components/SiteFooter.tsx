@@ -7,7 +7,7 @@ const SiteFooter = () => {
     <footer className="bg-terminal text-terminal-foreground/60 py-10 px-4">
       <div className="max-w-3xl mx-auto text-center space-y-4">
         <div className="flex items-center justify-center gap-2 text-terminal-foreground font-bold text-sm">
-          <img src="/logo.png" alt="" width={28} height={17} className="h-5 w-auto" />
+          <span className="text-primary text-lg">⚡</span>
           <span>AI Cloud Base</span>
         </div>
         <p className="text-xs leading-relaxed max-w-md mx-auto">
