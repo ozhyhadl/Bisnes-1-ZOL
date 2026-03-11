@@ -1,0 +1,109 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 40 20% 92%;
+    --foreground: 30 10% 20%;
+
+    --card: 40 15% 88%;
+    --card-foreground: 30 10% 20%;
+
+    --popover: 40 20% 92%;
+    --popover-foreground: 30 10% 20%;
+
+    --primary: 16 55% 55%;
+    --primary-foreground: 40 20% 95%;
+
+    --secondary: 40 15% 85%;
+    --secondary-foreground: 30 10% 25%;
+
+    --muted: 40 10% 80%;
+    --muted-foreground: 30 8% 45%;
+
+    --accent: 16 55% 55%;
+    --accent-foreground: 40 20% 95%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 35 15% 82%;
+    --input: 35 15% 82%;
+    --ring: 16 55% 55%;
+
+    --radius: 0.5rem;
+
+    --terminal-bg: 30 10% 20%;
+    --terminal-foreground: 40 15% 85%;
+    --terminal-green: 140 60% 50%;
+    --terminal-yellow: 45 90% 55%;
+    --terminal-red: 0 70% 55%;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-mono;
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+@layer utilities {
+  .terminal-window {
+    background: hsl(var(--terminal-bg));
+    color: hsl(var(--terminal-foreground));
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .terminal-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: hsl(var(--terminal-bg));
+    border-bottom: 1px solid hsl(30 10% 28%);
+  }
+
+  .terminal-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+  }
+
+  .terminal-dot-red {
+    background: hsl(var(--terminal-red));
+  }
+
+  .terminal-dot-yellow {
+    background: hsl(var(--terminal-yellow));
+  }
+
+  .terminal-dot-green {
+    background: hsl(var(--terminal-green));
+  }
+
+  .terminal-body {
+    padding: 16px;
+  }
+
+  .terminal-prompt {
+    color: hsl(var(--terminal-green));
+  }
+}
