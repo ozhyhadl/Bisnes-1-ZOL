@@ -1,73 +1,101 @@
-# Welcome to your Lovable project
+# Bisnes-1-ZOL — AI Mini IT-Studio
 
-## Project info
+An AI-driven mini IT-studio built inside VS Code + GitHub Copilot. Combines website development, SEO optimization, QA automation, performance auditing, and delivery workflow into a single orchestrated system.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Architecture Layers
 
-## How can I edit this code?
+| Layer | Purpose | Source |
+|-------|---------|--------|
+| **Copilot Native** | Agent definitions, collaboration rules, repository instructions | `.github/agents/`, `AGENTS.md` |
+| **GSD-Inspired Workflow** | Spec-driven execution: discuss → plan → execute → verify | Adapted from [GSD](https://github.com/gsd-build/get-shit-done) |
+| **Marketing & SEO Skills** | SEO audit, CRO review, copywriting, content strategy | Adapted from [Marketing Skills](https://github.com/coreyhaines31/marketingskills) |
+| **Browser Automation** | Page QA, form validation, metadata checks, smoke testing | [Playwright MCP](https://github.com/microsoft/playwright-mcp) |
+| **CI Quality Gates** | Lighthouse assertions, performance/accessibility/SEO thresholds | [Lighthouse CI](https://github.com/GoogleChrome/lighthouse-ci) |
+| **Technical SEO Crawler** | Broken links, internal linking audit, technical site inspection | [SiteOne Crawler](https://github.com/janreges/siteone-crawler) |
 
-There are several ways of editing your application.
+## What Is Native vs External
 
-**Use Lovable**
+### Native (works inside Copilot/VS Code directly)
+- `.github/agents/*.md` — agent role definitions read by Copilot
+- `AGENTS.md` — orchestration model and collaboration rules
+- `docs/` — all policies, checklists, workflows as operational docs
+- GSD workflow concepts (adapted as doc-driven execution patterns)
+- Marketing Skills SEO/CRO patterns (adapted as agent instructions)
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+### External (requires installation/runtime setup)
+- **Playwright MCP** — install as MCP server: `npx @playwright/mcp@latest`
+- **Lighthouse CI** — install CLI: `npm install -g @lhci/cli@0.15.x`
+- **SiteOne Crawler** — download from [releases](https://github.com/janreges/siteone-crawler/releases)
 
-Changes made via Lovable will be committed automatically to this repo.
+## Quick Start
 
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
+### Local Development
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### Build & Preview
+```sh
+npm run build
+npm run preview
+```
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Run Tests
+```sh
+npm test
+```
 
-**Use GitHub Codespaces**
+### Setup External Tools (Optional)
+```sh
+# Playwright MCP — browser automation via VS Code MCP
+# Add to VS Code MCP settings:
+# { "mcpServers": { "playwright": { "command": "npx", "args": ["@playwright/mcp@latest"] } } }
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+# Lighthouse CI — quality gates
+npm install -g @lhci/cli@0.15.x
+lhci autorun
 
-## What technologies are used for this project?
+# SiteOne Crawler — technical SEO audit
+# Download from https://github.com/janreges/siteone-crawler/releases
+./crawler --url=http://localhost:8080/ --output=text
+```
 
-This project is built with:
+## Tech Stack
+- Vite + React + TypeScript
+- Tailwind CSS + shadcn/ui
+- Vercel (deployment)
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Project Structure
+```
+.github/agents/     — Copilot agent definitions
+docs/
+  architecture/     — System architecture docs
+  integrations/     — Tool integration guides
+  workflows/        — Execution workflow runbooks
+  seo/              — SEO policies and checklists
+  qa/               — QA checklists and audit flows
+  operations/       — Operational procedures
+  research/         — Research and decision logs
+templates/          — Reusable templates for reports, workflows, SEO
+AGENTS.md           — Orchestration model and collaboration rules
+src/                — Application source code
+```
 
-## How can I deploy this project?
+## How to Use This System in VS Code + Copilot
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+1. **Read `AGENTS.md`** to understand the orchestration model
+2. **Check `.github/agents/`** for specialized agent roles you can invoke
+3. **Follow `docs/workflows/`** for step-by-step execution guides
+4. **Use `docs/seo/`** policies when creating or reviewing pages
+5. **Run QA checklists from `docs/qa/`** before every release
+6. **Use `templates/`** for standardized reports and reviews
 
-## Can I connect a custom domain to my Lovable project?
+## Extending the System
+- Add new agents in `.github/agents/`
+- Add new SEO policies in `docs/seo/`
+- Add new workflow runbooks in `docs/workflows/`
+- Add integration docs for new tools in `docs/integrations/`
 
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+## Deployment
+Deployed on Vercel as a static Vite SPA. Configuration in `vercel.json`.
