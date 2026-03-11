@@ -5,7 +5,7 @@ const SiteHeader = () => {
     <header className="sticky top-0 z-50 bg-background/90 backdrop-blur-sm border-b border-border">
       <div className="max-w-5xl mx-auto flex items-center justify-between px-4 py-3">
         <a href="/" className="flex items-center gap-2 font-bold text-sm tracking-tight" aria-label="AI Cloud Base — Home">
-          <span className="text-primary text-lg">⚡</span>
+          <img src="/logo.png" alt="" width={28} height={17} className="h-5 w-auto" />
           <span>AI Cloud Base</span>
         </a>
         <a
