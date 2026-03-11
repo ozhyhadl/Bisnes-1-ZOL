@@ -24,7 +24,7 @@ const FinalCTASection = () => {
         <p className="max-w-xl mx-auto text-sm text-muted-foreground mb-10 leading-relaxed">
           500+ skills. Every department covered. One command away. If they don't save you hours in the first week, get your money back.
         </p>
-        <CTAButton href="#">Get the Bundle — $15</CTAButton>
+        <CTAButton>Start Saving Hours Today — $15</CTAButton>
       </ScrollReveal>
     </section>
   );

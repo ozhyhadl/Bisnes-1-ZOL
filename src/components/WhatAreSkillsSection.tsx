@@ -38,7 +38,7 @@ const WhatAreSkillsSection = () => {
       </ScrollReveal>
       <ScrollReveal delay={0.2}>
         <div className="text-center mt-10">
-          <CTAButton>Get the Bundle — $15</CTAButton>
+          <CTAButton>Try Skills Risk-Free — $15</CTAButton>
         </div>
       </ScrollReveal>
     </section>
