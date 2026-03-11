@@ -1,8 +1,15 @@
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { SUPPORT_EMAIL } from "@/config/links";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 const PrivacyPolicy = () => {
+  usePageMeta({
+    title: "Privacy Policy — AI Cloud Base",
+    description: "How AI Cloud Base collects, uses, and protects your personal information. Read our full privacy policy.",
+    canonical: "https://aicldbase.com/privacy",
+  });
+
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />

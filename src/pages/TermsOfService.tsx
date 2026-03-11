@@ -1,8 +1,15 @@
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { SUPPORT_EMAIL } from "@/config/links";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 const TermsOfService = () => {
+  usePageMeta({
+    title: "Terms of Service — AI Cloud Base",
+    description: "Terms and conditions for purchasing and using AI Cloud Base digital products. Read our full terms of service.",
+    canonical: "https://aicldbase.com/terms",
+  });
+
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />

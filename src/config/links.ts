@@ -12,13 +12,13 @@
  * Main product checkout URL.
  * TODO: Replace with real payment link before launch.
  */
-export const CHECKOUT_URL = "#pricing";
+export const CHECKOUT_URL = "/#pricing";
 
 /**
  * Upsell product (N8N Workflows) checkout URL.
  * TODO: Replace with real payment link before launch.
  */
-export const UPSELL_CHECKOUT_URL = "#pricing";
+export const UPSELL_CHECKOUT_URL = "/#pricing";
 
 /**
  * Support email address.
