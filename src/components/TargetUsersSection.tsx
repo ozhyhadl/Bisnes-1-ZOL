@@ -3,12 +3,12 @@ import CTAButton from "./CTAButton";
 import ScrollReveal from "./ScrollReveal";
 
 const users = [
-  { icon: "🚀", title: "Solopreneurs", desc: "You're the CEO, marketer, copywriter, and accountant. These skills handle every department so you can focus on growth." },
-  { icon: "💻", title: "Freelancers & Consultants", desc: "Proposals, contracts, case studies, invoices — the admin side of client work, done in minutes instead of hours." },
-  { icon: "🏢", title: "Agency Owners", desc: "SOPs, onboarding systems, client dashboards, and reporting — systematize your agency without hiring an ops manager." },
-  { icon: "💡", title: "Creators & Course Builders", desc: "Blog posts, video scripts, course outlines, email sequences — produce more content with less effort." },
-  { icon: "🛒", title: "E-commerce Sellers", desc: "Product descriptions, ad copy, checkout optimization, shipping policies — everything your store needs to convert." },
-  { icon: "🎯", title: "Early-Stage Founders", desc: "Business plans, pitch decks, market research, financial forecasts — get investor-ready without a full team." },
+  { icon: "🚀", title: "Solopreneurs", desc: "Monday you write a blog post. Tuesday a contract. Wednesday ad copy. Every hat, every day — now each one takes minutes." },
+  { icon: "💻", title: "Freelancers & Consultants", desc: "Run /scope-of-work before a discovery call. Run /invoice after. The admin that used to eat your evenings fits between meetings." },
+  { icon: "🏢", title: "Agency Owners", desc: "Your new ops manager is a folder of skill files. SOPs, onboarding checklists, client reports — generated on demand, formatted on brand." },
+  { icon: "💡", title: "Creators & Course Builders", desc: "One skill turns a topic into a full course outline. Another writes your launch email sequence. A third builds the webinar script. Stack them." },
+  { icon: "🛒", title: "E-commerce Sellers", desc: "Product descriptions that sell, ad copy that converts, shipping policies that don't sound like a robot wrote them. All from one bundle." },
+  { icon: "🎯", title: "Early-Stage Founders", desc: "Pitch deck, financial model, market sizing — the stuff that takes a consultant two weeks. You'll have drafts before lunch." },
 ];
 
 const TargetUsersSection = () => {
@@ -20,7 +20,7 @@ const TargetUsersSection = () => {
             Built for People Who Run Things.
           </h2>
           <p className="text-sm text-terminal-foreground/70 mb-8">
-            If you wear multiple hats and want AI that actually keeps up, this bundle was made for you.
+            You don't have a content team, a legal department, or a CFO. Now you don't need one.
           </p>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
             {users.map((u) => (

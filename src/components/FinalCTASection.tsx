@@ -12,13 +12,13 @@ const FinalCTASection = () => {
           7-Day Money-Back Guarantee — Zero Risk
         </p>
         <h2 className="text-2xl md:text-5xl font-bold mb-6">
-          You’re One Download Away From<br />
-          <span className="text-primary">Running Your Business Faster.</span>
+          One Bundle. Every Department.<br />
+          <span className="text-primary">Deploy and Ship.</span>
         </h2>
         <p className="max-w-xl mx-auto text-sm text-muted-foreground mb-10 leading-relaxed">
-          500+ skills. Every department covered. If they don’t save you hours in the first week, get a full refund — no questions asked.
+          500+ skills that handle the work you keep putting off. Blog posts, contracts, ad campaigns, financial models — finished, not drafted. $15 once, yours forever.
         </p>
-        <CTAButton>Start Saving Hours Today — $15</CTAButton>
+        <CTAButton>Get Instant Access — $15</CTAButton>
       </ScrollReveal>
     </section>
   );

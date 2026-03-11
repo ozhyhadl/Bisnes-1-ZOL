@@ -5,7 +5,7 @@ import ScrollReveal from "./ScrollReveal";
 const steps = [
   { num: "1", title: "Download", desc: "Get the skill files and drop them into your Claude skills folder. Step-by-step setup guide included." },
   { num: "2", title: "Tell Claude what you need", desc: "Claude detects the right skill automatically and walks you through it. Or type /skill-name in Claude Code." },
-  { num: "3", title: "Get polished output", desc: "Receive ready-to-use results — blog posts, contracts, ad copy, financial models — formatted and professional." },
+  { num: "3", title: "Ship it", desc: "Get a finished deliverable — a blog post with meta tags, a contract with liability clauses, a forecast with assumptions documented. Copy, paste, done." },
 ];
 
 const StepsSection = () => {
@@ -17,7 +17,7 @@ const StepsSection = () => {
             Up and Running in 2 Minutes.
           </h2>
           <p className="text-sm text-terminal-foreground/70 mb-8 max-w-xl">
-            The Claude Skills Ultimate Bundle gives you 500+ pre-built skills that handle real business tasks — structured systems that produce polished, ready-to-use output every time.
+            Drop the skill files into Claude, ask for what you need, and get back a finished deliverable — not a rough draft you have to rewrite.
           </p>
           <div className="grid md:grid-cols-3 gap-6">
             {steps.map((s, i) => (

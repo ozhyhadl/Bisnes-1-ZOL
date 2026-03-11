@@ -3,7 +3,7 @@ import CTAButton from "./CTAButton";
 import ScrollReveal from "./ScrollReveal";
 
 const items = [
-  { title: "Not prompts.", desc: "A prompt is a one-off question. A skill is a structured system that guides Claude through a multi-step process — asking the right questions, applying proven frameworks, and formatting output professionally." },
+  { title: "Not prompts.", desc: "A prompt gives you one answer. A skill runs a multi-step workflow: it interviews you for context, picks the right strategy, writes the first draft, and refines it — all in one session." },
   { title: "Works everywhere Claude does.", desc: "Skills work across Claude.ai, Claude Code, and Cowork. On the web, Claude uses them automatically when they're relevant. In Claude Code, you can also invoke them directly with a /slash-command." },
   { title: "Built on an open standard.", desc: "Claude Skills follow the Agent Skills open standard, supported across multiple AI tools. Each skill is a simple folder with a SKILL.md file — no proprietary lock-in, no complicated setup." },
 ];
@@ -17,7 +17,7 @@ const WhatAreSkillsSection = () => {
             Not Prompts. Not Templates. Structured Skill Systems.
           </h2>
           <p className="text-sm text-terminal-foreground/70 mb-6 leading-relaxed">
-            Skills are structured instruction files that extend what Claude can do. Each skill contains expert-level frameworks, step-by-step processes, and output templates — so Claude delivers polished, professional results instead of generic AI output.
+            A skill is a SKILL.md file you drop into Claude. It tells Claude exactly how to do a specific job — which questions to ask, which framework to apply (PAS, AIDA, Jobs-to-Be-Done…), and how to format the final deliverable. The output reads like it came from a specialist, not a chatbot.
           </p>
           <div className="space-y-5">
             {items.map((item) => (

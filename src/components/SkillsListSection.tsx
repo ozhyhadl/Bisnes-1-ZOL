@@ -30,7 +30,7 @@ const SkillsListSection = () => {
             Every Department. One Bundle.
           </h2>
           <p className="text-sm text-terminal-foreground/70 mb-8">
-            Each skill asks the right questions and delivers polished, ready-to-use output. Here's a taste.
+            16 categories. 500+ skills. Pick a folder, run a skill, get a deliverable. Here's the directory.
           </p>
           <div className="space-y-2 overflow-x-auto">
             {categories.map((cat, i) => (
