@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import TerminalWindow from "./TerminalWindow";
 import ScrollReveal from "./ScrollReveal";
+import { CHECKOUT_URL } from "@/config/links";
 
 const pricingItems = [
   { name: "Content, Copy & Social Media (75+)", price: "$97" },
@@ -53,7 +54,7 @@ const PricingSection = () => {
               <div className="text-4xl md:text-5xl font-bold text-primary mb-2">$15</div>
               <p className="text-xs text-terminal-foreground/50 mb-6">One-time payment · Lifetime access · 7-day money-back guarantee</p>
               <a
-                href="#pricing"
+                href={CHECKOUT_URL}
                 className="inline-block bg-primary text-primary-foreground px-10 py-4 text-sm uppercase tracking-widest font-semibold rounded-lg hover:opacity-90 transition-opacity"
               >
                 Get Instant Access — $15

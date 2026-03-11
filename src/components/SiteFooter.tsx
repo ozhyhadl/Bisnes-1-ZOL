@@ -1,3 +1,5 @@
+import { SUPPORT_EMAIL } from "@/config/links";
+
 const SiteFooter = () => {
   const currentYear = new Date().getFullYear();
 
@@ -12,7 +14,7 @@ const SiteFooter = () => {
           Pre-built Claude AI skills for solopreneurs, freelancers, and small teams. Automate every department of your business.
         </p>
         <div className="flex items-center justify-center gap-6 text-xs">
-          <a href="mailto:support@aicldbase.com" className="hover:text-terminal-foreground transition-colors">
+          <a href={`mailto:${SUPPORT_EMAIL}`} className="hover:text-terminal-foreground transition-colors">
             Contact
           </a>
           <span className="text-terminal-foreground/20">|</span>
