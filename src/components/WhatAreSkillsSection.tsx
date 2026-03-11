@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import TerminalWindow from "./TerminalWindow";
 import CTAButton from "./CTAButton";
 import ScrollReveal from "./ScrollReveal";
@@ -21,17 +20,11 @@ const WhatAreSkillsSection = () => {
             Skills are structured instruction files that extend what Claude can do. Each skill contains expert-level frameworks, step-by-step processes, and output templates — so Claude delivers polished, professional results instead of generic AI output.
           </p>
           <div className="space-y-5">
-            {items.map((item, i) => (
-              <motion.div
-                key={item.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: i * 0.15 }}
-              >
+            {items.map((item) => (
+              <div key={item.title}>
                 <h3 className="text-terminal-foreground font-semibold text-sm mb-1">{item.title}</h3>
                 <p className="text-xs text-terminal-foreground/60 leading-relaxed">{item.desc}</p>
-              </motion.div>
+              </div>
             ))}
           </div>
         </TerminalWindow>

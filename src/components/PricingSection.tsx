@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import TerminalWindow from "./TerminalWindow";
 import ScrollReveal from "./ScrollReveal";
 import { CHECKOUT_URL } from "@/config/links";
@@ -25,17 +24,13 @@ const PricingSection = () => {
             <h3 className="text-terminal-foreground font-bold text-lg mb-6">Claude Skills Ultimate Bundle</h3>
             <div className="space-y-3 mb-8">
               {pricingItems.map((item, i) => (
-                <motion.div
+                <div
                   key={item.name}
-                  initial={{ opacity: 0, x: -15 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.3, delay: i * 0.08 }}
                   className="flex justify-between items-start gap-2 text-xs md:text-sm"
                 >
                   <span className="text-terminal-foreground/70 flex-1">{item.name}</span>
                   <span className="text-terminal-foreground/40 line-through shrink-0">{item.price}</span>
-                </motion.div>
+                </div>
               ))}
             </div>
             <div className="border-t border-terminal-foreground/10 pt-5 mb-6">
@@ -44,13 +39,7 @@ const PricingSection = () => {
                 <span className="text-terminal-foreground/40 line-through">$707</span>
               </div>
             </div>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              className="text-center"
-            >
+            <div className="text-center">
               <div className="text-4xl md:text-5xl font-bold text-primary mb-2">$15</div>
               <p className="text-xs text-terminal-foreground/50 mb-6">One-time payment · Lifetime access · 7-day money-back guarantee</p>
               <a
@@ -60,7 +49,7 @@ const PricingSection = () => {
                 Get Instant Access — $15
               </a>
               <p className="text-[10px] text-terminal-foreground/40 mt-4">Secure checkout · Instant delivery to your email</p>
-            </motion.div>
+            </div>
           </div>
         </TerminalWindow>
       </ScrollReveal>

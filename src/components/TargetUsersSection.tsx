@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import TerminalWindow from "./TerminalWindow";
 import CTAButton from "./CTAButton";
 import ScrollReveal from "./ScrollReveal";
@@ -24,19 +23,15 @@ const TargetUsersSection = () => {
             If you wear multiple hats and want AI that actually keeps up, this bundle was made for you.
           </p>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {users.map((u, i) => (
-              <motion.div
+            {users.map((u) => (
+              <div
                 key={u.title}
-                initial={{ opacity: 0, y: 25 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: i * 0.1 }}
                 className="border border-terminal-foreground/10 rounded-lg p-5"
               >
                 <div className="text-2xl mb-3">{u.icon}</div>
                 <h3 className="text-terminal-foreground font-semibold mb-2 text-sm">{u.title}</h3>
                 <p className="text-xs text-terminal-foreground/60 leading-relaxed">{u.desc}</p>
-              </motion.div>
+              </div>
             ))}
           </div>
         </TerminalWindow>

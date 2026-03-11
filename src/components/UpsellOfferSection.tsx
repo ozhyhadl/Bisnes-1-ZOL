@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
 import ScrollReveal from "./ScrollReveal";
 import n8nImage from "@/assets/n8n-workflows.jpg";
 

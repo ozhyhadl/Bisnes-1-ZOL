@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import TerminalWindow from "./TerminalWindow";
 import CTAButton from "./CTAButton";
 import ScrollReveal from "./ScrollReveal";
@@ -22,12 +21,8 @@ const StepsSection = () => {
           </p>
           <div className="grid md:grid-cols-3 gap-6">
             {steps.map((s, i) => (
-              <motion.div
+              <div
                 key={s.num}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.15 }}
                 className="bg-terminal/80 border border-terminal-foreground/10 rounded-lg p-5"
               >
                 <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-bold mb-3">
@@ -35,7 +30,7 @@ const StepsSection = () => {
                 </div>
                 <h3 className="text-terminal-foreground font-semibold mb-2">{s.title}</h3>
                 <p className="text-xs text-terminal-foreground/60 leading-relaxed">{s.desc}</p>
-              </motion.div>
+              </div>
             ))}
           </div>
         </TerminalWindow>

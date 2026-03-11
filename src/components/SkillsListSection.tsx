@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import TerminalWindow from "./TerminalWindow";
 import CTAButton from "./CTAButton";
 import ScrollReveal from "./ScrollReveal";
@@ -35,16 +34,12 @@ const SkillsListSection = () => {
           </p>
           <div className="space-y-2 overflow-x-auto">
             {categories.map((cat, i) => (
-              <motion.p
+              <p
                 key={i}
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.3, delay: i * 0.05 }}
                 className="text-[10px] md:text-xs text-terminal-green leading-relaxed whitespace-nowrap md:whitespace-normal"
               >
                 {cat}
-              </motion.p>
+              </p>
             ))}
           </div>
         </TerminalWindow>
