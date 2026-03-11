@@ -74,7 +74,7 @@ This repository operates as an **AI-driven mini IT-studio** — a single orchest
 
 ## QA Standards
 - Browser smoke test before every release
-- Lighthouse scores: Performance ≥ 80, Accessibility ≥ 90, SEO ≥ 90, Best Practices ≥ 90
+- Lighthouse scores: Performance ≥ 90, Accessibility ≥ 90, SEO ≥ 90, Best Practices ≥ 90
 - No broken links (verified by crawler)
 - All forms validated for functionality
 - Meta tags verified via browser automation

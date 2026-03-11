@@ -1,5 +1,7 @@
 # Audit-to-Fix Flow
 
+> **Related**: For the full multi-agent orchestrated audit workflow, see `docs/workflows/audit-to-fix-workflow.md`. This document focuses on the triage and prioritization process for individual findings.
+
 ## Purpose
 Define the process for taking audit findings (from Lighthouse, SiteOne, Playwright, or manual review) and converting them into actionable fixes.
 

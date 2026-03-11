@@ -1,5 +1,7 @@
 # Audit-to-Fix Workflow
 
+> **Related**: For the individual finding triage and prioritization process, see `docs/qa/audit-to-fix-flow.md`. This document covers the full multi-agent orchestrated audit cycle.
+
 ## Purpose
 End-to-end workflow for running quality audits and converting findings into completed fixes. This workflow coordinates multiple agents and tools.
 

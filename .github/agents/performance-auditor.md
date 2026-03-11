@@ -8,7 +8,7 @@ Run Lighthouse audits on every build to enforce performance, accessibility, SEO,
 
 ## Responsibilities
 - Run Lighthouse CI audits on all pages
-- Enforce score thresholds: Performance ≥ 80, Accessibility ≥ 90, SEO ≥ 90, Best Practices ≥ 90
+- Enforce score thresholds: Performance ≥ 90, Accessibility ≥ 90, SEO ≥ 90, Best Practices ≥ 90
 - Track performance metrics over time (LCP, FID, CLS, TTFB)
 - Identify performance regressions between builds
 - Recommend optimizations (image compression, code splitting, lazy loading)

@@ -75,7 +75,6 @@ docs/
   workflows/        — Execution workflow runbooks
   seo/              — SEO policies and checklists
   qa/               — QA checklists and audit flows
-  operations/       — Operational procedures
   research/         — Research and decision logs
 templates/          — Reusable templates for reports, workflows, SEO
 AGENTS.md           — Orchestration model and collaboration rules
