@@ -23,4 +23,4 @@ export const UPSELL_CHECKOUT_URL = "/#pricing";
 /**
  * Support email address.
  */
-export const SUPPORT_EMAIL = "support@aicldbase.com";
+export const SUPPORT_EMAIL = "aicloudbase.support@gmail.com";
