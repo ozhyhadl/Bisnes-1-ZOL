@@ -23,7 +23,7 @@ const HeroSection = () => {
         <CTAButton>Get Instant Access — $15</CTAButton>
       </div>
       <p className="mt-5 text-xs text-muted-foreground">
-        One-time purchase · Instant download · 7-day money-back guarantee
+        One-time purchase · Instant download · Lifetime access
       </p>
     </section>
   );

@@ -42,7 +42,7 @@ const PrivacyPolicy = () => {
             <ul className="list-disc pl-5 space-y-1">
               <li>To process and deliver your digital product purchase.</li>
               <li>To send purchase confirmations and download links.</li>
-              <li>To provide customer support and process refund requests.</li>
+              <li>To provide customer support and resolve delivery issues.</li>
               <li>To improve our website and product offerings.</li>
             </ul>
             <p className="mt-3">We do not sell, rent, or share your personal information with third parties for marketing purposes.</p>

@@ -9,7 +9,7 @@ const FinalCTASection = () => {
           claude@skills ~ % sudo get-bundle –now
         </p>
         <p className="text-sm text-primary font-semibold mb-6">
-          7-Day Money-Back Guarantee — Zero Risk
+          One-Time Purchase — Instant Access — Yours Forever
         </p>
         <h2 className="text-2xl md:text-5xl font-bold mb-6 max-w-4xl mx-auto">
           One Bundle. Every Department. Deploy and Ship.

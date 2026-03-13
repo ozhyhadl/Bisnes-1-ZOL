@@ -41,7 +41,7 @@ const PricingSection = () => {
             </div>
             <div className="text-center">
               <div className="text-4xl md:text-5xl font-bold text-primary mb-2">$15</div>
-              <p className="text-xs text-terminal-foreground/50 mb-6">One-time payment · Lifetime access · 7-day money-back guarantee</p>
+              <p className="text-xs text-terminal-foreground/50 mb-6">One-time payment · Lifetime access · Instant digital delivery</p>
               <a
                 href={CHECKOUT_URL}
                 className="inline-block bg-primary text-primary-foreground px-10 py-4 text-sm uppercase tracking-widest font-semibold rounded-lg hover:opacity-90 transition-opacity"

@@ -10,7 +10,7 @@ interface PageMeta {
 const DEFAULTS: PageMeta = {
   title: "500+ Claude AI Skills Bundle — Automate Your Business",
   description:
-    "Get 500+ pre-built Claude AI skills that handle content, marketing, finance, legal, and operations. One-time $15 purchase. Instant download. 7-day guarantee.",
+    "Get 500+ pre-built Claude AI skills that handle content, marketing, finance, legal, and operations. One-time $15 purchase. Instant digital delivery.",
   canonical: "https://aicldbase.com/",
   image: "https://aicldbase.com/og-image.png",
 };

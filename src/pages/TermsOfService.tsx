@@ -52,11 +52,11 @@ const TermsOfService = () => {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-foreground mb-3">5. Refund Policy</h2>
+            <h2 className="text-lg font-semibold text-foreground mb-3">5. Sales Policy</h2>
             <p>
-              We offer a <strong className="text-foreground">7-day money-back guarantee</strong> on all purchases. If you are not satisfied with your purchase for any reason, contact us within 7 days of purchase at{" "}
+              All sales of digital products are <strong className="text-foreground">final</strong>. Due to the instant-access nature of digital downloads, we do not offer refunds after purchase. If you experience a technical issue with delivery, contact us at{" "}
               <a href={`mailto:${SUPPORT_EMAIL}`} className="text-primary hover:underline">{SUPPORT_EMAIL}</a>{" "}
-              and we will issue a full refund. No questions asked.
+              and we will ensure you receive your files.
             </p>
           </section>
 

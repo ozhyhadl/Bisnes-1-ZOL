@@ -18,7 +18,7 @@ const SiteFooter = () => {
             Contact
           </a>
           <span className="text-terminal-foreground/20">|</span>
-          <span>7-Day Money-Back Guarantee</span>
+          <span>Instant Digital Delivery</span>
           <span className="text-terminal-foreground/20">|</span>
           <a href="/privacy" className="hover:text-terminal-foreground transition-colors">
             Privacy
