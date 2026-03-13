@@ -5,7 +5,18 @@ const NotFound = () => {
   const location = useLocation();
 
   useEffect(() => {
-    // 404 logged silently in production
+    document.title = "Page Not Found — AI Cloud Base";
+    let meta = document.querySelector<HTMLMetaElement>('meta[name="robots"]');
+    if (!meta) {
+      meta = document.createElement("meta");
+      meta.name = "robots";
+      document.head.appendChild(meta);
+    }
+    meta.content = "noindex";
+    return () => {
+      document.title = "500+ Claude AI Skills Bundle — Automate Your Business";
+      if (meta) meta.content = "index, follow";
+    };
   }, [location.pathname]);
 
   return (
