@@ -28,7 +28,7 @@ const SiteFooter = () => {
             Terms
           </a>
         </div>
-        <p className="text-[10px] text-terminal-foreground/40 pt-2">
+        <p className="text-[10px] text-terminal-foreground/70 pt-2">
           &copy; {currentYear} AI Cloud Base. All rights reserved.
         </p>
       </div>
