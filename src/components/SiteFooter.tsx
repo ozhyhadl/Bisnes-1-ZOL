@@ -4,7 +4,7 @@ const SiteFooter = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-terminal text-terminal-foreground/60 py-10 px-4">
+    <footer className="bg-terminal text-terminal-foreground/70 py-10 px-4">
       <div className="max-w-3xl mx-auto text-center space-y-4">
         <div className="flex items-center justify-center gap-2 text-terminal-foreground font-bold text-sm">
           <span className="text-primary text-lg">⚡</span>

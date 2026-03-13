@@ -10,7 +10,7 @@ const TerminalWindow = ({ prompt, children }: TerminalWindowProps) => {
         <div className="terminal-dot terminal-dot-red" />
         <div className="terminal-dot terminal-dot-yellow" />
         <div className="terminal-dot terminal-dot-green" />
-        <span className="ml-3 text-xs md:text-sm text-terminal-foreground/60 truncate">{prompt}</span>
+        <span className="ml-3 text-xs md:text-sm text-terminal-foreground/70 truncate">{prompt}</span>
       </div>
       <div className="p-4 md:p-6 lg:p-7">{children}</div>
     </div>

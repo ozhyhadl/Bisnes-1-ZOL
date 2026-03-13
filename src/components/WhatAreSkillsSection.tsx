@@ -23,7 +23,7 @@ const WhatAreSkillsSection = () => {
             {items.map((item) => (
               <div key={item.title}>
                 <h3 className="text-terminal-foreground font-semibold text-sm mb-1">{item.title}</h3>
-                <p className="text-xs text-terminal-foreground/60 leading-relaxed">{item.desc}</p>
+                <p className="text-xs text-terminal-foreground/70 leading-relaxed">{item.desc}</p>
               </div>
             ))}
           </div>

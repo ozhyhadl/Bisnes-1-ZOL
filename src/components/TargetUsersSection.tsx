@@ -30,7 +30,7 @@ const TargetUsersSection = () => {
               >
                 <div className="text-2xl mb-3">{u.icon}</div>
                 <h3 className="text-terminal-foreground font-semibold mb-2 text-sm">{u.title}</h3>
-                <p className="text-xs text-terminal-foreground/60 leading-relaxed">{u.desc}</p>
+                <p className="text-xs text-terminal-foreground/70 leading-relaxed">{u.desc}</p>
               </div>
             ))}
           </div>

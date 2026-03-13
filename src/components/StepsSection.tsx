@@ -29,7 +29,7 @@ const StepsSection = () => {
                   {s.num}
                 </div>
                 <h3 className="text-terminal-foreground font-semibold mb-2">{s.title}</h3>
-                <p className="text-xs text-terminal-foreground/60 leading-relaxed">{s.desc}</p>
+                <p className="text-xs text-terminal-foreground/70 leading-relaxed">{s.desc}</p>
               </div>
             ))}
           </div>
