@@ -15,7 +15,7 @@ const TermsOfService = () => {
       <SiteHeader />
       <main className="max-w-3xl mx-auto px-4 py-16">
         <h1 className="text-3xl md:text-4xl font-bold mb-8">Terms of Service</h1>
-        <p className="text-xs text-muted-foreground mb-10">Last updated: March 11, 2026</p>
+        <p className="text-xs text-muted-foreground mb-10">Last updated: March 14, 2026</p>
 
         <div className="space-y-8 text-sm text-muted-foreground leading-relaxed">
           <section>
@@ -52,9 +52,9 @@ const TermsOfService = () => {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-foreground mb-3">5. Sales Policy</h2>
+            <h2 className="text-lg font-semibold text-foreground mb-3">5. Refund Policy</h2>
             <p>
-              All sales of digital products are <strong className="text-foreground">final</strong>. Due to the instant-access nature of digital downloads, we do not offer refunds after purchase. If you experience a technical issue with delivery, contact us at{" "}
+              Refund requests for one-time purchases may be submitted within <strong className="text-foreground">7 days of purchase</strong>. Refund requests are reviewed and processed through Paddle in accordance with Paddle&apos;s checkout terms, applicable consumer protection laws, and the circumstances of the order. If you experience a technical issue with delivery, contact us at{" "}
               <a href={`mailto:${SUPPORT_EMAIL}`} className="text-primary hover:underline">{SUPPORT_EMAIL}</a>{" "}
               and we will ensure you receive your files.
             </p>

@@ -68,7 +68,8 @@
         "hasMerchantReturnPolicy": {
           "@type": "MerchantReturnPolicy",
           "applicableCountry": "US",
-          "returnPolicyCategory": "https://schema.org/MerchantReturnNotPermitted"
+          "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+          "merchantReturnDays": 7
         }
       },
       "aggregateRating": {
@@ -105,6 +106,14 @@
           "acceptedAnswer": {
             "@type": "Answer",
             "text": "You'll get a download link after purchase with all the skill folders and a quick-start guide. For Claude.ai, upload them in Customize > Skills. For Claude Code, drop them into your ~/.claude/skills/ folder. Takes about 2 minutes."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is your refund policy?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Refund requests for one-time purchases may be submitted within 7 days of purchase. Refund requests are reviewed and processed through Paddle in accordance with Paddle's checkout terms, applicable consumer protection laws, and the circumstances of the order."
           }
         },
         {
