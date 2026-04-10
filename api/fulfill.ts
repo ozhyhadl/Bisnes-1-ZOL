@@ -47,6 +47,7 @@ const STORAGE_MAP: Record<string, StorageFile> = {
 };
 
 const SIGNED_URL_TTL_SECONDS = 3600;
+const FORBIDDEN_SUPABASE_PROJECT_REFS = new Set(["gjzltyiznkeyotqhqhxl"]);
 
 /* ── Helpers ─────────────────────────────────────────────────────── */
 
@@ -60,6 +61,19 @@ function getPaddleApiBase(): string {
   return getPaddleEnvironment() === "sandbox"
     ? "https://sandbox-api.paddle.com"
     : "https://api.paddle.com";
+}
+
+function extractSupabaseProjectRef(url: string): string | null {
+  try {
+    return new URL(url).hostname.split(".")[0] ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function isForbiddenSupabaseProject(url: string): boolean {
+  const projectRef = extractSupabaseProjectRef(url);
+  return projectRef ? FORBIDDEN_SUPABASE_PROJECT_REFS.has(projectRef) : false;
 }
 
 async function verifyTransaction(transactionId: string) {
@@ -178,6 +192,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       "[fulfill] Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY.",
     );
     return res.status(500).json({ error: "Storage configuration error." });
+  }
+
+  if (isForbiddenSupabaseProject(supabaseUrl)) {
+    console.error("[fulfill] Refusing to use forbidden Supabase project ref.");
+    return res.status(500).json({
+      error: "Storage configuration is not ready yet. Please contact support.",
+    });
   }
 
   const supabase = createClient(supabaseUrl, supabaseKey);
