@@ -11,7 +11,22 @@ type StorageFile = {
   filename: string;
 };
 
-const BUCKET = "Files main";
+type PaddleTransactionItem = {
+  quantity?: number;
+  price?: { id?: string };
+};
+
+type PaddleTransactionTotals = {
+  subtotal?: string | number;
+  tax?: string | number;
+  total?: string | number;
+};
+
+type PaddleTransactionPayment = {
+  captured_at?: string | null;
+};
+
+const BUCKET = "FIles main";
 
 const STORAGE_MAP: Record<string, StorageFile> = {
   // Live
@@ -108,9 +123,18 @@ type OrderUpsertData = {
   skills_purchased: boolean;
   n8n_purchased: boolean;
   transaction_status: string | null;
+  transaction_passed: boolean;
+  transaction_passed_at: string | null;
+  currency_code: string | null;
+  quantity: number;
+  unit_price_amount: number | null;
+  subtotal_amount: number | null;
+  tax_amount: number | null;
+  total_amount: number | null;
   fulfillment_status: "pending" | "fulfilled" | "error";
   download_links_generated: boolean;
   download_attempts: number;
+  last_download_at: string | null;
   fulfilled_at: string | null;
   error_message: string | null;
   source: string;
@@ -163,6 +187,103 @@ function extractCheckoutId(
   const checkout = transaction.checkout as { id?: string } | undefined;
   if (checkout?.id) return checkout.id;
   return null;
+}
+
+function parseMoneyAmount(value: string | number | undefined): number | null {
+  if (value === undefined) {
+    return null;
+  }
+
+  const numericValue =
+    typeof value === "number" ? value : Number.parseFloat(value);
+  if (!Number.isFinite(numericValue)) {
+    return null;
+  }
+
+  return Number((numericValue / 100).toFixed(2));
+}
+
+function extractCurrencyCode(transaction: Record<string, unknown>): string | null {
+  return typeof transaction.currency_code === "string"
+    ? transaction.currency_code
+    : null;
+}
+
+function extractQuantity(items: PaddleTransactionItem[]): number {
+  const quantity = items.reduce((sum, item) => {
+    const itemQuantity = typeof item.quantity === "number" && item.quantity > 0
+      ? item.quantity
+      : 0;
+    return sum + itemQuantity;
+  }, 0);
+
+  return quantity > 0 ? quantity : 1;
+}
+
+function extractTotals(transaction: Record<string, unknown>) {
+  const details = transaction.details as
+    | { totals?: PaddleTransactionTotals }
+    | undefined;
+
+  const subtotalAmount = parseMoneyAmount(details?.totals?.subtotal);
+  const taxAmount = parseMoneyAmount(details?.totals?.tax);
+  const totalAmount = parseMoneyAmount(details?.totals?.total);
+
+  return {
+    subtotalAmount,
+    taxAmount,
+    totalAmount,
+  };
+}
+
+function extractTransactionPassedAt(
+  transaction: Record<string, unknown>,
+): string | null {
+  const payments = Array.isArray(transaction.payments)
+    ? (transaction.payments as PaddleTransactionPayment[])
+    : [];
+
+  const capturedAt = payments.find((payment) => payment.captured_at)?.captured_at;
+  if (capturedAt) {
+    return capturedAt;
+  }
+
+  if (typeof transaction.billed_at === "string") {
+    return transaction.billed_at;
+  }
+
+  if (typeof transaction.updated_at === "string") {
+    return transaction.updated_at;
+  }
+
+  if (typeof transaction.created_at === "string") {
+    return transaction.created_at;
+  }
+
+  return null;
+}
+
+function buildOrderFinancials(
+  transaction: Record<string, unknown>,
+  items: PaddleTransactionItem[],
+  transactionStatus: string,
+) {
+  const quantity = extractQuantity(items);
+  const { subtotalAmount, taxAmount, totalAmount } = extractTotals(transaction);
+
+  return {
+    transaction_passed: transactionStatus === "completed" || transactionStatus === "paid",
+    transaction_passed_at: extractTransactionPassedAt(transaction),
+    currency_code: extractCurrencyCode(transaction),
+    quantity,
+    unit_price_amount:
+      subtotalAmount !== null && quantity > 0
+        ? Number((subtotalAmount / quantity).toFixed(2))
+        : null,
+    subtotal_amount: subtotalAmount,
+    tax_amount: taxAmount,
+    total_amount: totalAmount,
+  };
 }
 
 /* ── Handler ─────────────────────────────────────────────────────── */
@@ -224,12 +345,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       skills_purchased: false,
       n8n_purchased: false,
       transaction_status: null,
+      transaction_passed: false,
+      transaction_passed_at: null,
+      currency_code: null,
+      quantity: 1,
+      unit_price_amount: null,
+      subtotal_amount: null,
+      tax_amount: null,
+      total_amount: null,
       fulfillment_status: "error",
       download_links_generated: false,
       download_attempts: 0,
+      last_download_at: null,
       fulfilled_at: null,
       error_message: `Paddle verification failed: ${message}`,
-      source: "success_page",
+      source: "download_page",
       raw_transaction_payload: null,
     });
 
@@ -239,6 +369,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const transactionStatus = String(transaction.status ?? "unknown");
+  const transactionItems = (transaction.items ?? []) as PaddleTransactionItem[];
+  const financials = buildOrderFinancials(
+    transaction,
+    transactionItems,
+    transactionStatus,
+  );
 
   if (transaction.status !== "completed" && transaction.status !== "paid") {
     // Log non-completed transaction
@@ -252,12 +388,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       skills_purchased: false,
       n8n_purchased: false,
       transaction_status: transactionStatus,
+      transaction_passed: financials.transaction_passed,
+      transaction_passed_at: financials.transaction_passed_at,
+      currency_code: financials.currency_code,
+      quantity: financials.quantity,
+      unit_price_amount: financials.unit_price_amount,
+      subtotal_amount: financials.subtotal_amount,
+      tax_amount: financials.tax_amount,
+      total_amount: financials.total_amount,
       fulfillment_status: "error",
       download_links_generated: false,
       download_attempts: 0,
+      last_download_at: null,
       fulfilled_at: null,
       error_message: `Transaction not completed (status: ${transactionStatus})`,
-      source: "success_page",
+      source: "download_page",
       raw_transaction_payload: transaction,
     });
 
@@ -268,7 +413,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   /* ── Map purchased items to storage files ─────────────────────── */
 
-  const items = (transaction.items ?? []) as Array<{
+  const items = transactionItems as Array<{
+    quantity?: number;
     price: { id: string };
   }>;
   const seen = new Set<string>();
@@ -300,12 +446,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       skills_purchased: false,
       n8n_purchased: false,
       transaction_status: transactionStatus,
+      transaction_passed: financials.transaction_passed,
+      transaction_passed_at: financials.transaction_passed_at,
+      currency_code: financials.currency_code,
+      quantity: financials.quantity,
+      unit_price_amount: financials.unit_price_amount,
+      subtotal_amount: financials.subtotal_amount,
+      tax_amount: financials.tax_amount,
+      total_amount: financials.total_amount,
       fulfillment_status: "error",
       download_links_generated: false,
       download_attempts: 0,
+      last_download_at: null,
       fulfilled_at: null,
       error_message: "No downloadable files found for purchased price IDs",
-      source: "success_page",
+      source: "download_page",
       raw_transaction_payload: transaction,
     });
 
@@ -335,12 +490,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     skills_purchased: skillsPurchased,
     n8n_purchased: n8nPurchased,
     transaction_status: transactionStatus,
+    transaction_passed: financials.transaction_passed,
+    transaction_passed_at: financials.transaction_passed_at,
+    currency_code: financials.currency_code,
+    quantity: financials.quantity,
+    unit_price_amount: financials.unit_price_amount,
+    subtotal_amount: financials.subtotal_amount,
+    tax_amount: financials.tax_amount,
+    total_amount: financials.total_amount,
     fulfillment_status: "pending",
     download_links_generated: false,
     download_attempts: currentAttempts + 1,
+    last_download_at: null,
     fulfilled_at: null,
     error_message: null,
-    source: "success_page",
+    source: "download_page",
     raw_transaction_payload: transaction,
   });
 
@@ -388,12 +552,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       skills_purchased: skillsPurchased,
       n8n_purchased: n8nPurchased,
       transaction_status: transactionStatus,
+      transaction_passed: financials.transaction_passed,
+      transaction_passed_at: financials.transaction_passed_at,
+      currency_code: financials.currency_code,
+      quantity: financials.quantity,
+      unit_price_amount: financials.unit_price_amount,
+      subtotal_amount: financials.subtotal_amount,
+      tax_amount: financials.tax_amount,
+      total_amount: financials.total_amount,
       fulfillment_status: "error",
       download_links_generated: false,
       download_attempts: currentAttempts + 1,
+      last_download_at: null,
       fulfilled_at: null,
       error_message: "Failed to generate signed URLs for all files",
-      source: "success_page",
+      source: "download_page",
       raw_transaction_payload: transaction,
     });
 
@@ -414,12 +587,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     skills_purchased: skillsPurchased,
     n8n_purchased: n8nPurchased,
     transaction_status: transactionStatus,
+    transaction_passed: financials.transaction_passed,
+    transaction_passed_at: financials.transaction_passed_at,
+    currency_code: financials.currency_code,
+    quantity: financials.quantity,
+    unit_price_amount: financials.unit_price_amount,
+    subtotal_amount: financials.subtotal_amount,
+    tax_amount: financials.tax_amount,
+    total_amount: financials.total_amount,
     fulfillment_status: "fulfilled",
     download_links_generated: true,
     download_attempts: currentAttempts + 1,
+    last_download_at: new Date().toISOString(),
     fulfilled_at: new Date().toISOString(),
     error_message: null,
-    source: "success_page",
+    source: "download_page",
     raw_transaction_payload: transaction,
   });
 
