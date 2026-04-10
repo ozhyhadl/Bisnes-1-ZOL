@@ -8,11 +8,10 @@ import {
 const PADDLE_ENVIRONMENT = "production" as const;
 const PADDLE_CLIENT_TOKEN = import.meta.env.VITE_PADDLE_CLIENT_TOKEN;
 
-// TODO: Replace with your real Paddle price ID before going live with checkout.
-const DEFAULT_PADDLE_PRICE_ID = "";
-
 let paddleInstance: Paddle | null = null;
 let paddlePromise: Promise<Paddle | null> | null = null;
+
+export type PaddleCheckoutItem = CheckoutOpenLineItem;
 
 function getPaddleTokenError(): string {
   return "[Paddle] Missing VITE_PADDLE_CLIENT_TOKEN. Add it in Vercel project env and rebuild the app.";
@@ -52,27 +51,9 @@ export async function getPaddle(): Promise<Paddle | null> {
   return paddlePromise;
 }
 
-function getDefaultCheckoutItems(): CheckoutOpenLineItem[] | null {
-  if (!DEFAULT_PADDLE_PRICE_ID) {
-    console.log(
-      "[Paddle] Checkout skipped because no priceId is configured. Set DEFAULT_PADDLE_PRICE_ID in src/lib/paddle.ts.",
-    );
-    return null;
-  }
-
-  return [
-    {
-      priceId: DEFAULT_PADDLE_PRICE_ID,
-      quantity: 1,
-    },
-  ];
-}
-
-export function openDefaultPaddleCheckout(paddle: Paddle): boolean {
-  const items = getDefaultCheckoutItems();
-
-  if (!items) {
-    return false;
+export function openPaddleCheckout(paddle: Paddle, items: CheckoutOpenLineItem[]): void {
+  if (items.length === 0) {
+    throw new Error("[Paddle] Cannot open checkout without items.");
   }
 
   const checkoutOptions: CheckoutOpenOptions = {
@@ -84,5 +65,4 @@ export function openDefaultPaddleCheckout(paddle: Paddle): boolean {
   };
 
   paddle.Checkout.open(checkoutOptions);
-  return true;
 }

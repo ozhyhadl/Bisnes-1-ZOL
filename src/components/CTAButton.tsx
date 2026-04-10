@@ -1,47 +1,29 @@
-import { CHECKOUT_URL } from "@/config/links";
 import { cn } from "@/lib/utils";
-import { getPaddle, openDefaultPaddleCheckout } from "@/lib/paddle";
+import { useCheckout } from "@/contexts/CheckoutContext";
+import { type ReactNode } from "react";
 
 type CTAButtonProps = {
-  children: React.ReactNode;
-  href?: string;
+  children: ReactNode;
   className?: string;
 };
 
-const CTAButton = ({ children, href, className }: CTAButtonProps) => {
-  const fallbackHref = href ?? CHECKOUT_URL;
-
-  const handleGetInstantAccess = async () => {
-    const paddle = await getPaddle();
-
-    if (!paddle) {
-      console.error("[Paddle] Checkout is unavailable because Paddle.js was not initialized.");
-
-      if (fallbackHref) {
-        window.location.assign(fallbackHref);
-      }
-
-      return;
-    }
-
-    const checkoutOpened = openDefaultPaddleCheckout(paddle);
-
-    if (!checkoutOpened && fallbackHref) {
-      console.log(`[Paddle] Falling back to ${fallbackHref} until a real Paddle priceId is configured.`);
-      window.location.assign(fallbackHref);
-    }
-  };
+const CTAButton = ({ children, className }: CTAButtonProps) => {
+  const { isCheckoutLoading, openCheckout } = useCheckout();
 
   return (
     <button
       type="button"
-      onClick={handleGetInstantAccess}
+      onClick={() => {
+        void openCheckout();
+      }}
+      disabled={isCheckoutLoading}
+      aria-busy={isCheckoutLoading}
       className={cn(
-        "inline-block bg-primary text-primary-foreground px-5 py-3 md:px-8 md:py-4 text-xs md:text-sm uppercase tracking-widest font-semibold rounded-lg hover:opacity-90 transition-opacity",
+        "inline-block bg-primary text-primary-foreground px-5 py-3 md:px-8 md:py-4 text-xs md:text-sm uppercase tracking-widest font-semibold rounded-lg hover:opacity-90 transition-opacity disabled:cursor-not-allowed disabled:opacity-70",
         className,
       )}
     >
-      {children}
+      {isCheckoutLoading ? "Opening Checkout..." : children}
     </button>
   );
 };

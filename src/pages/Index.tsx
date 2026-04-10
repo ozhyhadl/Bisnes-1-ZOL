@@ -9,6 +9,7 @@ import UpsellOfferSection from "@/components/UpsellOfferSection";
 import FAQSection from "@/components/FAQSection";
 import FinalCTASection from "@/components/FinalCTASection";
 import SiteFooter from "@/components/SiteFooter";
+import { CheckoutProvider } from "@/contexts/CheckoutContext";
 import { usePageMeta } from "@/hooks/usePageMeta";
 
 const Index = () => {
@@ -21,17 +22,19 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
-      <main>
-        <HeroSection />
-        <StepsSection />
-        <WhatAreSkillsSection />
-        <TargetUsersSection />
-        <SkillsListSection />
-        <PricingSection />
-        <UpsellOfferSection />
-        <FAQSection />
-        <FinalCTASection />
-      </main>
+      <CheckoutProvider>
+        <main>
+          <HeroSection />
+          <StepsSection />
+          <WhatAreSkillsSection />
+          <TargetUsersSection />
+          <SkillsListSection />
+          <PricingSection />
+          <UpsellOfferSection />
+          <FAQSection />
+          <FinalCTASection />
+        </main>
+      </CheckoutProvider>
       <SiteFooter />
     </div>
   );

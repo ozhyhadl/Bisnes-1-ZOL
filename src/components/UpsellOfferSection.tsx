@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useCheckout } from "@/contexts/CheckoutContext";
 import ScrollReveal from "./ScrollReveal";
 import n8nImage from "@/assets/n8n-workflows.webp";
 
 const UpsellOfferSection = () => {
-  const [added, setAdded] = useState(false);
+  const { addN8nToOrder, isN8nAdded } = useCheckout();
 
   return (
     <section className="py-10 px-4" aria-label="Upsell offer">
@@ -42,15 +42,23 @@ const UpsellOfferSection = () => {
                 <span className="text-xl md:text-2xl font-bold text-foreground">$10</span>
               </div>
               <button
-                onClick={() => setAdded(!added)}
+                type="button"
+                onClick={addN8nToOrder}
+                disabled={isN8nAdded}
+                aria-pressed={isN8nAdded}
                 className={`w-full sm:w-auto px-8 py-3 text-xs uppercase tracking-wider font-semibold rounded-lg transition-all duration-300 ${
-                  added
-                    ? "bg-primary text-primary-foreground"
+                  isN8nAdded
+                    ? "bg-primary text-primary-foreground cursor-default"
                     : "bg-secondary text-secondary-foreground hover:bg-primary hover:text-primary-foreground"
                 }`}
               >
-                {added ? "Added ✓" : "Add to Order"}
+                {isN8nAdded ? "Added to Order" : "Add to Order"}
               </button>
+              {isN8nAdded ? (
+                <p className="text-[10px] text-primary text-center sm:text-right">
+                  N8N Integrations Bundle will be included in checkout.
+                </p>
+              ) : null}
             </div>
           </div>
         </div>
