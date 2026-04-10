@@ -40,9 +40,14 @@ const PricingSection = () => {
               </div>
             </div>
             <div className="text-center">
-              <div className="text-4xl md:text-5xl font-bold text-primary mb-2">$15</div>
+              <div className="text-4xl md:text-5xl font-bold text-primary mb-2 drop-shadow-[0_4px_18px_rgba(196,107,64,0.34)]">
+                $15
+              </div>
               <p className="text-xs text-terminal-foreground/70 mb-6">One-time payment · Lifetime access · Instant digital delivery</p>
-              <CTAButton className="px-10 py-4 text-sm">
+              <CTAButton
+                action="checkout"
+                className="px-10 py-4 text-sm shadow-[0_0_0_1px_rgba(211,121,74,0.18),0_12px_32px_rgba(193,98,58,0.24)] hover:shadow-[0_0_0_1px_rgba(211,121,74,0.24),0_16px_36px_rgba(193,98,58,0.3)]"
+              >
                 Get Instant Access — $15
               </CTAButton>
               <p className="text-[10px] text-terminal-foreground/70 mt-4">Secure checkout · Instant delivery to your email</p>

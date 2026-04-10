@@ -1,4 +1,4 @@
-import { CHECKOUT_URL } from "@/config/links";
+import { scrollToPricingSection } from "@/lib/scroll";
 
 const SiteHeader = () => {
   return (
@@ -8,12 +8,13 @@ const SiteHeader = () => {
           <span className="text-primary text-lg">⚡</span>
           <span>AI Cloud Base</span>
         </a>
-        <a
-          href={CHECKOUT_URL}
+        <button
+          type="button"
+          onClick={scrollToPricingSection}
           className="text-xs uppercase tracking-wider font-semibold bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
         >
           Get the Bundle
-        </a>
+        </button>
       </div>
     </header>
   );
