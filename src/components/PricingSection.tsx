@@ -1,6 +1,6 @@
 import TerminalWindow from "./TerminalWindow";
 import ScrollReveal from "./ScrollReveal";
-import { CHECKOUT_URL } from "@/config/links";
+import CTAButton from "./CTAButton";
 
 const pricingItems = [
   { name: "Content, Copy & Social Media (75+)", price: "$97" },
@@ -42,12 +42,9 @@ const PricingSection = () => {
             <div className="text-center">
               <div className="text-4xl md:text-5xl font-bold text-primary mb-2">$15</div>
               <p className="text-xs text-terminal-foreground/70 mb-6">One-time payment · Lifetime access · Instant digital delivery</p>
-              <a
-                href={CHECKOUT_URL}
-                className="inline-block bg-primary text-primary-foreground px-10 py-4 text-sm uppercase tracking-widest font-semibold rounded-lg hover:opacity-90 transition-opacity"
-              >
+              <CTAButton className="px-10 py-4 text-sm">
                 Get Instant Access — $15
-              </a>
+              </CTAButton>
               <p className="text-[10px] text-terminal-foreground/70 mt-4">Secure checkout · Instant delivery to your email</p>
             </div>
           </div>
