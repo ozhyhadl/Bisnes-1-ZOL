@@ -99,4 +99,4 @@ src/                — Application source code
 ## Deployment
 Deployed on Vercel as a static Vite SPA. Configuration in `vercel.json`.
 
-Last deployment verification: 2026-04-10.
+Last deployment verification: 2026-04-10, retry after Vercel Git policy update.
