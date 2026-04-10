@@ -16,6 +16,49 @@ type FulfillmentState =
   | { phase: "ready"; downloads: DownloadLink[] }
   | { phase: "error"; message: string };
 
+async function parseFulfillmentErrorResponse(res: Response): Promise<string> {
+  const contentType = res.headers.get("content-type") ?? "";
+
+  if (contentType.includes("application/json")) {
+    const body = (await res.json().catch(() => ({}))) as { error?: string };
+    return body.error ?? `Request failed (${res.status})`;
+  }
+
+  const bodyText = await res.text().catch(() => "");
+  if (
+    bodyText.includes("import ") ||
+    bodyText.includes("<!doctype html") ||
+    bodyText.includes("<html")
+  ) {
+    return "Local fulfillment API is not running. Start `npm run dev:api` in a separate terminal and reload this page.";
+  }
+
+  return bodyText || `Request failed (${res.status})`;
+}
+
+async function parseFulfillmentSuccessResponse(
+  res: Response,
+): Promise<{ downloads: DownloadLink[] }> {
+  const contentType = res.headers.get("content-type") ?? "";
+
+  if (!contentType.includes("application/json")) {
+    const bodyText = await res.text().catch(() => "");
+    if (
+      bodyText.includes("import ") ||
+      bodyText.includes("<!doctype html") ||
+      bodyText.includes("<html")
+    ) {
+      throw new Error(
+        "Local fulfillment API is not running. Start `npm run dev:api` in a separate terminal and reload this page.",
+      );
+    }
+
+    throw new Error("Fulfillment endpoint returned a non-JSON response.");
+  }
+
+  return (await res.json()) as { downloads: DownloadLink[] };
+}
+
 function triggerBrowserDownload(url: string) {
   const a = document.createElement("a");
   a.href = url;
@@ -88,14 +131,10 @@ const DownloadPage = () => {
         const res = await fetch(`/api/fulfill?txn=${encodeURIComponent(txnId)}`);
 
         if (!res.ok) {
-          const body = await res.json().catch(() => ({}));
-          throw new Error(
-            (body as { error?: string }).error ??
-              `Request failed (${res.status})`,
-          );
+          throw new Error(await parseFulfillmentErrorResponse(res));
         }
 
-        const data = (await res.json()) as { downloads: DownloadLink[] };
+        const data = await parseFulfillmentSuccessResponse(res);
         if (cancelled) return;
 
         setState({ phase: "ready", downloads: data.downloads });
