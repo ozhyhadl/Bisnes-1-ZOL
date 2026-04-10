@@ -1,5 +1,5 @@
 import { toast } from "@/components/ui/sonner";
-import { N8N_PRICE_ID, SKILLS_PRICE_ID } from "@/config/billing";
+import { getPaddleBillingConfig } from "@/config/billing";
 import { getPaddle, openPaddleCheckout, type PaddleCheckoutItem } from "@/lib/paddle";
 import { createContext, useContext, useState, type ReactNode } from "react";
 
@@ -22,6 +22,7 @@ const CheckoutContext = createContext<CheckoutContextValue>({
 export const CheckoutProvider = ({ children }: { children: ReactNode }) => {
   const [isN8nAdded, setIsN8nAdded] = useState(false);
   const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
+  const billingConfig = getPaddleBillingConfig();
 
   const addN8nToOrder = () => {
     setIsN8nAdded(true);
@@ -43,14 +44,14 @@ export const CheckoutProvider = ({ children }: { children: ReactNode }) => {
 
       const items: PaddleCheckoutItem[] = [
         {
-          priceId: SKILLS_PRICE_ID,
+          priceId: billingConfig.skills.priceId,
           quantity: 1,
         },
       ];
 
       if (isN8nAdded) {
         items.push({
-          priceId: N8N_PRICE_ID,
+          priceId: billingConfig.n8n.priceId,
           quantity: 1,
         });
       }

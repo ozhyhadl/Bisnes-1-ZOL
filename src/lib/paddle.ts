@@ -5,8 +5,9 @@ import {
   type Paddle,
 } from "@paddle/paddle-js";
 
-const PADDLE_ENVIRONMENT = "production" as const;
-const PADDLE_CLIENT_TOKEN = import.meta.env.VITE_PADDLE_CLIENT_TOKEN;
+import { getPaddleBillingConfig, isSandboxPaddleMode } from "@/config/billing";
+
+const paddleBillingConfig = getPaddleBillingConfig();
 
 let paddleInstance: Paddle | null = null;
 let paddlePromise: Promise<Paddle | null> | null = null;
@@ -14,6 +15,10 @@ let paddlePromise: Promise<Paddle | null> | null = null;
 export type PaddleCheckoutItem = CheckoutOpenLineItem;
 
 function getPaddleTokenError(): string {
+  if (isSandboxPaddleMode()) {
+    return "[Paddle] Missing sandbox Paddle token for local checkout testing.";
+  }
+
   return "[Paddle] Missing VITE_PADDLE_CLIENT_TOKEN. Add it in Vercel project env and rebuild the app.";
 }
 
@@ -22,15 +27,15 @@ export async function getPaddle(): Promise<Paddle | null> {
     return paddleInstance;
   }
 
-  if (!PADDLE_CLIENT_TOKEN) {
+  if (!paddleBillingConfig.token) {
     console.error(getPaddleTokenError());
     return null;
   }
 
   if (!paddlePromise) {
     paddlePromise = initializePaddle({
-      token: PADDLE_CLIENT_TOKEN,
-      environment: PADDLE_ENVIRONMENT,
+      token: paddleBillingConfig.token,
+      environment: paddleBillingConfig.mode,
     })
       .then((instance) => {
         if (!instance) {
