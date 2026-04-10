@@ -11,36 +11,38 @@ type StorageFile = {
   filename: string;
 };
 
+const BUCKET = "Files main";
+
 const STORAGE_MAP: Record<string, StorageFile> = {
   // Live
   "pri_01knwef8ref9gbw6pw9gmfh35t": {
     key: "skills",
-    label: "AI Skills Bundle",
-    bucket: "downloads",
-    path: "skills-bundle.zip",
-    filename: "AI-Cloud-Base-Skills-Bundle.zip",
+    label: "Claude Skills Ultimate Bundle",
+    bucket: BUCKET,
+    path: "Claude Skills Ultimate Bundle.zip",
+    filename: "Claude Skills Ultimate Bundle.zip",
   },
   "pri_01knwembd2ftzz0cw9gksxfh10": {
     key: "n8n",
-    label: "N8N Workflows Bundle",
-    bucket: "downloads",
-    path: "n8n-bundle.zip",
-    filename: "N8N-Workflows-Bundle.zip",
+    label: "1,800+ N8N Automations",
+    bucket: BUCKET,
+    path: "1,800+ n8n Automations.zip",
+    filename: "1,800+ n8n Automations.zip",
   },
   // Sandbox (same storage files for testing)
   "pri_01knwqfr26gjr7sab6hckwwz8y": {
     key: "skills",
-    label: "AI Skills Bundle",
-    bucket: "downloads",
-    path: "skills-bundle.zip",
-    filename: "AI-Cloud-Base-Skills-Bundle.zip",
+    label: "Claude Skills Ultimate Bundle",
+    bucket: BUCKET,
+    path: "Claude Skills Ultimate Bundle.zip",
+    filename: "Claude Skills Ultimate Bundle.zip",
   },
   "pri_01knwqdeyp432a33ayh3b209ps": {
     key: "n8n",
-    label: "N8N Workflows Bundle",
-    bucket: "downloads",
-    path: "n8n-bundle.zip",
-    filename: "N8N-Workflows-Bundle.zip",
+    label: "1,800+ N8N Automations",
+    bucket: BUCKET,
+    path: "1,800+ n8n Automations.zip",
+    filename: "1,800+ n8n Automations.zip",
   },
 };
 
