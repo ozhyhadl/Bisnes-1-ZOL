@@ -1,4 +1,6 @@
 import {
+  CheckoutEventNames,
+  type PaddleEventData,
   initializePaddle,
   type CheckoutOpenLineItem,
   type CheckoutOpenOptions,
@@ -8,11 +10,37 @@ import {
 import { getPaddleBillingConfig, isSandboxPaddleMode } from "@/config/billing";
 
 const paddleBillingConfig = getPaddleBillingConfig();
+export const PADDLE_TRANSACTION_STORAGE_KEY = "aicb:last-paddle-transaction-id";
+
+const DOWNLOAD_ROUTE = "/download";
 
 let paddleInstance: Paddle | null = null;
 let paddlePromise: Promise<Paddle | null> | null = null;
 
 export type PaddleCheckoutItem = CheckoutOpenLineItem;
+
+function redirectToDownload(transactionId?: string): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const targetUrl = new URL(`${window.location.origin}${DOWNLOAD_ROUTE}`);
+  if (transactionId) {
+    targetUrl.searchParams.set("txn", transactionId);
+    window.sessionStorage.setItem(PADDLE_TRANSACTION_STORAGE_KEY, transactionId);
+  }
+
+  window.location.assign(targetUrl.toString());
+}
+
+function handleCheckoutEvent(event: PaddleEventData): void {
+  if (event.name !== CheckoutEventNames.CHECKOUT_COMPLETED) {
+    return;
+  }
+
+  const transactionId = event.data?.transaction_id;
+  redirectToDownload(transactionId);
+}
 
 function getPaddleTokenError(): string {
   if (isSandboxPaddleMode()) {
@@ -36,6 +64,7 @@ export async function getPaddle(): Promise<Paddle | null> {
     paddlePromise = initializePaddle({
       token: paddleBillingConfig.token,
       environment: paddleBillingConfig.mode,
+      eventCallback: handleCheckoutEvent,
     })
       .then((instance) => {
         if (!instance) {
@@ -65,7 +94,7 @@ export function openPaddleCheckout(paddle: Paddle, items: CheckoutOpenLineItem[]
     items,
     settings: {
       displayMode: "overlay",
-      successUrl: `${window.location.origin}/success`,
+      successUrl: `${window.location.origin}${DOWNLOAD_ROUTE}`,
     },
   };
 
