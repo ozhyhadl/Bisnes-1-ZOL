@@ -65,6 +65,23 @@
 }
 
 @layer utilities {
+  @keyframes premium-soft-pulse {
+    0%,
+    100% {
+      box-shadow: 0 0 0 1px rgba(200, 112, 70, 0.2), 0 14px 30px rgba(191, 101, 61, 0.24);
+      transform: translateY(0);
+    }
+
+    50% {
+      box-shadow: 0 0 0 1px rgba(214, 125, 80, 0.24), 0 18px 36px rgba(191, 101, 61, 0.3);
+      transform: translateY(-1px);
+    }
+  }
+
+  .upsell-cta-attention {
+    animation: premium-soft-pulse 3.8s ease-in-out infinite;
+  }
+
   .terminal-window {
     background: hsl(var(--terminal-bg));
     color: hsl(var(--terminal-foreground));

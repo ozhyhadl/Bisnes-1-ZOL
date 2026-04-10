@@ -5,6 +5,10 @@ import n8nImage from "@/assets/n8n-workflows.webp";
 const UpsellOfferSection = () => {
   const { addN8nToOrder, isN8nAdded } = useCheckout();
 
+  const buttonClassName = isN8nAdded
+    ? "bg-primary text-primary-foreground cursor-default border-primary/70 shadow-[0_0_0_1px_rgba(200,112,70,0.22),0_14px_30px_rgba(191,101,61,0.18)]"
+    : "upsell-cta-attention bg-primary text-primary-foreground border-primary/70 shadow-[0_0_0_1px_rgba(200,112,70,0.2),0_14px_30px_rgba(191,101,61,0.24)] hover:-translate-y-0.5 hover:shadow-[0_0_0_1px_rgba(215,126,81,0.28),0_18px_36px_rgba(191,101,61,0.34)]";
+
   return (
     <section className="py-10 px-4" aria-label="Upsell offer">
       <ScrollReveal>
@@ -46,16 +50,12 @@ const UpsellOfferSection = () => {
                 onClick={addN8nToOrder}
                 disabled={isN8nAdded}
                 aria-pressed={isN8nAdded}
-                className={`w-full sm:w-auto px-8 py-3 text-xs uppercase tracking-wider font-semibold rounded-lg transition-all duration-300 ${
-                  isN8nAdded
-                    ? "bg-primary text-primary-foreground cursor-default"
-                    : "bg-secondary text-secondary-foreground hover:bg-primary hover:text-primary-foreground"
-                }`}
+                className={`w-full sm:w-auto min-w-[13rem] px-8 py-3.5 text-xs uppercase tracking-[0.24em] font-semibold rounded-xl border transition-all duration-300 ${buttonClassName}`}
               >
                 {isN8nAdded ? "Added to Order" : "Add to Order"}
               </button>
               {isN8nAdded ? (
-                <p className="text-[10px] text-primary text-center sm:text-right">
+                <p className="text-[10px] text-primary text-center sm:text-right font-medium">
                   N8N Integrations Bundle will be included in checkout.
                 </p>
               ) : null}
