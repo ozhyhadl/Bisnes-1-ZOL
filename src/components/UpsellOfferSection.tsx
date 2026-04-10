@@ -19,7 +19,7 @@ const UpsellOfferSection = () => {
             {/* Thumbnail */}
             <img
               src={n8nImage}
-              alt="1,900+ N8N automation workflow templates preview"
+              alt="1,800+ N8N automation workflow templates preview"
               loading="lazy"
               width={96}
               height={96}
@@ -32,10 +32,10 @@ const UpsellOfferSection = () => {
                 Exclusive Offer
               </span>
               <h3 className="font-bold text-base md:text-lg mb-2">
-                Add 1,900+ N8N Workflows to my order
+                Add 1,800+ N8N Workflows to my order
               </h3>
               <p className="text-sm text-muted-foreground leading-relaxed mb-4 sm:mb-0">
-                Over 1,900 ready-to-go automation templates for N8N, for a huge range of tasks. Just search a keyword, download template, and upload to your N8N workspace.
+                Over 1,800 ready-to-go automation templates for N8N, for a huge range of tasks. Just search a keyword, download template, and upload to your N8N workspace.
               </p>
             </div>
 
