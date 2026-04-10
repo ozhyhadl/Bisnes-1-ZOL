@@ -65,7 +65,7 @@ export function openPaddleCheckout(paddle: Paddle, items: CheckoutOpenLineItem[]
     items,
     settings: {
       displayMode: "overlay",
-      successUrl: `${window.location.origin}/?checkout=success`,
+      successUrl: `${window.location.origin}/success`,
     },
   };
 
