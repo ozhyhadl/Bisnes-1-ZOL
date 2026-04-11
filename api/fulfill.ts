@@ -67,15 +67,27 @@ const FORBIDDEN_SUPABASE_PROJECT_REFS = new Set(["gjzltyiznkeyotqhqhxl"]);
 /* ── Helpers ─────────────────────────────────────────────────────── */
 
 function getPaddleEnvironment(): "sandbox" | "production" {
-  return (process.env.PADDLE_ENVIRONMENT ?? "production") === "sandbox"
-    ? "sandbox"
-    : "production";
+  const configuredEnvironment = (process.env.PADDLE_ENVIRONMENT ?? "production")
+    .trim()
+    .toLowerCase();
+
+  if (configuredEnvironment === "sandbox") {
+    return "sandbox";
+  }
+
+  return "production";
 }
 
 function getPaddleApiBase(): string {
   return getPaddleEnvironment() === "sandbox"
     ? "https://sandbox-api.paddle.com"
     : "https://api.paddle.com";
+}
+
+function getPaddleApiKey(): string | undefined {
+  return getPaddleEnvironment() === "sandbox"
+    ? process.env.PADDLE_API_KEY_SANDBOX
+    : process.env.PADDLE_API_KEY;
 }
 
 function extractSupabaseProjectRef(url: string): string | null {
@@ -92,9 +104,12 @@ function isForbiddenSupabaseProject(url: string): boolean {
 }
 
 async function verifyTransaction(transactionId: string) {
-  const apiKey = process.env.PADDLE_API_KEY;
+  const apiKey = getPaddleApiKey();
   if (!apiKey) {
-    throw new Error("PADDLE_API_KEY is not configured.");
+    const envLabel = getPaddleEnvironment() === "sandbox"
+      ? "PADDLE_API_KEY_SANDBOX"
+      : "PADDLE_API_KEY";
+    throw new Error(`${envLabel} is not configured.`);
   }
 
   const url = `${getPaddleApiBase()}/transactions/${encodeURIComponent(transactionId)}?include=customer`;

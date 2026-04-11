@@ -7,7 +7,7 @@ import {
   type Paddle,
 } from "@paddle/paddle-js";
 
-import { getPaddleBillingConfig, isSandboxPaddleMode } from "@/config/billing";
+import { getPaddleBillingConfig } from "@/config/billing";
 
 const paddleBillingConfig = getPaddleBillingConfig();
 export const PADDLE_TRANSACTION_STORAGE_KEY = "aicb:last-paddle-transaction-id";
@@ -43,11 +43,11 @@ function handleCheckoutEvent(event: PaddleEventData): void {
 }
 
 function getPaddleTokenError(): string {
-  if (isSandboxPaddleMode()) {
-    return "[Paddle] Missing sandbox Paddle token for local checkout testing.";
-  }
+  const envName = paddleBillingConfig.mode === "sandbox"
+    ? "VITE_PADDLE_CLIENT_TOKEN_SANDBOX"
+    : "VITE_PADDLE_CLIENT_TOKEN";
 
-  return "[Paddle] Missing VITE_PADDLE_CLIENT_TOKEN. Add it in Vercel project env and rebuild the app.";
+  return `[Paddle] Missing ${envName}. Set it in env and restart / rebuild.`;
 }
 
 export async function getPaddle(): Promise<Paddle | null> {

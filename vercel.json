@@ -43,6 +43,7 @@
       "continue": true
     },
     { "handle": "filesystem" },
+    { "src": "/api/(.*)", "dest": "/api/$1" },
     { "src": "/(privacy|terms|download)$", "dest": "/index.html" },
     { "src": "/(.*)", "dest": "/index.html", "status": 404 }
   ]

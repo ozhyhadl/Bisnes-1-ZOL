@@ -1,3 +1,13 @@
+/* ──────────────────────────────────────────────────────────────────
+ * Paddle Billing — Environment-Driven Configuration
+ *
+ * Single switch: PADDLE_ENVIRONMENT  (set once in env / Vercel)
+ *   "sandbox"  → sandbox tokens, sandbox price IDs, sandbox API
+ *   "live"     → live   tokens, live   price IDs, live   API
+ *
+ * Client-side env is injected by vite.config.ts via `define`.
+ * ────────────────────────────────────────────────────────────────── */
+
 type PaddleEnvironment = "sandbox" | "production";
 
 type BillingProductConfig = {
@@ -12,59 +22,60 @@ type BillingConfig = {
 	n8n: BillingProductConfig;
 };
 
-const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1"]);
+/* ── Price & Product IDs by environment ──────────────────────────── */
 
-export const LIVE_SKILLS_PRICE_ID = "pri_01knwef8ref9gbw6pw9gmfh35t";
-export const LIVE_N8N_PRICE_ID = "pri_01knwembd2ftzz0cw9gksxfh10";
+const SANDBOX = {
+	skillsPriceId: "pri_01knwqfr26gjr7sab6hckwwz8y",
+	skillsProductId: "pro_01knwqax6ntyrfqc4yag32q207",
+	n8nPriceId: "pri_01knwqdeyp432a33ayh3b209ps",
+	n8nProductId: "pro_01knwqc4593qdxhq6dfdh5e2n1",
+} as const;
 
-export const SANDBOX_PADDLE_TOKEN = "test_fb89cdd2a05f5800206109fbd94";
+const LIVE = {
+	skillsPriceId: "pri_01knwef8ref9gbw6pw9gmfh35t",
+	n8nPriceId: "pri_01knwembd2ftzz0cw9gksxfh10",
+} as const;
 
-export const SANDBOX_SKILLS_PRODUCT_ID = "pro_01knwqax6ntyrfqc4yag32q207";
-export const SANDBOX_SKILLS_PRICE_ID = "pri_01knwqfr26gjr7sab6hckwwz8y";
+/* ── Environment resolution ──────────────────────────────────────── */
 
-export const SANDBOX_N8N_PRODUCT_ID = "pro_01knwqc4593qdxhq6dfdh5e2n1";
-export const SANDBOX_N8N_PRICE_ID = "pri_01knwqdeyp432a33ayh3b209ps";
+export function getPaddleEnvironment(): PaddleEnvironment {
+	const raw = (import.meta.env.VITE_PADDLE_ENVIRONMENT ?? "live")
+		.trim()
+		.toLowerCase();
 
-function isLocalHostname(hostname: string): boolean {
-	return LOCAL_HOSTS.has(hostname);
+	return raw === "sandbox" ? "sandbox" : "production";
 }
 
 export function isSandboxPaddleMode(): boolean {
-	if (import.meta.env.DEV) {
-		return true;
-	}
-
-	if (typeof window === "undefined") {
-		return false;
-	}
-
-	return isLocalHostname(window.location.hostname);
+	return getPaddleEnvironment() === "sandbox";
 }
+
+/* ── Unified billing config ──────────────────────────────────────── */
 
 export function getPaddleBillingConfig(): BillingConfig {
 	if (isSandboxPaddleMode()) {
 		return {
 			mode: "sandbox",
-			token: SANDBOX_PADDLE_TOKEN,
+			token: import.meta.env.VITE_PADDLE_CLIENT_TOKEN_SANDBOX ?? "",
 			skills: {
-				productId: SANDBOX_SKILLS_PRODUCT_ID,
-				priceId: SANDBOX_SKILLS_PRICE_ID,
+				productId: SANDBOX.skillsProductId,
+				priceId: SANDBOX.skillsPriceId,
 			},
 			n8n: {
-				productId: SANDBOX_N8N_PRODUCT_ID,
-				priceId: SANDBOX_N8N_PRICE_ID,
+				productId: SANDBOX.n8nProductId,
+				priceId: SANDBOX.n8nPriceId,
 			},
 		};
 	}
 
 	return {
 		mode: "production",
-		token: import.meta.env.VITE_PADDLE_CLIENT_TOKEN,
+		token: import.meta.env.VITE_PADDLE_CLIENT_TOKEN ?? "",
 		skills: {
-			priceId: LIVE_SKILLS_PRICE_ID,
+			priceId: LIVE.skillsPriceId,
 		},
 		n8n: {
-			priceId: LIVE_N8N_PRICE_ID,
+			priceId: LIVE.n8nPriceId,
 		},
 	};
 }

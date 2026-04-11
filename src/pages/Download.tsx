@@ -30,7 +30,7 @@ async function parseFulfillmentErrorResponse(res: Response): Promise<string> {
     bodyText.includes("<!doctype html") ||
     bodyText.includes("<html")
   ) {
-    return "Local fulfillment API is not running. Start `npm run dev:api` in a separate terminal and reload this page.";
+    return "Local fulfillment API returned unexpected content. Restart the dev server and reload this page.";
   }
 
   return bodyText || `Request failed (${res.status})`;
@@ -49,7 +49,7 @@ async function parseFulfillmentSuccessResponse(
       bodyText.includes("<html")
     ) {
       throw new Error(
-        "Local fulfillment API is not running. Start `npm run dev:api` in a separate terminal and reload this page.",
+        "Local fulfillment API returned unexpected content. Restart the dev server and reload this page.",
       );
     }
 
