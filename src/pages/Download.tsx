@@ -2,9 +2,19 @@ import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { CheckCircle, Download, AlertCircle, ArrowLeft, Loader2 } from "lucide-react";
 
+import { SUPPORT_EMAIL } from "@/config/links";
 import { PADDLE_TRANSACTION_STORAGE_KEY } from "@/lib/paddle";
 
 type DownloadLink = {
+  key: string;
+  label: string;
+  filename: string;
+  url: string;
+  status: "download_allowed" | "manual_resend_required";
+  remainingSuccessfulDownloads: number;
+};
+
+type SignedDownload = {
   key: string;
   label: string;
   filename: string;
@@ -14,13 +24,23 @@ type DownloadLink = {
 type FulfillmentState =
   | { phase: "loading" }
   | { phase: "ready"; downloads: DownloadLink[] }
+  | { phase: "manual-resend"; message: string }
   | { phase: "error"; message: string };
+
+type ApiErrorBody = {
+  error?: string;
+  code?: string;
+};
+
+function isManualResendError(body: ApiErrorBody): boolean {
+  return body.code === "manual_resend_required";
+}
 
 async function parseFulfillmentErrorResponse(res: Response): Promise<string> {
   const contentType = res.headers.get("content-type") ?? "";
 
   if (contentType.includes("application/json")) {
-    const body = (await res.json().catch(() => ({}))) as { error?: string };
+    const body = (await res.json().catch(() => ({}))) as ApiErrorBody;
     return body.error ?? `Request failed (${res.status})`;
   }
 
@@ -57,6 +77,30 @@ async function parseFulfillmentSuccessResponse(
   }
 
   return (await res.json()) as { downloads: DownloadLink[] };
+}
+
+async function parseApiErrorBody(res: Response): Promise<ApiErrorBody> {
+  const contentType = res.headers.get("content-type") ?? "";
+  if (!contentType.includes("application/json")) {
+    return { error: await parseFulfillmentErrorResponse(res) };
+  }
+
+  return (await res.json().catch(() => ({}))) as ApiErrorBody;
+}
+
+async function parseDeliverySuccessResponse(
+  res: Response,
+): Promise<{ download: SignedDownload; remainingSuccessfulDownloads: number }> {
+  const contentType = res.headers.get("content-type") ?? "";
+
+  if (!contentType.includes("application/json")) {
+    throw new Error("Delivery endpoint returned a non-JSON response.");
+  }
+
+  return (await res.json()) as {
+    download: SignedDownload;
+    remainingSuccessfulDownloads: number;
+  };
 }
 
 function triggerBrowserDownload(url: string) {
@@ -126,12 +170,40 @@ const DownloadPage = () => {
 
     let cancelled = false;
 
+    async function requestDelivery(download: DownloadLink) {
+      const res = await fetch(download.url);
+
+      if (!res.ok) {
+        const body = await parseApiErrorBody(res);
+        if (isManualResendError(body)) {
+          throw Object.assign(new Error(body.error ?? "Manual resend required."), {
+            code: "manual_resend_required",
+          });
+        }
+
+        throw new Error(body.error ?? `Request failed (${res.status})`);
+      }
+
+      const data = await parseDeliverySuccessResponse(res);
+      triggerBrowserDownload(data.download.url);
+      return data;
+    }
+
     async function fetchDownloads() {
       try {
         const res = await fetch(`/api/fulfill?txn=${encodeURIComponent(txnId)}`);
 
         if (!res.ok) {
-          throw new Error(await parseFulfillmentErrorResponse(res));
+          const body = await parseApiErrorBody(res);
+          if (isManualResendError(body)) {
+            setState({
+              phase: "manual-resend",
+              message: body.error ?? "Automatic download limit reached. Please contact support for a manual resend.",
+            });
+            return;
+          }
+
+          throw new Error(body.error ?? `Request failed (${res.status})`);
         }
 
         const data = await parseFulfillmentSuccessResponse(res);
@@ -143,17 +215,32 @@ const DownloadPage = () => {
           clearTechnicalQueryParams();
         }
 
-        if (data.downloads.length > 0) {
-          setTimeout(() => {
-            if (!cancelled) triggerBrowserDownload(data.downloads[0].url);
-          }, 800);
+        const allowedDownloads = data.downloads.filter((download) =>
+          download.status === "download_allowed"
+        );
 
-          data.downloads.slice(1).forEach((_download, index) => {
+        if (allowedDownloads.length > 0) {
+          allowedDownloads.forEach((download, index) => {
             setTimeout(() => {
               if (!cancelled) {
-                triggerBrowserDownload(data.downloads[index + 1].url);
+                void requestDelivery(download).catch((error: unknown) => {
+                  if (cancelled) {
+                    return;
+                  }
+
+                  const message = error instanceof Error
+                    ? error.message
+                    : "We couldn't prepare your secure download right now.";
+                  const manualResend = error instanceof Error && "code" in error && error.code === "manual_resend_required";
+
+                  setState(
+                    manualResend
+                      ? { phase: "manual-resend", message }
+                      : { phase: "error", message },
+                  );
+                });
               }
-            }, (index + 1) * 2500 + 800);
+            }, index * 2500 + 800);
           });
         }
       } catch (err: unknown) {
@@ -176,7 +263,14 @@ const DownloadPage = () => {
     <div className="min-h-screen bg-background flex items-center justify-center px-4 py-16">
       <div className="max-w-lg w-full">
         {state.phase === "loading" && <LoadingCard />}
-        {state.phase === "ready" && <ReadyCard downloads={state.downloads} />}
+        {state.phase === "ready" && (
+          <ReadyCard
+            downloads={state.downloads}
+            onManualResend={(message) => setState({ phase: "manual-resend", message })}
+            onError={(message) => setState({ phase: "error", message })}
+          />
+        )}
+        {state.phase === "manual-resend" && <ManualResendCard message={state.message} />}
         {state.phase === "error" && <ErrorCard message={state.message} />}
       </div>
     </div>
@@ -198,7 +292,38 @@ function LoadingCard() {
   );
 }
 
-function ReadyCard({ downloads }: { downloads: DownloadLink[] }) {
+function ReadyCard(
+  {
+    downloads,
+    onManualResend,
+    onError,
+  }: {
+    downloads: DownloadLink[];
+    onManualResend: (message: string) => void;
+    onError: (message: string) => void;
+  },
+) {
+  const availableDownloads = downloads.filter((download) => download.status === "download_allowed");
+  const blockedDownloads = downloads.filter((download) => download.status === "manual_resend_required");
+
+  async function handleSecureDownload(download: DownloadLink) {
+    const res = await fetch(download.url);
+
+    if (!res.ok) {
+      const body = await parseApiErrorBody(res);
+      if (isManualResendError(body)) {
+        throw Object.assign(new Error(body.error ?? "Manual resend required."), {
+          code: "manual_resend_required",
+        });
+      }
+
+      throw new Error(body.error ?? `Request failed (${res.status})`);
+    }
+
+    const data = await parseDeliverySuccessResponse(res);
+    triggerBrowserDownload(data.download.url);
+  }
+
   return (
     <div className="space-y-8">
       <div className="text-center space-y-4">
@@ -216,34 +341,104 @@ function ReadyCard({ downloads }: { downloads: DownloadLink[] }) {
 
       <div className="bg-card border border-border rounded-xl p-6 space-y-5">
         <p className="text-sm text-muted-foreground text-center">
-          If nothing starts automatically, use the download buttons below.
+          If nothing starts automatically, use the secure download buttons below.
         </p>
 
         <div className="space-y-3">
-          {downloads.map((download) => (
-            <a
+          {availableDownloads.map((download) => (
+            <button
               key={download.key}
-              href={download.url}
-              download={download.filename}
+              type="button"
+              onClick={() => {
+                void handleSecureDownload(download).catch((error: unknown) => {
+                  const message = error instanceof Error
+                    ? error.message
+                    : "We couldn't prepare your secure download right now.";
+                  const manualResend = error instanceof Error && "code" in error && error.code === "manual_resend_required";
+
+                  if (manualResend) {
+                    onManualResend(message);
+                    return;
+                  }
+
+                  onError(message);
+                });
+              }}
               className="flex items-center gap-3 w-full px-4 py-3 bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 rounded-lg transition-colors"
             >
               <Download className="w-5 h-5 shrink-0" />
-              <span className="text-sm font-medium truncate">
-                {download.label}
+              <span className="text-sm font-medium truncate flex-1 text-left">
+                {download.label} • {download.remainingSuccessfulDownloads} secure retry
+                {download.remainingSuccessfulDownloads === 1 ? "" : "ies"} left
               </span>
-            </a>
+            </button>
           ))}
         </div>
 
+        {blockedDownloads.length > 0 ? (
+          <div className="border border-amber-500/30 bg-amber-500/10 rounded-lg p-4 space-y-2">
+            <p className="text-sm font-medium text-foreground">
+              Some files now require manual resend support.
+            </p>
+            <ul className="text-xs text-muted-foreground space-y-1">
+              {blockedDownloads.map((download) => (
+                <li key={download.key}>{download.label}</li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+
         <div className="border-t border-border pt-4 space-y-2 text-center">
           <p className="text-xs text-muted-foreground">
-            Your download links stay active for a limited time for security
-            reasons.
+            Each secure delivery is short-lived and tightly limited to reduce
+            link sharing.
           </p>
           <p className="text-xs text-muted-foreground">
-            A backup copy will also be sent to your email.
+            If your automatic limit is exhausted, contact support for a manual resend.
           </p>
         </div>
+      </div>
+
+      <div className="text-center">
+        <Link
+          to="/"
+          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to AI Cloud Base
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+function ManualResendCard({ message }: { message: string }) {
+  return (
+    <div className="space-y-8">
+      <div className="text-center space-y-4">
+        <div className="w-16 h-16 bg-amber-500/15 rounded-full mx-auto flex items-center justify-center">
+          <AlertCircle className="w-8 h-8 text-amber-500" />
+        </div>
+        <h1 className="text-2xl font-bold text-foreground">
+          Manual resend required
+        </h1>
+        <p className="text-muted-foreground text-sm">{message}</p>
+      </div>
+
+      <div className="bg-card border border-border rounded-xl p-6 text-center space-y-3">
+        <p className="text-sm text-muted-foreground">
+          Your automatic secure download limit has been reached for this order.
+        </p>
+        <p className="text-sm text-muted-foreground">
+          Contact us at{" "}
+          <a
+            href={`mailto:${SUPPORT_EMAIL}`}
+            className="text-primary underline underline-offset-2"
+          >
+            {SUPPORT_EMAIL}
+          </a>{" "}
+          and we will manually resend access.
+        </p>
       </div>
 
       <div className="text-center">
@@ -280,10 +475,10 @@ function ErrorCard({ message }: { message: string }) {
         <p className="text-sm text-muted-foreground">
           You can also contact us at{" "}
           <a
-            href="mailto:contact@aicldbase.com"
+            href={`mailto:${SUPPORT_EMAIL}`}
             className="text-primary underline underline-offset-2"
           >
-            contact@aicldbase.com
+            {SUPPORT_EMAIL}
           </a>
         </p>
       </div>

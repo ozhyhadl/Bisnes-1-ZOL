@@ -9,6 +9,10 @@
     {
       "src": "api/fulfill.ts",
       "use": "@vercel/node"
+    },
+    {
+      "src": "api/deliver.ts",
+      "use": "@vercel/node"
     }
   ],
   "routes": [
@@ -44,6 +48,7 @@
     },
     { "handle": "filesystem" },
     { "src": "/api/fulfill$", "dest": "/api/fulfill.ts" },
+    { "src": "/api/deliver$", "dest": "/api/deliver.ts" },
     { "src": "/(privacy|terms|download)$", "dest": "/index.html" },
     { "src": "/(.*)", "dest": "/index.html", "status": 404 }
   ]

@@ -58,6 +58,22 @@ function localFulfillApiPlugin(): Plugin {
           next(error);
         }
       });
+
+      server.middlewares.use("/api/deliver", async (req, res, next) => {
+        try {
+          const requestUrl = new URL(req.url ?? "/", "http://127.0.0.1:5173");
+          const query = Object.fromEntries(requestUrl.searchParams.entries());
+          const module = await server.ssrLoadModule("/api/deliver.ts");
+          const handler = module.default as (
+            req: DevVercelLikeRequest,
+            res: DevVercelLikeResponse,
+          ) => Promise<void>;
+
+          await handler(Object.assign(req, { query }), createDevResponseAdapter(res));
+        } catch (error) {
+          next(error);
+        }
+      });
     },
   };
 }
