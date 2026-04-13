@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { randomBytes } from "node:crypto";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { ensureOrderAttachmentEmailDelivery } from "./_lib/order-email";
+import { ensureOrderAttachmentEmailDelivery } from "./_lib/order-email.js";
 
 /* ── Price-ID → Storage-file mapping ─────────────────────────────── */
 
