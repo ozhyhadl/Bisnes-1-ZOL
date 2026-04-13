@@ -20,8 +20,13 @@ type DeliveryTokenRow = {
   attempt_log: unknown;
 };
 
-const SIGNED_URL_TTL_SECONDS = 900;
+const MAX_SUCCESSFUL_DOWNLOADS = 4;
+const SIGNED_URL_TTL_SECONDS = 86400;
 const FORBIDDEN_SUPABASE_PROJECT_REFS = new Set(["gjzltyiznkeyotqhqhxl"]);
+
+function getEffectiveMaxSuccessfulDownloads(maxSuccessfulDownloads: number): number {
+  return Math.max(maxSuccessfulDownloads, MAX_SUCCESSFUL_DOWNLOADS);
+}
 
 function extractSupabaseProjectRef(url: string): string | null {
   try {
@@ -82,10 +87,14 @@ function appendAttemptLog(existing: unknown, entry: Record<string, unknown>) {
 }
 
 function isTokenBlocked(token: DeliveryTokenRow): boolean {
+  const effectiveMaxSuccessfulDownloads = getEffectiveMaxSuccessfulDownloads(
+    token.max_successful_downloads,
+  );
+
   return token.manual_resend_required ||
     token.delivery_status === "manual_resend_required" ||
     token.delivery_status === "limit_exceeded" ||
-    token.successful_downloads >= token.max_successful_downloads;
+    token.successful_downloads >= effectiveMaxSuccessfulDownloads;
 }
 
 async function syncOrderDeliveryState(
@@ -124,13 +133,13 @@ async function syncOrderDeliveryState(
     token.manual_resend_required ||
     token.delivery_status === "manual_resend_required" ||
     token.delivery_status === "limit_exceeded" ||
-    token.successful_downloads >= token.max_successful_downloads
+    token.successful_downloads >= getEffectiveMaxSuccessfulDownloads(token.max_successful_downloads)
   );
   const allBlocked = tokens.length > 0 && tokens.every((token) =>
     token.manual_resend_required ||
     token.delivery_status === "manual_resend_required" ||
     token.delivery_status === "limit_exceeded" ||
-    token.successful_downloads >= token.max_successful_downloads
+    token.successful_downloads >= getEffectiveMaxSuccessfulDownloads(token.max_successful_downloads)
   );
   const anyError = tokens.some((token) => token.delivery_status === "error");
 
@@ -155,7 +164,7 @@ async function syncOrderDeliveryState(
       manual_resend_required: allBlocked,
       download_links_generated: successfulDownloads > 0,
       error_message: allBlocked
-        ? "Automatic download limit reached. Manual resend required."
+        ? "The secure delivery limit for this order has been reached. Contact support for a manual resend."
         : anyError
           ? "A delivery error occurred. Please try again."
           : null,
@@ -208,6 +217,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const deliveryToken = data as DeliveryTokenRow;
+  const effectiveMaxSuccessfulDownloads = getEffectiveMaxSuccessfulDownloads(
+    deliveryToken.max_successful_downloads,
+  );
   const clientIp = getClientIp(req);
   const userAgent = getUserAgent(req);
   const timestamp = new Date().toISOString();
@@ -217,6 +229,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       .from("delivery_tokens")
       .update({
         download_attempts: deliveryToken.download_attempts + 1,
+        max_successful_downloads: effectiveMaxSuccessfulDownloads,
         used_by_ip: clientIp,
         user_agent: userAgent,
         delivery_status: "manual_resend_required",
@@ -238,7 +251,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     return res.status(429).json({
       code: "manual_resend_required",
-      error: "Automatic download limit reached. Please contact support for a manual resend.",
+      error: "This file has reached its 4-download limit. Contact support for a manual resend.",
     });
   }
 
@@ -255,6 +268,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       .from("delivery_tokens")
       .update({
         download_attempts: deliveryToken.download_attempts + 1,
+        max_successful_downloads: effectiveMaxSuccessfulDownloads,
         used_by_ip: clientIp,
         user_agent: userAgent,
         delivery_status: "error",
@@ -278,8 +292,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const nextSuccessfulDownloads = deliveryToken.successful_downloads + 1;
-  const nextStatus = nextSuccessfulDownloads >= deliveryToken.max_successful_downloads
-    ? "limit_exceeded"
+  const nextStatus = nextSuccessfulDownloads >= effectiveMaxSuccessfulDownloads
+    ? "manual_resend_required"
     : "active";
 
   const { error: updateError } = await supabase
@@ -287,11 +301,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     .update({
       download_attempts: deliveryToken.download_attempts + 1,
       successful_downloads: nextSuccessfulDownloads,
+      max_successful_downloads: effectiveMaxSuccessfulDownloads,
       last_download_at: timestamp,
       used_by_ip: clientIp,
       user_agent: userAgent,
       delivery_status: nextStatus,
-      manual_resend_required: false,
+      manual_resend_required: nextSuccessfulDownloads >= effectiveMaxSuccessfulDownloads,
       attempt_log: appendAttemptLog(deliveryToken.attempt_log, {
         at: timestamp,
         ip: clientIp,
@@ -316,8 +331,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       url: signedData.signedUrl,
     },
     remainingSuccessfulDownloads: Math.max(
-      deliveryToken.max_successful_downloads - nextSuccessfulDownloads,
+      effectiveMaxSuccessfulDownloads - nextSuccessfulDownloads,
       0,
     ),
+    maxSuccessfulDownloads: effectiveMaxSuccessfulDownloads,
+    signedUrlTtlSeconds: SIGNED_URL_TTL_SECONDS,
   });
 }

@@ -62,8 +62,9 @@ const STORAGE_MAP: Record<string, StorageFile> = {
   },
 };
 
-const MAX_SUCCESSFUL_DOWNLOADS = 2;
-const MAX_TOTAL_ATTACHMENT_BYTES = 25 * 1024 * 1024;
+const MAX_SUCCESSFUL_DOWNLOADS = 4;
+const SIGNED_URL_TTL_SECONDS = 86400;
+const DEFAULT_SITE_URL = "https://aicldbase.com";
 const EMAIL_ERROR_LIMIT = 1500;
 const FORBIDDEN_SUPABASE_PROJECT_REFS = new Set(["gjzltyiznkeyotqhqhxl"]);
 
@@ -136,6 +137,26 @@ function isForbiddenSupabaseProject(url: string): boolean {
   return projectRef ? FORBIDDEN_SUPABASE_PROJECT_REFS.has(projectRef) : false;
 }
 
+function getEffectiveMaxSuccessfulDownloads(maxSuccessfulDownloads: number): number {
+  return Math.max(maxSuccessfulDownloads, MAX_SUCCESSFUL_DOWNLOADS);
+}
+
+function getSiteBaseUrl(): string {
+  const configuredSiteUrl = (
+    process.env.PUBLIC_SITE_URL ??
+    process.env.SITE_URL ??
+    DEFAULT_SITE_URL
+  ).trim();
+
+  return configuredSiteUrl.endsWith("/")
+    ? configuredSiteUrl.slice(0, -1)
+    : configuredSiteUrl;
+}
+
+function buildAbsoluteSiteUrl(path: string): string {
+  return `${getSiteBaseUrl()}${path.startsWith("/") ? path : `/${path}`}`;
+}
+
 function normalizeEmailStatus(value: string | null | undefined): OrderEmailStatus {
   if (
     value === "pending" ||
@@ -166,39 +187,78 @@ function stringifyEmailError(error: unknown): string {
 
 function buildEmailSubject(environment: "sandbox" | "production"): string {
   return environment === "sandbox"
-    ? "[Sandbox] Your AI Cloud Base files are attached"
-    : "Your AI Cloud Base files are attached";
+    ? "[Sandbox] Your secure download links are ready"
+    : "Your secure download links are ready";
 }
 
-function buildEmailHtml(transactionId: string, files: StorageFile[]): string {
-  const itemList = files
-    .map((file) => `<li><strong>${file.label}</strong> (${file.filename})</li>`)
+function buildEmailHtml(
+  transactionId: string,
+  downloadLinks: Array<{ key: string; label: string; filename: string; url: string }>,
+): string {
+  const itemList = downloadLinks
+    .map((downloadLink) => `
+      <tr>
+        <td style="padding:0 0 16px 0;">
+          <div style="font-size:14px;font-weight:600;color:#1f2937;margin-bottom:4px;">${downloadLink.label}</div>
+          <div style="font-size:13px;color:#6b7280;margin-bottom:10px;">${downloadLink.filename}</div>
+          <a href="${downloadLink.url}" style="display:inline-block;padding:10px 16px;border-radius:10px;background-color:#d57a4d;color:#ffffff;font-size:13px;font-weight:600;text-decoration:none;">Download ${downloadLink.label}</a>
+        </td>
+      </tr>`)
     .join("");
 
   return [
-    "<div style=\"font-family:Arial,sans-serif;line-height:1.6;color:#111827\">",
-    "<p>Thanks for your purchase.</p>",
-    "<p>Your files are attached to this email and are also available from your secure download page.</p>",
-    `<p><strong>Transaction ID:</strong> ${transactionId}</p>`,
-    `<ul>${itemList}</ul>`,
-    "<p>If anything looks wrong, reply to this email and include your transaction ID.</p>",
+    "<div style=\"margin:0;padding:24px;background-color:#f7f2eb;font-family:Arial,sans-serif;color:#1f2937;\">",
+    "<div style=\"max-width:600px;margin:0 auto;background-color:#ffffff;border:1px solid #e7ddd1;border-radius:16px;overflow:hidden;\">",
+    "<div style=\"padding:32px 28px 20px 28px;border-bottom:1px solid #efe7dc;\">",
+    "<div style=\"font-size:12px;letter-spacing:0.18em;text-transform:uppercase;color:#8b7355;margin-bottom:12px;\">AI Cloud Base</div>",
+    "<h1 style=\"margin:0 0 12px 0;font-size:28px;line-height:1.2;color:#1f2937;\">Your secure download links are ready</h1>",
+    "<p style=\"margin:0;font-size:15px;line-height:1.7;color:#4b5563;\">Thanks for your order. Use the secure links below to access your files.</p>",
+    "</div>",
+    "<div style=\"padding:24px 28px;\">",
+    "<div style=\"margin:0 0 20px 0;padding:16px 18px;background-color:#fbf8f4;border:1px solid #eee3d6;border-radius:12px;\">",
+    "<div style=\"font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#8b7355;margin-bottom:8px;\">Order Details</div>",
+    `<div style=\"font-size:14px;color:#4b5563;margin-bottom:6px;\"><strong style=\"color:#1f2937;\">Transaction ID:</strong> ${transactionId}</div>`,
+    `<div style=\"font-size:14px;color:#4b5563;\">Each file supports up to ${MAX_SUCCESSFUL_DOWNLOADS} successful downloads. Once a file link is issued, it remains active for ${SIGNED_URL_TTL_SECONDS / 3600} hours.</div>`,
+    "</div>",
+    "<table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" style=\"margin:0 0 20px 0;\">",
+    itemList,
+    "</table>",
+    "<p style=\"margin:0 0 14px 0;font-size:14px;line-height:1.7;color:#4b5563;\">If you use all 4 successful downloads for a file, contact support and we will help with a manual resend.</p>",
+    "<p style=\"margin:0 0 14px 0;font-size:14px;line-height:1.7;color:#4b5563;\">If anything looks wrong, reply to this email and include your transaction ID.</p>",
+    "<p style=\"margin:0;font-size:14px;line-height:1.7;color:#4b5563;\">Best,<br />AI Cloud Base Support</p>",
+    "</div>",
+    "</div>",
     "</div>",
   ].join("");
 }
 
-function buildEmailText(transactionId: string, files: StorageFile[]): string {
-  const itemLines = files.map((file) => `- ${file.label} (${file.filename})`).join("\n");
+function buildEmailText(
+  transactionId: string,
+  downloadLinks: Array<{ key: string; label: string; filename: string; url: string }>,
+): string {
+  const itemLines = downloadLinks
+    .map((downloadLink) => `- ${downloadLink.label} (${downloadLink.filename})\n  ${downloadLink.url}`)
+    .join("\n\n");
 
   return [
-    "Thanks for your purchase.",
+    "Your secure download links are ready.",
     "",
-    "Your files are attached to this email and are also available from your secure download page.",
+    "Thanks for your order.",
     "",
+    "Use the secure links below to access your files.",
+    "",
+    "Order details",
     `Transaction ID: ${transactionId}`,
+    `Download policy: Up to ${MAX_SUCCESSFUL_DOWNLOADS} successful downloads per file. Each issued file link stays active for ${SIGNED_URL_TTL_SECONDS / 3600} hours.`,
     "",
     itemLines,
     "",
-    "If anything looks wrong, reply to this email and include your transaction ID.",
+    "If you use all 4 successful downloads for a file, contact support for a manual resend.",
+    "",
+    "If you run into any other issues, reply to this email and include your transaction ID.",
+    "",
+    "Best,",
+    "AI Cloud Base Support",
   ].join("\n");
 }
 
@@ -331,41 +391,24 @@ async function claimOrderEmailSend(
   };
 }
 
-async function loadEmailAttachments(
-  supabase: SupabaseClient,
-  files: StorageFile[],
-): Promise<Array<{ content: string; filename: string }>> {
-  const attachments = [] as Array<{ content: string; filename: string }>;
-  let totalBytes = 0;
-
-  for (const file of files) {
-    const { data, error } = await supabase.storage
-      .from(file.bucket)
-      .download(file.path);
-
-    if (error || !data) {
-      throw new Error(`Failed to load attachment ${file.filename}: ${error?.message ?? "missing file data"}`);
-    }
-
-    totalBytes += data.size;
-    if (totalBytes > MAX_TOTAL_ATTACHMENT_BYTES) {
-      throw new Error("Attachment payload is too large to send through Resend.");
-    }
-
-    const buffer = Buffer.from(await data.arrayBuffer());
-    attachments.push({
-      content: buffer.toString("base64"),
-      filename: file.filename,
-    });
-  }
-
-  return attachments;
+function buildEmailDeliveryLinks(
+  transactionId: string,
+  downloads: Array<{ key: string; label: string; filename: string }>,
+): Array<{ key: string; label: string; filename: string; url: string }> {
+  return downloads.map((download) => ({
+    key: download.key,
+    label: download.label,
+    filename: download.filename,
+    url: buildAbsoluteSiteUrl(
+      `/download?txn=${encodeURIComponent(transactionId)}&file=${encodeURIComponent(download.key)}`,
+    ),
+  }));
 }
 
 async function markOrderEmailSent(
   supabase: SupabaseClient,
   transactionId: string,
-  files: StorageFile[],
+  downloadLinks: Array<{ key: string }>,
 ): Promise<void> {
   const { error } = await supabase
     .from("orders")
@@ -374,7 +417,7 @@ async function markOrderEmailSent(
       email_sent_at: new Date().toISOString(),
       email_claimed_at: null,
       email_error: null,
-      attachments_sent: files.map((file) => file.key),
+      attachments_sent: downloadLinks.map((downloadLink) => downloadLink.key),
     })
     .eq("transaction_id", transactionId)
     .eq("email_status", "sending");
@@ -411,8 +454,7 @@ async function sendOrderEmailViaResendApi(params: {
   from: string;
   replyTo: string | null;
   environment: "sandbox" | "production";
-  files: StorageFile[];
-  attachments: Array<{ content: string; filename: string }>;
+  downloadLinks: Array<{ key: string; label: string; filename: string; url: string }>;
   attempt: number;
 }): Promise<void> {
   const response = await fetch("https://api.resend.com/emails", {
@@ -420,16 +462,15 @@ async function sendOrderEmailViaResendApi(params: {
     headers: {
       Authorization: `Bearer ${params.apiKey}`,
       "Content-Type": "application/json",
-      "Idempotency-Key": `${params.transactionId}-attachments-${params.attempt}`,
+      "Idempotency-Key": `${params.transactionId}-delivery-links-${params.attempt}`,
     },
     body: JSON.stringify({
       from: params.from,
       to: [params.recipient],
       replyTo: params.replyTo ?? undefined,
       subject: buildEmailSubject(params.environment),
-      html: buildEmailHtml(params.transactionId, params.files),
-      text: buildEmailText(params.transactionId, params.files),
-      attachments: params.attachments,
+      html: buildEmailHtml(params.transactionId, params.downloadLinks),
+      text: buildEmailText(params.transactionId, params.downloadLinks),
     }),
   });
 
@@ -441,17 +482,17 @@ async function sendOrderEmailViaResendApi(params: {
   throw new Error(`Resend API ${response.status}: ${responseText}`);
 }
 
-async function ensureOrderAttachmentEmailDelivery({
+async function ensureOrderDeliveryEmail({
   supabase,
   transactionId,
   fallbackEmail,
-  files,
+  downloadLinks,
   environment,
 }: {
   supabase: SupabaseClient;
   transactionId: string;
   fallbackEmail: string | null;
-  files: StorageFile[];
+  downloadLinks: Array<{ key: string; label: string; filename: string; url: string }>;
   environment: "sandbox" | "production";
 }): Promise<void> {
   const claim = await claimOrderEmailSend(supabase, transactionId, fallbackEmail);
@@ -462,7 +503,6 @@ async function ensureOrderAttachmentEmailDelivery({
   try {
     const apiKey = getResendApiKey();
     const { from, replyTo } = getEmailSenderConfig();
-    const attachments = await loadEmailAttachments(supabase, files);
 
     await sendOrderEmailViaResendApi({
       apiKey,
@@ -471,12 +511,11 @@ async function ensureOrderAttachmentEmailDelivery({
       from,
       replyTo,
       environment,
-      files,
-      attachments,
+      downloadLinks,
       attempt: claim.nextAttempt,
     });
 
-    await markOrderEmailSent(supabase, transactionId, files);
+    await markOrderEmailSent(supabase, transactionId, downloadLinks);
   } catch (error: unknown) {
     await markOrderEmailFailed(supabase, transactionId, error);
     throw error;
@@ -609,10 +648,14 @@ function createDeliveryTokenValue(): string {
 }
 
 function isTokenBlocked(token: DeliveryTokenRecord): boolean {
+  const effectiveMaxSuccessfulDownloads = getEffectiveMaxSuccessfulDownloads(
+    token.max_successful_downloads,
+  );
+
   return token.manual_resend_required ||
     token.delivery_status === "manual_resend_required" ||
     token.delivery_status === "limit_exceeded" ||
-    token.successful_downloads >= token.max_successful_downloads;
+    token.successful_downloads >= effectiveMaxSuccessfulDownloads;
 }
 
 function summarizeDeliveryTokens(tokens: DeliveryTokenRecord[]) {
@@ -642,13 +685,15 @@ function summarizeDeliveryTokens(tokens: DeliveryTokenRecord[]) {
 
 function buildDeliveryDownloads(tokens: DeliveryTokenRecord[]) {
   return tokens.map((token) => ({
+    maxSuccessfulDownloads: getEffectiveMaxSuccessfulDownloads(token.max_successful_downloads),
+    signedUrlTtlSeconds: SIGNED_URL_TTL_SECONDS,
     key: token.file_key,
     label: token.label,
     filename: token.filename,
     url: `/api/deliver?token=${encodeURIComponent(token.delivery_token)}`,
     status: isTokenBlocked(token) ? "manual_resend_required" : "download_allowed",
     remainingSuccessfulDownloads: Math.max(
-      token.max_successful_downloads - token.successful_downloads,
+      getEffectiveMaxSuccessfulDownloads(token.max_successful_downloads) - token.successful_downloads,
       0,
     ),
   }));
@@ -1066,6 +1111,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   for (const file of filesToDeliver) {
     const existingToken = existingTokensByKey.get(file.key);
+    const effectiveMaxSuccessfulDownloads = getEffectiveMaxSuccessfulDownloads(
+      existingToken?.max_successful_downloads ?? 0,
+    );
+    const normalizedDeliveryStatus = existingToken?.delivery_status === "error"
+      ? "error"
+      : (existingToken?.successful_downloads ?? 0) >= effectiveMaxSuccessfulDownloads
+        ? "manual_resend_required"
+        : "active";
+
     await upsertDeliveryToken(supabase, {
       order_id: orderRecord.id,
       transaction_id: txn,
@@ -1077,12 +1131,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       delivery_token: existingToken?.delivery_token ?? createDeliveryTokenValue(),
       download_attempts: existingToken?.download_attempts ?? 0,
       successful_downloads: existingToken?.successful_downloads ?? 0,
-      max_successful_downloads: existingToken?.max_successful_downloads ?? MAX_SUCCESSFUL_DOWNLOADS,
+      max_successful_downloads: effectiveMaxSuccessfulDownloads,
       last_download_at: existingToken?.last_download_at ?? null,
       used_by_ip: existingToken?.used_by_ip ?? null,
       user_agent: existingToken?.user_agent ?? null,
-      delivery_status: existingToken?.delivery_status ?? "active",
-      manual_resend_required: existingToken?.manual_resend_required ?? false,
+      delivery_status: normalizedDeliveryStatus,
+      manual_resend_required: normalizedDeliveryStatus === "manual_resend_required",
       attempt_log: Array.isArray(existingToken?.attempt_log) ? existingToken.attempt_log : [],
     });
   }
@@ -1125,6 +1179,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const deliverySummary = summarizeDeliveryTokens(deliveryTokens);
   const downloads = buildDeliveryDownloads(deliveryTokens);
+  const emailDeliveryLinks = buildEmailDeliveryLinks(txn, downloads);
 
   await upsertOrder(supabase, {
     transaction_id: txn,
@@ -1153,18 +1208,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     last_download_at: deliverySummary.lastDownloadAt,
     fulfilled_at: existingOrder?.fulfilled_at ?? new Date().toISOString(),
     error_message: deliverySummary.allBlocked
-      ? "Automatic download limit reached. Please contact support for a manual resend."
+      ? "This order has reached the secure delivery limit. Contact support for a manual resend."
       : null,
     source: "download_page",
     raw_transaction_payload: transaction,
   });
 
   try {
-    await ensureOrderAttachmentEmailDelivery({
+    await ensureOrderDeliveryEmail({
       supabase,
       transactionId: txn,
       fallbackEmail: extractEmail(transaction),
-      files: filesToDeliver,
+      downloadLinks: emailDeliveryLinks,
       environment,
     });
   } catch (error: unknown) {
@@ -1177,13 +1232,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (downloads.every((download) => download.status === "manual_resend_required")) {
     return res.status(429).json({
       code: "manual_resend_required",
-      error: "Automatic download limit reached. Please contact support for a manual resend.",
+      error: "This order has reached the 4-download secure delivery limit. Contact support for a manual resend.",
     });
   }
 
   return res.status(200).json({
     status: "ok",
     transactionId: txn,
+    deliveryPolicy: {
+      maxSuccessfulDownloads: MAX_SUCCESSFUL_DOWNLOADS,
+      signedUrlTtlSeconds: SIGNED_URL_TTL_SECONDS,
+    },
     downloads,
   });
 }

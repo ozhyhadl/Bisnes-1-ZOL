@@ -12,6 +12,13 @@ type DownloadLink = {
   url: string;
   status: "download_allowed" | "manual_resend_required";
   remainingSuccessfulDownloads: number;
+  maxSuccessfulDownloads: number;
+  signedUrlTtlSeconds: number;
+};
+
+type DeliveryPolicy = {
+  maxSuccessfulDownloads: number;
+  signedUrlTtlSeconds: number;
 };
 
 type SignedDownload = {
@@ -23,7 +30,7 @@ type SignedDownload = {
 
 type FulfillmentState =
   | { phase: "loading" }
-  | { phase: "ready"; downloads: DownloadLink[] }
+  | { phase: "ready"; downloads: DownloadLink[]; deliveryPolicy: DeliveryPolicy }
   | { phase: "manual-resend"; message: string }
   | { phase: "error"; message: string };
 
@@ -58,7 +65,7 @@ async function parseFulfillmentErrorResponse(res: Response): Promise<string> {
 
 async function parseFulfillmentSuccessResponse(
   res: Response,
-): Promise<{ downloads: DownloadLink[] }> {
+): Promise<{ downloads: DownloadLink[]; deliveryPolicy: DeliveryPolicy }> {
   const contentType = res.headers.get("content-type") ?? "";
 
   if (!contentType.includes("application/json")) {
@@ -76,7 +83,7 @@ async function parseFulfillmentSuccessResponse(
     throw new Error("Fulfillment endpoint returned a non-JSON response.");
   }
 
-  return (await res.json()) as { downloads: DownloadLink[] };
+  return (await res.json()) as { downloads: DownloadLink[]; deliveryPolicy: DeliveryPolicy };
 }
 
 async function parseApiErrorBody(res: Response): Promise<ApiErrorBody> {
@@ -126,8 +133,20 @@ function readTransactionId(searchParams: URLSearchParams): string | null {
   return window.sessionStorage.getItem(PADDLE_TRANSACTION_STORAGE_KEY);
 }
 
-function clearTechnicalQueryParams() {
-  window.history.replaceState(window.history.state, "", "/download");
+function clearTechnicalQueryParams(searchParams: URLSearchParams) {
+  const nextSearchParams = new URLSearchParams();
+  const selectedFileKey = searchParams.get("file");
+
+  if (selectedFileKey) {
+    nextSearchParams.set("file", selectedFileKey);
+  }
+
+  const nextQuery = nextSearchParams.toString();
+  window.history.replaceState(
+    window.history.state,
+    "",
+    nextQuery ? `/download?${nextQuery}` : "/download",
+  );
 }
 
 const DownloadPage = () => {
@@ -154,6 +173,7 @@ const DownloadPage = () => {
 
   useEffect(() => {
     const txnId = readTransactionId(searchParams);
+    const selectedFileKey = searchParams.get("file");
     const hasTechnicalParams =
       searchParams.has("txn") ||
       searchParams.has("_ptxn") ||
@@ -198,7 +218,7 @@ const DownloadPage = () => {
           if (isManualResendError(body)) {
             setState({
               phase: "manual-resend",
-              message: body.error ?? "Automatic download limit reached. Please contact support for a manual resend.",
+              message: body.error ?? "This file has reached its 4-download limit. Contact support for a manual resend.",
             });
             return;
           }
@@ -209,18 +229,21 @@ const DownloadPage = () => {
         const data = await parseFulfillmentSuccessResponse(res);
         if (cancelled) return;
 
-        setState({ phase: "ready", downloads: data.downloads });
+        setState({ phase: "ready", downloads: data.downloads, deliveryPolicy: data.deliveryPolicy });
 
         if (hasTechnicalParams) {
-          clearTechnicalQueryParams();
+          clearTechnicalQueryParams(searchParams);
         }
 
         const allowedDownloads = data.downloads.filter((download) =>
           download.status === "download_allowed"
         );
+        const downloadsToAutoStart = selectedFileKey
+          ? allowedDownloads.filter((download) => download.key === selectedFileKey)
+          : allowedDownloads;
 
-        if (allowedDownloads.length > 0) {
-          allowedDownloads.forEach((download, index) => {
+        if (downloadsToAutoStart.length > 0) {
+          downloadsToAutoStart.forEach((download, index) => {
             setTimeout(() => {
               if (!cancelled) {
                 void requestDelivery(download).catch((error: unknown) => {
@@ -266,6 +289,7 @@ const DownloadPage = () => {
         {state.phase === "ready" && (
           <ReadyCard
             downloads={state.downloads}
+            deliveryPolicy={state.deliveryPolicy}
             onManualResend={(message) => setState({ phase: "manual-resend", message })}
             onError={(message) => setState({ phase: "error", message })}
           />
@@ -285,7 +309,7 @@ function LoadingCard() {
         Preparing your download…
       </h1>
       <p className="text-muted-foreground text-sm">
-        We are verifying your payment and generating secure file links. Please
+        We are verifying your payment and preparing secure download links. Please
         keep this page open.
       </p>
     </div>
@@ -295,10 +319,12 @@ function LoadingCard() {
 function ReadyCard(
   {
     downloads,
+    deliveryPolicy,
     onManualResend,
     onError,
   }: {
     downloads: DownloadLink[];
+    deliveryPolicy: DeliveryPolicy;
     onManualResend: (message: string) => void;
     onError: (message: string) => void;
   },
@@ -334,8 +360,7 @@ function ReadyCard(
           Your Download Is Ready
         </h1>
         <p className="text-muted-foreground">
-          Thanks for your order. Your files are prepared and should start
-          downloading automatically.
+          Thanks for your order. Your secure file links should start downloading automatically.
         </p>
       </div>
 
@@ -343,6 +368,9 @@ function ReadyCard(
         <p className="text-sm text-muted-foreground text-center">
           If nothing starts automatically, use the secure download buttons below.
         </p>
+        <div className="rounded-lg border border-border/80 bg-background/70 px-4 py-3 text-center text-xs leading-relaxed text-muted-foreground">
+          Each file supports up to {deliveryPolicy.maxSuccessfulDownloads} successful downloads. Every issued file link stays active for {deliveryPolicy.signedUrlTtlSeconds / 3600} hours.
+        </div>
 
         <div className="space-y-3">
           {availableDownloads.map((download) => (
@@ -368,8 +396,7 @@ function ReadyCard(
             >
               <Download className="w-5 h-5 shrink-0" />
               <span className="text-sm font-medium truncate flex-1 text-left">
-                {download.label} • {download.remainingSuccessfulDownloads} secure retry
-                {download.remainingSuccessfulDownloads === 1 ? "" : "ies"} left
+                {download.label} • {download.remainingSuccessfulDownloads} of {download.maxSuccessfulDownloads} secure downloads left
               </span>
             </button>
           ))}
@@ -378,7 +405,7 @@ function ReadyCard(
         {blockedDownloads.length > 0 ? (
           <div className="border border-amber-500/30 bg-amber-500/10 rounded-lg p-4 space-y-2">
             <p className="text-sm font-medium text-foreground">
-              Some files now require manual resend support.
+              Some files have used all {deliveryPolicy.maxSuccessfulDownloads} secure downloads and now require manual resend support.
             </p>
             <ul className="text-xs text-muted-foreground space-y-1">
               {blockedDownloads.map((download) => (
@@ -390,11 +417,10 @@ function ReadyCard(
 
         <div className="border-t border-border pt-4 space-y-2 text-center">
           <p className="text-xs text-muted-foreground">
-            Each secure delivery is short-lived and tightly limited to reduce
-            link sharing.
+            Each issued file link stays active for {deliveryPolicy.signedUrlTtlSeconds / 3600} hours and is limited to {deliveryPolicy.maxSuccessfulDownloads} successful downloads per file.
           </p>
           <p className="text-xs text-muted-foreground">
-            If your automatic limit is exhausted, contact support for a manual resend.
+            If that limit is exhausted, contact support for a manual resend.
           </p>
         </div>
       </div>
@@ -427,7 +453,7 @@ function ManualResendCard({ message }: { message: string }) {
 
       <div className="bg-card border border-border rounded-xl p-6 text-center space-y-3">
         <p className="text-sm text-muted-foreground">
-          Your automatic secure download limit has been reached for this order.
+          Your order has reached the limit of 4 successful secure downloads for this file.
         </p>
         <p className="text-sm text-muted-foreground">
           Contact us at{" "}
@@ -437,7 +463,7 @@ function ManualResendCard({ message }: { message: string }) {
           >
             {SUPPORT_EMAIL}
           </a>{" "}
-          and we will manually resend access.
+          and we will help with a manual resend.
         </p>
       </div>
 
@@ -469,8 +495,10 @@ function ErrorCard({ message }: { message: string }) {
 
       <div className="bg-card border border-border rounded-xl p-6 text-center space-y-3">
         <p className="text-sm text-muted-foreground">
-          If your payment went through, don't worry. We will send a backup copy
-          of your files to your email.
+          If your payment went through, don't worry. We can resend fresh secure download links to your email.
+        </p>
+        <p className="text-sm text-muted-foreground">
+          Each file link stays active for 24 hours after it is issued and supports up to 4 successful downloads.
         </p>
         <p className="text-sm text-muted-foreground">
           You can also contact us at{" "}
