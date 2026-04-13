@@ -1,5 +1,4 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { Resend } from "resend";
 
 type OrderEmailStatus = "pending" | "sending" | "sent" | "failed" | "not_applicable";
 
@@ -116,14 +115,14 @@ function buildEmailText(transactionId: string, files: DeliverableAttachment[]): 
   ].join("\n");
 }
 
-function createResendClient(): Resend {
+function getResendApiKey(): string {
   const apiKey = trimEmail(process.env.RESEND_API_KEY);
 
   if (!apiKey) {
     throw new Error("RESEND_API_KEY is not configured.");
   }
 
-  return new Resend(apiKey);
+  return apiKey;
 }
 
 function getEmailSenderConfig() {
@@ -318,6 +317,43 @@ async function markOrderEmailFailed(
   }
 }
 
+async function sendOrderEmailViaResendApi(params: {
+  apiKey: string;
+  transactionId: string;
+  recipient: string;
+  from: string;
+  replyTo: string | null;
+  environment: "sandbox" | "production";
+  files: DeliverableAttachment[];
+  attachments: Array<{ content: string; filename: string }>;
+  attempt: number;
+}): Promise<void> {
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${params.apiKey}`,
+      "Content-Type": "application/json",
+      "Idempotency-Key": `${params.transactionId}-attachments-${params.attempt}`,
+    },
+    body: JSON.stringify({
+      from: params.from,
+      to: [params.recipient],
+      replyTo: params.replyTo ?? undefined,
+      subject: buildEmailSubject(params.environment),
+      html: buildEmailHtml(params.transactionId, params.files),
+      text: buildEmailText(params.transactionId, params.files),
+      attachments: params.attachments,
+    }),
+  });
+
+  if (response.ok) {
+    return;
+  }
+
+  const responseText = await response.text();
+  throw new Error(`Resend API ${response.status}: ${responseText}`);
+}
+
 export async function ensureOrderAttachmentEmailDelivery({
   supabase,
   transactionId,
@@ -331,23 +367,21 @@ export async function ensureOrderAttachmentEmailDelivery({
   }
 
   try {
-    const resend = createResendClient();
+    const apiKey = getResendApiKey();
     const { from, replyTo } = getEmailSenderConfig();
     const attachments = await loadEmailAttachments(supabase, files);
 
-    const { error } = await resend.emails.send({
+    await sendOrderEmailViaResendApi({
+      apiKey,
+      transactionId,
+      recipient: claim.recipient,
       from,
-      to: [claim.recipient],
-      replyTo: replyTo ?? undefined,
-      subject: buildEmailSubject(environment),
-      html: buildEmailHtml(transactionId, files),
-      text: buildEmailText(transactionId, files),
+      replyTo,
+      environment,
+      files,
       attachments,
+      attempt: claim.nextAttempt,
     });
-
-    if (error) {
-      throw new Error(error.message);
-    }
 
     await markOrderEmailSent(supabase, transactionId, files);
   } catch (error: unknown) {
