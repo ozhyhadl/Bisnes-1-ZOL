@@ -29,21 +29,31 @@ const PricingSection = () => {
                   className="flex justify-between items-start gap-2 text-xs md:text-sm"
                 >
                   <span className="text-terminal-foreground/70 flex-1">{item.name}</span>
-                  <span className="text-terminal-foreground/50 line-through shrink-0">{item.price}</span>
+                  <span className="text-[#ff5c5c] line-through decoration-2 decoration-[#ff5c5c] font-medium shrink-0">{item.price}</span>
                 </div>
               ))}
             </div>
             <div className="border-t border-terminal-foreground/10 pt-5 mb-6">
               <div className="flex justify-between items-center text-sm mb-4">
                 <span className="text-terminal-foreground/70">Total Value</span>
-                <span className="text-terminal-foreground/50 line-through">$707</span>
+                <span className="text-[#ff6a6a] line-through decoration-2 decoration-[#ff6a6a] font-semibold">$707</span>
               </div>
             </div>
             <div className="text-center">
-              <div className="text-4xl md:text-5xl font-bold text-primary mb-2 drop-shadow-[0_4px_18px_rgba(196,107,64,0.34)]">
-                $15
+              <div className="inline-flex flex-col items-center rounded-2xl border border-primary/20 bg-primary/10 px-6 py-5 mb-3 shadow-[0_18px_44px_rgba(193,98,58,0.14)]">
+                <span className="text-[10px] uppercase tracking-[0.26em] text-terminal-foreground/60 mb-2">
+                  Today Only
+                </span>
+                <div className="flex items-end justify-center gap-3">
+                  <span className="text-base md:text-lg font-semibold text-[#ff6a6a] line-through decoration-2 decoration-[#ff6a6a]">
+                    $707
+                  </span>
+                  <span className="text-4xl md:text-5xl font-bold text-[#4fa878] drop-shadow-[0_8px_24px_rgba(60,138,97,0.24)]">
+                    $15
+                  </span>
+                </div>
               </div>
-              <p className="text-xs text-terminal-foreground/70 mb-6">One-time payment · Lifetime access · Instant digital delivery</p>
+              <p className="text-xs text-terminal-foreground/72 mb-6">One-time payment · Lifetime access · Instant digital delivery</p>
               <CTAButton
                 action="checkout"
                 className="px-10 py-4 text-sm shadow-[0_0_0_1px_rgba(211,121,74,0.18),0_12px_32px_rgba(193,98,58,0.24)] hover:shadow-[0_0_0_1px_rgba(211,121,74,0.24),0_16px_36px_rgba(193,98,58,0.3)]"

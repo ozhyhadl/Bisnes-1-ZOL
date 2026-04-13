@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { randomBytes } from "node:crypto";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { ensureOrderAttachmentEmailDelivery } from "./_lib/order-email";
 
 /* ── Price-ID → Storage-file mapping ─────────────────────────────── */
 
@@ -779,6 +780,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     source: "download_page",
     raw_transaction_payload: transaction,
   });
+
+  try {
+    await ensureOrderAttachmentEmailDelivery({
+      supabase,
+      transactionId: txn,
+      fallbackEmail: extractEmail(transaction),
+      files: filesToDeliver,
+      environment,
+    });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("[fulfill] Transactional email delivery failed:", message);
+  }
 
   /* ── Return download links ────────────────────────────────────── */
 
