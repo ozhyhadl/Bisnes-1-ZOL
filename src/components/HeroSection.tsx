@@ -20,7 +20,7 @@ const HeroSection = () => {
         <span>Works in Claude.ai, Code &amp; Cowork</span>
       </div>
       <div>
-        <CTAButton>Get Instant Access — $15</CTAButton>
+          <CTAButton>Get Instant Access</CTAButton>
       </div>
       <p className="mt-5 text-xs text-muted-foreground">
         One-time purchase · Instant download · Lifetime access
