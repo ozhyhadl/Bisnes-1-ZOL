@@ -3,7 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { CheckCircle, Download, AlertCircle, ArrowLeft, Loader2 } from "lucide-react";
 
 import { SUPPORT_EMAIL } from "@/config/links";
-import { PADDLE_TRANSACTION_STORAGE_KEY } from "@/lib/paddle";
+import { PADDLE_FULFILLMENT_ACCESS_TOKEN_STORAGE_KEY } from "@/lib/paddle";
 
 type DownloadLink = {
   key: string;
@@ -30,7 +30,7 @@ type SignedDownload = {
 
 type FulfillmentState =
   | { phase: "loading" }
-  | { phase: "ready"; downloads: DownloadLink[]; deliveryPolicy: DeliveryPolicy }
+  | { phase: "ready"; downloads: DownloadLink[]; deliveryPolicy: DeliveryPolicy; orderReference: string | null }
   | { phase: "manual-resend"; message: string }
   | { phase: "error"; message: string };
 
@@ -65,7 +65,7 @@ async function parseFulfillmentErrorResponse(res: Response): Promise<string> {
 
 async function parseFulfillmentSuccessResponse(
   res: Response,
-): Promise<{ downloads: DownloadLink[]; deliveryPolicy: DeliveryPolicy }> {
+): Promise<{ downloads: DownloadLink[]; deliveryPolicy: DeliveryPolicy; orderReference: string | null }> {
   const contentType = res.headers.get("content-type") ?? "";
 
   if (!contentType.includes("application/json")) {
@@ -83,7 +83,11 @@ async function parseFulfillmentSuccessResponse(
     throw new Error("Fulfillment endpoint returned a non-JSON response.");
   }
 
-  return (await res.json()) as { downloads: DownloadLink[]; deliveryPolicy: DeliveryPolicy };
+  return (await res.json()) as {
+    downloads: DownloadLink[];
+    deliveryPolicy: DeliveryPolicy;
+    orderReference: string | null;
+  };
 }
 
 async function parseApiErrorBody(res: Response): Promise<ApiErrorBody> {
@@ -119,18 +123,18 @@ function triggerBrowserDownload(url: string) {
   a.remove();
 }
 
-function readTransactionId(searchParams: URLSearchParams): string | null {
-  const queryTxnId =
-    searchParams.get("txn") ??
-    searchParams.get("_ptxn") ??
-    searchParams.get("transaction_id");
+function readFulfillmentAccessToken(searchParams: URLSearchParams): string | null {
+  const queryAccessToken = searchParams.get("access");
 
-  if (queryTxnId) {
-    window.sessionStorage.setItem(PADDLE_TRANSACTION_STORAGE_KEY, queryTxnId);
-    return queryTxnId;
+  if (queryAccessToken) {
+    window.sessionStorage.setItem(
+      PADDLE_FULFILLMENT_ACCESS_TOKEN_STORAGE_KEY,
+      queryAccessToken,
+    );
+    return queryAccessToken;
   }
 
-  return window.sessionStorage.getItem(PADDLE_TRANSACTION_STORAGE_KEY);
+  return window.sessionStorage.getItem(PADDLE_FULFILLMENT_ACCESS_TOKEN_STORAGE_KEY);
 }
 
 function clearTechnicalQueryParams(searchParams: URLSearchParams) {
@@ -172,14 +176,11 @@ const DownloadPage = () => {
   }, []);
 
   useEffect(() => {
-    const txnId = readTransactionId(searchParams);
+    const accessToken = readFulfillmentAccessToken(searchParams);
     const selectedFileKey = searchParams.get("file");
-    const hasTechnicalParams =
-      searchParams.has("txn") ||
-      searchParams.has("_ptxn") ||
-      searchParams.has("transaction_id");
+    const hasTechnicalParams = searchParams.has("access");
 
-    if (!txnId) {
+    if (!accessToken) {
       setState({
         phase: "error",
         message:
@@ -211,7 +212,7 @@ const DownloadPage = () => {
 
     async function fetchDownloads() {
       try {
-        const res = await fetch(`/api/fulfill?txn=${encodeURIComponent(txnId)}`);
+        const res = await fetch(`/api/fulfill?access=${encodeURIComponent(accessToken)}`);
 
         if (!res.ok) {
           const body = await parseApiErrorBody(res);
@@ -229,7 +230,12 @@ const DownloadPage = () => {
         const data = await parseFulfillmentSuccessResponse(res);
         if (cancelled) return;
 
-        setState({ phase: "ready", downloads: data.downloads, deliveryPolicy: data.deliveryPolicy });
+        setState({
+          phase: "ready",
+          downloads: data.downloads,
+          deliveryPolicy: data.deliveryPolicy,
+          orderReference: data.orderReference,
+        });
 
         if (hasTechnicalParams) {
           clearTechnicalQueryParams(searchParams);
@@ -290,6 +296,7 @@ const DownloadPage = () => {
           <ReadyCard
             downloads={state.downloads}
             deliveryPolicy={state.deliveryPolicy}
+            orderReference={state.orderReference}
             onManualResend={(message) => setState({ phase: "manual-resend", message })}
             onError={(message) => setState({ phase: "error", message })}
           />
@@ -320,11 +327,13 @@ function ReadyCard(
   {
     downloads,
     deliveryPolicy,
+    orderReference,
     onManualResend,
     onError,
   }: {
     downloads: DownloadLink[];
     deliveryPolicy: DeliveryPolicy;
+    orderReference: string | null;
     onManualResend: (message: string) => void;
     onError: (message: string) => void;
   },
@@ -372,6 +381,12 @@ function ReadyCard(
           Each file supports up to {deliveryPolicy.maxSuccessfulDownloads} successful downloads. Every issued file link stays active for {deliveryPolicy.signedUrlTtlSeconds / 3600} hours.
         </div>
 
+        {orderReference ? (
+          <div className="rounded-lg border border-border/80 bg-background/70 px-4 py-3 text-center text-xs leading-relaxed text-muted-foreground">
+            Order reference: <span className="font-semibold text-foreground">{orderReference}</span>
+          </div>
+        ) : null}
+
         <div className="space-y-3">
           {availableDownloads.map((download) => (
             <button
@@ -396,7 +411,7 @@ function ReadyCard(
             >
               <Download className="w-5 h-5 shrink-0" />
               <span className="text-sm font-medium truncate flex-1 text-left">
-                {download.label} • {download.remainingSuccessfulDownloads} of {download.maxSuccessfulDownloads} secure downloads left
+                {download.label} • {download.maxSuccessfulDownloads - download.remainingSuccessfulDownloads} of {download.maxSuccessfulDownloads} downloads used
               </span>
             </button>
           ))}

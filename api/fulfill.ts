@@ -67,6 +67,8 @@ const SIGNED_URL_TTL_SECONDS = 86400;
 const DEFAULT_SITE_URL = "https://aicldbase.com";
 const EMAIL_ERROR_LIMIT = 1500;
 const FORBIDDEN_SUPABASE_PROJECT_REFS = new Set(["gjzltyiznkeyotqhqhxl"]);
+const FULFILLMENT_ACCESS_TOKEN_PREFIX = "fac_";
+const SUPPORT_REFERENCE_PREFIX = "ACB-";
 
 type OrderEmailStatus = "pending" | "sending" | "sent" | "failed" | "not_applicable";
 
@@ -157,6 +159,96 @@ function buildAbsoluteSiteUrl(path: string): string {
   return `${getSiteBaseUrl()}${path.startsWith("/") ? path : `/${path}`}`;
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function parseJsonBody(req: VercelRequest): Record<string, unknown> | null {
+  if (!req.body) {
+    return null;
+  }
+
+  if (typeof req.body === "string") {
+    try {
+      const parsed = JSON.parse(req.body) as unknown;
+      return isRecord(parsed) ? parsed : null;
+    } catch {
+      return null;
+    }
+  }
+
+  return isRecord(req.body) ? req.body : null;
+}
+
+function createFulfillmentAccessTokenValue(): string {
+  return `${FULFILLMENT_ACCESS_TOKEN_PREFIX}${randomBytes(24).toString("hex")}`;
+}
+
+function createSupportReferenceValue(): string {
+  return `${SUPPORT_REFERENCE_PREFIX}${randomBytes(5).toString("hex").toUpperCase()}`;
+}
+
+function normalizeSupportReference(value: string | null | undefined): string | null {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : null;
+}
+
+function isValidFulfillmentAccessToken(value: string): boolean {
+  return /^fac_[a-f0-9]{48}$/i.test(value);
+}
+
+function extractFulfillmentAccessTokenFromCustomData(customData: unknown): string | null {
+  if (!isRecord(customData)) {
+    return null;
+  }
+
+  const accessToken = customData.fulfillment_access_token;
+  return typeof accessToken === "string" && isValidFulfillmentAccessToken(accessToken)
+    ? accessToken
+    : null;
+}
+
+function extractFulfillmentAccessTokenFromTransaction(
+  transaction: Record<string, unknown>,
+): string | null {
+  const directMatch = extractFulfillmentAccessTokenFromCustomData(transaction.custom_data) ??
+    extractFulfillmentAccessTokenFromCustomData(transaction.customData);
+  if (directMatch) {
+    return directMatch;
+  }
+
+  const checkout = isRecord(transaction.checkout) ? transaction.checkout : null;
+  if (!checkout) {
+    return null;
+  }
+
+  return extractFulfillmentAccessTokenFromCustomData(checkout.custom_data) ??
+    extractFulfillmentAccessTokenFromCustomData(checkout.customData);
+}
+
+function resolveFulfillmentAccessToken(params: {
+  requestedAccessToken: string;
+  paddleAccessToken: string | null;
+  existingAccessToken: string | null;
+  requirePaddleBoundAccess: boolean;
+}): string {
+  const { requestedAccessToken, paddleAccessToken, existingAccessToken, requirePaddleBoundAccess } = params;
+
+  if (requirePaddleBoundAccess && !paddleAccessToken) {
+    throw new Error("The paid transaction is missing a secure fulfillment access token.");
+  }
+
+  if (paddleAccessToken && paddleAccessToken !== requestedAccessToken) {
+    throw new Error("The secure access token does not match the paid transaction.");
+  }
+
+  if (existingAccessToken && existingAccessToken !== requestedAccessToken) {
+    throw new Error("The secure access token does not match the stored order record.");
+  }
+
+  return paddleAccessToken ?? existingAccessToken ?? requestedAccessToken;
+}
+
 function normalizeEmailStatus(value: string | null | undefined): OrderEmailStatus {
   if (
     value === "pending" ||
@@ -192,7 +284,7 @@ function buildEmailSubject(environment: "sandbox" | "production"): string {
 }
 
 function buildEmailHtml(
-  transactionId: string,
+  orderReference: string,
   downloadLinks: Array<{ key: string; label: string; filename: string; url: string }>,
 ): string {
   const itemList = downloadLinks
@@ -217,14 +309,14 @@ function buildEmailHtml(
     "<div style=\"padding:24px 28px;\">",
     "<div style=\"margin:0 0 20px 0;padding:16px 18px;background-color:#fbf8f4;border:1px solid #eee3d6;border-radius:12px;\">",
     "<div style=\"font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#8b7355;margin-bottom:8px;\">Order Details</div>",
-    `<div style=\"font-size:14px;color:#4b5563;margin-bottom:6px;\"><strong style=\"color:#1f2937;\">Transaction ID:</strong> ${transactionId}</div>`,
+    `<div style=\"font-size:14px;color:#4b5563;margin-bottom:6px;\"><strong style=\"color:#1f2937;\">Order reference:</strong> ${orderReference}</div>`,
     `<div style=\"font-size:14px;color:#4b5563;\">Each file supports up to ${MAX_SUCCESSFUL_DOWNLOADS} successful downloads. Once a file link is issued, it remains active for ${SIGNED_URL_TTL_SECONDS / 3600} hours.</div>`,
     "</div>",
     "<table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" style=\"margin:0 0 20px 0;\">",
     itemList,
     "</table>",
     "<p style=\"margin:0 0 14px 0;font-size:14px;line-height:1.7;color:#4b5563;\">If you use all 4 successful downloads for a file, contact support and we will help with a manual resend.</p>",
-    "<p style=\"margin:0 0 14px 0;font-size:14px;line-height:1.7;color:#4b5563;\">If anything looks wrong, reply to this email and include your transaction ID.</p>",
+    "<p style=\"margin:0 0 14px 0;font-size:14px;line-height:1.7;color:#4b5563;\">If anything looks wrong, reply to this email and include your order reference.</p>",
     "<p style=\"margin:0;font-size:14px;line-height:1.7;color:#4b5563;\">Best,<br />AI Cloud Base Support</p>",
     "</div>",
     "</div>",
@@ -233,7 +325,7 @@ function buildEmailHtml(
 }
 
 function buildEmailText(
-  transactionId: string,
+  orderReference: string,
   downloadLinks: Array<{ key: string; label: string; filename: string; url: string }>,
 ): string {
   const itemLines = downloadLinks
@@ -248,14 +340,14 @@ function buildEmailText(
     "Use the secure links below to access your files.",
     "",
     "Order details",
-    `Transaction ID: ${transactionId}`,
+    `Order reference: ${orderReference}`,
     `Download policy: Up to ${MAX_SUCCESSFUL_DOWNLOADS} successful downloads per file. Each issued file link stays active for ${SIGNED_URL_TTL_SECONDS / 3600} hours.`,
     "",
     itemLines,
     "",
     "If you use all 4 successful downloads for a file, contact support for a manual resend.",
     "",
-    "If you run into any other issues, reply to this email and include your transaction ID.",
+    "If you run into any other issues, reply to this email and include your order reference.",
     "",
     "Best,",
     "AI Cloud Base Support",
@@ -392,7 +484,7 @@ async function claimOrderEmailSend(
 }
 
 function buildEmailDeliveryLinks(
-  transactionId: string,
+  accessToken: string,
   downloads: Array<{ key: string; label: string; filename: string }>,
 ): Array<{ key: string; label: string; filename: string; url: string }> {
   return downloads.map((download) => ({
@@ -400,7 +492,7 @@ function buildEmailDeliveryLinks(
     label: download.label,
     filename: download.filename,
     url: buildAbsoluteSiteUrl(
-      `/download?txn=${encodeURIComponent(transactionId)}&file=${encodeURIComponent(download.key)}`,
+      `/download?access=${encodeURIComponent(accessToken)}&file=${encodeURIComponent(download.key)}`,
     ),
   }));
 }
@@ -450,6 +542,7 @@ async function markOrderEmailFailed(
 async function sendOrderEmailViaResendApi(params: {
   apiKey: string;
   transactionId: string;
+  orderReference: string;
   recipient: string;
   from: string;
   replyTo: string | null;
@@ -469,8 +562,8 @@ async function sendOrderEmailViaResendApi(params: {
       to: [params.recipient],
       replyTo: params.replyTo ?? undefined,
       subject: buildEmailSubject(params.environment),
-      html: buildEmailHtml(params.transactionId, params.downloadLinks),
-      text: buildEmailText(params.transactionId, params.downloadLinks),
+      html: buildEmailHtml(params.orderReference, params.downloadLinks),
+      text: buildEmailText(params.orderReference, params.downloadLinks),
     }),
   });
 
@@ -485,12 +578,14 @@ async function sendOrderEmailViaResendApi(params: {
 async function ensureOrderDeliveryEmail({
   supabase,
   transactionId,
+  orderReference,
   fallbackEmail,
   downloadLinks,
   environment,
 }: {
   supabase: SupabaseClient;
   transactionId: string;
+  orderReference: string;
   fallbackEmail: string | null;
   downloadLinks: Array<{ key: string; label: string; filename: string; url: string }>;
   environment: "sandbox" | "production";
@@ -507,6 +602,7 @@ async function ensureOrderDeliveryEmail({
     await sendOrderEmailViaResendApi({
       apiKey,
       transactionId,
+      orderReference,
       recipient: claim.recipient,
       from,
       replyTo,
@@ -549,6 +645,8 @@ async function verifyTransaction(transactionId: string) {
 
 type OrderUpsertData = {
   transaction_id: string;
+  fulfillment_access_token?: string | null;
+  support_reference?: string | null;
   email: string | null;
   paddle_customer_id: string | null;
   checkout_id: string | null;
@@ -578,6 +676,17 @@ type OrderUpsertData = {
   raw_transaction_payload: unknown;
 };
 
+type OrderRecord = {
+  id: number;
+  transaction_id: string;
+  fulfillment_access_token: string | null;
+  support_reference: string | null;
+  download_attempts: number;
+  successful_downloads: number;
+  last_download_at: string | null;
+  fulfilled_at: string | null;
+};
+
 type DeliveryTokenUpsertData = {
   order_id: number;
   transaction_id: string;
@@ -599,6 +708,23 @@ type DeliveryTokenUpsertData = {
 };
 
 type DeliveryTokenRecord = DeliveryTokenUpsertData;
+
+async function findOrderByAccessToken(
+  supabase: SupabaseClient,
+  accessToken: string,
+): Promise<OrderRecord | null> {
+  const { data, error } = await supabase
+    .from("orders")
+    .select("id,transaction_id,fulfillment_access_token,support_reference,download_attempts,successful_downloads,last_download_at,fulfilled_at")
+    .eq("fulfillment_access_token", accessToken)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`Failed to resolve secure access token: ${error.message}`);
+  }
+
+  return (data ?? null) as OrderRecord | null;
+}
 
 async function upsertOrder(
   supabase: SupabaseClient,
@@ -835,20 +961,11 @@ function buildOrderFinancials(
 /* ── Handler ─────────────────────────────────────────────────────── */
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (req.method !== "GET") {
+  if (req.method !== "GET" && req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
   res.setHeader("Cache-Control", "no-store");
-
-  const txn = req.query.txn;
-  if (!txn || typeof txn !== "string") {
-    return res.status(400).json({ error: "Missing transaction ID." });
-  }
-
-  if (!/^txn_[a-zA-Z0-9]+$/.test(txn)) {
-    return res.status(400).json({ error: "Invalid transaction ID format." });
-  }
 
   /* ── Init Supabase client ─────────────────────────────────────── */
 
@@ -870,6 +987,69 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const supabase = createClient(supabaseUrl, supabaseKey);
   const environment = getPaddleEnvironment();
+  const fulfillmentSource = req.method === "POST"
+    ? "checkout_callback"
+    : "download_page";
+
+  let txn: string;
+  let requestedAccessToken: string;
+  let requirePaddleBoundAccess = false;
+
+  if (req.method === "GET") {
+    const access = req.query.access;
+
+    if (!access || typeof access !== "string") {
+      return res.status(400).json({ error: "Missing secure access token." });
+    }
+
+    if (!isValidFulfillmentAccessToken(access)) {
+      return res.status(400).json({ error: "Invalid secure access token format." });
+    }
+
+    let accessOrder: OrderRecord | null;
+    try {
+      accessOrder = await findOrderByAccessToken(supabase, access);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Unknown error";
+      console.error("[fulfill] Access token lookup failed:", message);
+      return res.status(500).json({ error: "Unable to resolve your secure download access right now." });
+    }
+
+    if (!accessOrder?.transaction_id) {
+      return res.status(404).json({ error: "Secure access link not found or expired." });
+    }
+
+    txn = accessOrder.transaction_id;
+    requestedAccessToken = access;
+  } else {
+    const body = parseJsonBody(req);
+    const transactionId = typeof body?.transactionId === "string"
+      ? body.transactionId
+      : null;
+    const accessToken = typeof body?.accessToken === "string"
+      ? body.accessToken
+      : null;
+
+    if (!transactionId) {
+      return res.status(400).json({ error: "Missing transaction ID." });
+    }
+
+    if (!/^txn_[a-zA-Z0-9]+$/.test(transactionId)) {
+      return res.status(400).json({ error: "Invalid transaction ID format." });
+    }
+
+    if (!accessToken) {
+      return res.status(400).json({ error: "Missing secure access token." });
+    }
+
+    if (!isValidFulfillmentAccessToken(accessToken)) {
+      return res.status(400).json({ error: "Invalid secure access token format." });
+    }
+
+    txn = transactionId;
+    requestedAccessToken = accessToken;
+    requirePaddleBoundAccess = true;
+  }
 
   /* ── Verify Paddle transaction ────────────────────────────────── */
 
@@ -883,6 +1063,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Log error to DB
     await upsertOrder(supabase, {
       transaction_id: txn,
+      fulfillment_access_token: requestedAccessToken,
       email: null,
       paddle_customer_id: null,
       checkout_id: null,
@@ -908,7 +1089,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       last_download_at: null,
       fulfilled_at: null,
       error_message: `Paddle verification failed: ${message}`,
-      source: "download_page",
+      source: fulfillmentSource,
       raw_transaction_payload: null,
     });
 
@@ -925,10 +1106,74 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     transactionStatus,
   );
 
+  const { data: existingOrderData } = await supabase
+    .from("orders")
+    .select("id,transaction_id,fulfillment_access_token,support_reference,download_attempts,successful_downloads,last_download_at,fulfilled_at")
+    .eq("transaction_id", txn)
+    .maybeSingle();
+
+  const existingOrder = (existingOrderData ?? null) as OrderRecord | null;
+  const paddleAccessToken = extractFulfillmentAccessTokenFromTransaction(transaction);
+
+  let fulfillmentAccessToken: string;
+  try {
+    fulfillmentAccessToken = resolveFulfillmentAccessToken({
+      requestedAccessToken,
+      paddleAccessToken,
+      existingAccessToken: existingOrder?.fulfillment_access_token ?? null,
+      requirePaddleBoundAccess,
+    });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("[fulfill] Secure access verification failed:", message);
+
+    await upsertOrder(supabase, {
+      transaction_id: txn,
+      fulfillment_access_token: requestedAccessToken,
+      support_reference: normalizeSupportReference(existingOrder?.support_reference),
+      email: extractEmail(transaction),
+      paddle_customer_id: extractCustomerId(transaction),
+      checkout_id: extractCheckoutId(transaction),
+      environment,
+      items: transactionItems as unknown[],
+      skills_purchased: false,
+      n8n_purchased: false,
+      transaction_status: transactionStatus,
+      transaction_passed: financials.transaction_passed,
+      transaction_passed_at: financials.transaction_passed_at,
+      currency_code: financials.currency_code,
+      quantity: financials.quantity,
+      unit_price_amount: financials.unit_price_amount,
+      subtotal_amount: financials.subtotal_amount,
+      tax_amount: financials.tax_amount,
+      total_amount: financials.total_amount,
+      fulfillment_status: "error",
+      download_links_generated: false,
+      download_attempts: existingOrder?.download_attempts ?? 0,
+      successful_downloads: existingOrder?.successful_downloads ?? 0,
+      delivery_status: "error",
+      manual_resend_required: false,
+      last_download_at: existingOrder?.last_download_at ?? null,
+      fulfilled_at: existingOrder?.fulfilled_at ?? null,
+      error_message: message,
+      source: fulfillmentSource,
+      raw_transaction_payload: transaction,
+    });
+
+    return res.status(403).json({
+      error: "Secure fulfillment access could not be verified. Please use the latest download link or contact support.",
+    });
+  }
+
+  const supportReference = normalizeSupportReference(existingOrder?.support_reference) ??
+    createSupportReferenceValue();
+
   if (transaction.status !== "completed" && transaction.status !== "paid") {
     // Log non-completed transaction
     await upsertOrder(supabase, {
       transaction_id: txn,
+      fulfillment_access_token: fulfillmentAccessToken,
+      support_reference: supportReference,
       email: extractEmail(transaction),
       paddle_customer_id: extractCustomerId(transaction),
       checkout_id: extractCheckoutId(transaction),
@@ -954,7 +1199,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       last_download_at: null,
       fulfilled_at: null,
       error_message: `Transaction not completed (status: ${transactionStatus})`,
-      source: "download_page",
+      source: fulfillmentSource,
       raw_transaction_payload: transaction,
     });
 
@@ -990,6 +1235,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     await upsertOrder(supabase, {
       transaction_id: txn,
+      fulfillment_access_token: fulfillmentAccessToken,
+      support_reference: supportReference,
       email: extractEmail(transaction),
       paddle_customer_id: extractCustomerId(transaction),
       checkout_id: extractCheckoutId(transaction),
@@ -1015,7 +1262,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       last_download_at: null,
       fulfilled_at: null,
       error_message: "No downloadable files found for purchased price IDs",
-      source: "download_page",
+      source: fulfillmentSource,
       raw_transaction_payload: transaction,
     });
 
@@ -1026,14 +1273,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   /* ── Create / update order record (pending) ───────────────────── */
 
-  const { data: existingOrder } = await supabase
-    .from("orders")
-    .select("id,download_attempts,successful_downloads,last_download_at,fulfilled_at")
-    .eq("transaction_id", txn)
-    .maybeSingle();
-
   await upsertOrder(supabase, {
     transaction_id: txn,
+    fulfillment_access_token: fulfillmentAccessToken,
+    support_reference: supportReference,
     email: extractEmail(transaction),
     paddle_customer_id: extractCustomerId(transaction),
     checkout_id: extractCheckoutId(transaction),
@@ -1059,13 +1302,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     last_download_at: existingOrder?.last_download_at ?? null,
     fulfilled_at: existingOrder?.fulfilled_at ?? null,
     error_message: null,
-    source: "download_page",
+    source: fulfillmentSource,
     raw_transaction_payload: transaction,
   });
 
   const { data: orderRecord, error: orderLookupError } = await supabase
     .from("orders")
-    .select("id")
+    .select("id,fulfillment_access_token,support_reference")
     .eq("transaction_id", txn)
     .maybeSingle();
 
@@ -1074,6 +1317,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     await upsertOrder(supabase, {
       transaction_id: txn,
+      fulfillment_access_token: fulfillmentAccessToken,
+      support_reference: supportReference,
       email: extractEmail(transaction),
       paddle_customer_id: extractCustomerId(transaction),
       checkout_id: extractCheckoutId(transaction),
@@ -1099,7 +1344,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       last_download_at: existingOrder?.last_download_at ?? null,
       fulfilled_at: existingOrder?.fulfilled_at ?? null,
       error_message: "Failed to prepare controlled delivery token records",
-      source: "download_page",
+      source: fulfillmentSource,
       raw_transaction_payload: transaction,
     });
 
@@ -1145,6 +1390,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (deliveryTokens.length === 0) {
     await upsertOrder(supabase, {
       transaction_id: txn,
+      fulfillment_access_token: fulfillmentAccessToken,
+      support_reference: supportReference,
       email: extractEmail(transaction),
       paddle_customer_id: extractCustomerId(transaction),
       checkout_id: extractCheckoutId(transaction),
@@ -1170,7 +1417,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       last_download_at: existingOrder?.last_download_at ?? null,
       fulfilled_at: existingOrder?.fulfilled_at ?? null,
       error_message: "Failed to load delivery token records after creation",
-      source: "download_page",
+      source: fulfillmentSource,
       raw_transaction_payload: transaction,
     });
 
@@ -1179,10 +1426,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const deliverySummary = summarizeDeliveryTokens(deliveryTokens);
   const downloads = buildDeliveryDownloads(deliveryTokens);
-  const emailDeliveryLinks = buildEmailDeliveryLinks(txn, downloads);
+  const emailDeliveryLinks = buildEmailDeliveryLinks(fulfillmentAccessToken, downloads);
 
   await upsertOrder(supabase, {
     transaction_id: txn,
+    fulfillment_access_token: fulfillmentAccessToken,
+    support_reference: supportReference,
     email: extractEmail(transaction),
     paddle_customer_id: extractCustomerId(transaction),
     checkout_id: extractCheckoutId(transaction),
@@ -1210,7 +1459,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     error_message: deliverySummary.allBlocked
       ? "This order has reached the secure delivery limit. Contact support for a manual resend."
       : null,
-    source: "download_page",
+    source: fulfillmentSource,
     raw_transaction_payload: transaction,
   });
 
@@ -1218,6 +1467,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     await ensureOrderDeliveryEmail({
       supabase,
       transactionId: txn,
+      orderReference: supportReference,
       fallbackEmail: extractEmail(transaction),
       downloadLinks: emailDeliveryLinks,
       environment,
@@ -1229,16 +1479,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   /* ── Return download links ────────────────────────────────────── */
 
+  if (req.method === "POST") {
+    return res.status(200).json({
+      status: "claimed",
+      accessToken: fulfillmentAccessToken,
+      orderReference: supportReference,
+    });
+  }
+
   if (downloads.every((download) => download.status === "manual_resend_required")) {
     return res.status(429).json({
       code: "manual_resend_required",
       error: "This order has reached the 4-download secure delivery limit. Contact support for a manual resend.",
+      orderReference: supportReference,
     });
   }
 
   return res.status(200).json({
     status: "ok",
-    transactionId: txn,
+    orderReference: supportReference,
     deliveryPolicy: {
       maxSuccessfulDownloads: MAX_SUCCESSFUL_DOWNLOADS,
       signedUrlTtlSeconds: SIGNED_URL_TTL_SECONDS,
