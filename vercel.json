@@ -42,7 +42,7 @@
       "headers": {
         "X-Frame-Options": "DENY",
         "X-Content-Type-Options": "nosniff",
-        "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://connect.facebook.net https://www.facebook.com https://*.paddle.com https://public.profitwell.com; style-src 'self' 'unsafe-inline' https://*.paddle.com; img-src 'self' data: https://www.facebook.com https://www.google-analytics.com https://*.paddle.com; font-src 'self'; connect-src 'self' https://www.facebook.com https://www.google-analytics.com https://region1.google-analytics.com https://*.paddle.com https://public.profitwell.com; frame-src https://www.googletagmanager.com https://www.facebook.com https://connect.facebook.net https://*.paddle.com; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://www.facebook.com"
+        "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://connect.facebook.net https://www.facebook.com https://*.paddle.com https://public.profitwell.com; style-src 'self' 'unsafe-inline' https://*.paddle.com; img-src 'self' data: https://www.facebook.com https://www.google-analytics.com https://*.paddle.com; font-src 'self' data:; connect-src 'self' https://www.facebook.com https://graph.facebook.com https://www.google-analytics.com https://region1.google-analytics.com https://*.paddle.com https://public.profitwell.com; frame-src https://www.googletagmanager.com https://www.facebook.com https://connect.facebook.net https://*.paddle.com; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://www.facebook.com"
       },
       "continue": true
     },
