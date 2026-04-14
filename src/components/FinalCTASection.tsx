@@ -17,8 +17,7 @@ const FinalCTASection = () => {
         <p className="max-w-xl mx-auto text-sm text-muted-foreground mb-10 leading-relaxed">
           500+ skills that handle the work you keep putting off. Blog posts, contracts, ad campaigns, financial models — finished, not drafted. $15 once, yours forever.
         </p>
-        <CTAButton>Get Instant Access — $15</CTAButton>
-          <CTAButton>Get Instant Access</CTAButton>
+        <CTAButton>Get Instant Access</CTAButton>
       </ScrollReveal>
     </section>
   );
