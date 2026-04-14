@@ -42,8 +42,8 @@ const STORAGE_MAP: Record<string, StorageFile> = {
     key: "n8n",
     label: "1,800+ N8N Automations",
     bucket: BUCKET,
-    path: "1,800+ n8n Automations.zip",
-    filename: "1,800+ n8n Automations.zip",
+    path: "1 800 n8n Automations.zip",
+    filename: "1 800 n8n Automations.zip",
   },
   // Sandbox (same storage files for testing)
   "pri_01knwqfr26gjr7sab6hckwwz8y": {
@@ -57,8 +57,8 @@ const STORAGE_MAP: Record<string, StorageFile> = {
     key: "n8n",
     label: "1,800+ N8N Automations",
     bucket: BUCKET,
-    path: "1,800+ n8n Automations.zip",
-    filename: "1,800+ n8n Automations.zip",
+    path: "1 800 n8n Automations.zip",
+    filename: "1 800 n8n Automations.zip",
   },
 };
 

@@ -2,7 +2,7 @@ import { Check } from "lucide-react";
 
 import { useCheckout } from "@/contexts/CheckoutContext";
 import ScrollReveal from "./ScrollReveal";
-import n8nImage from "@/assets/n8n-workflows.webp";
+import n8nImage from "@/assets/n8n-workflows-upsell.svg";
 
 const UpsellOfferSection = () => {
   const { addN8nToOrder, isN8nAdded } = useCheckout();
@@ -20,7 +20,7 @@ const UpsellOfferSection = () => {
               <div className="flex flex-col sm:flex-row gap-5 sm:gap-6 items-start">
                 <img
                   src={n8nImage}
-                  alt="1,800+ N8N automation workflow templates preview"
+                  alt="1,800+ N8N workflows bundle artwork preview"
                   loading="lazy"
                   width={96}
                   height={96}
@@ -75,9 +75,9 @@ const UpsellOfferSection = () => {
                   </span>
                 </button>
 
-                <div className={`w-full rounded-xl px-4 py-3 text-xs leading-relaxed ${isN8nAdded ? "border border-emerald-300/50 bg-emerald-500/10 text-emerald-200" : "border border-border/70 bg-card/70 text-muted-foreground"}`}>
+                <div className={`w-full rounded-xl px-4 py-3 text-xs leading-relaxed shadow-[0_10px_24px_rgba(15,23,42,0.05)] ${isN8nAdded ? "border border-emerald-300/70 bg-[linear-gradient(180deg,rgba(244,251,247,0.98),rgba(235,246,239,0.96))] text-slate-950" : "border border-border/70 bg-card/70 text-muted-foreground"}`}>
                   {isN8nAdded
-                    ? "N8N Integrations Bundle is locked into this checkout and ready to be delivered with your order."
+                    ? "This add-on is now included in your order and will be delivered with your purchase."
                     : "Add this now to lock in the discounted bundle price before checkout."}
                 </div>
               </div>
