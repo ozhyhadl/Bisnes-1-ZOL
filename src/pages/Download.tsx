@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { CheckCircle, Download, AlertCircle, ArrowLeft, Loader2 } from "lucide-react";
+import { CheckCircle, Download, AlertCircle, ArrowLeft, Loader2, Mail } from "lucide-react";
 
 import { SUPPORT_EMAIL } from "@/config/links";
 import {
@@ -466,6 +466,21 @@ function ReadyCard(
         <p className="text-sm text-muted-foreground text-center">
           If nothing starts automatically, use the secure download buttons below.
         </p>
+        <div className="rounded-lg border border-border/70 bg-background/70 px-4 py-3">
+          <div className="flex items-start gap-3 text-left">
+            <div className="mt-0.5 rounded-full bg-primary/10 p-2 text-primary">
+              <Mail className="h-4 w-4" aria-hidden="true" />
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-foreground">
+                We've also sent secure download links to your email.
+              </p>
+              <p className="text-xs leading-relaxed text-muted-foreground">
+                If you do not see the message yet, check Spam, Promotions, or Updates.
+              </p>
+            </div>
+          </div>
+        </div>
         <div className="rounded-lg border border-border/80 bg-background/70 px-4 py-3 text-center text-xs leading-relaxed text-muted-foreground">
           Each file supports up to {deliveryPolicy.maxSuccessfulDownloads} successful downloads. Every issued file link stays active for {deliveryPolicy.signedUrlTtlSeconds / 3600} hours.
         </div>

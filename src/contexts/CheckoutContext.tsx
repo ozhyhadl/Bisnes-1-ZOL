@@ -3,14 +3,19 @@ import { getPaddleBillingConfig } from "@/config/billing";
 import { getPaddle, openPaddleCheckout, type PaddleCheckoutItem } from "@/lib/paddle";
 import { createContext, useContext, useState, type ReactNode } from "react";
 
+type CheckoutOpenOptions = {
+  includeN8n?: boolean;
+  persistN8nSelection?: boolean;
+};
+
 type CheckoutContextValue = {
   isN8nAdded: boolean;
   isCheckoutLoading: boolean;
   addN8nToOrder: () => void;
-  openCheckout: () => Promise<void>;
+  openCheckout: (options?: CheckoutOpenOptions) => Promise<void>;
 };
 
-const noopAsync = async () => {};
+const noopAsync = async (_options?: CheckoutOpenOptions) => {};
 
 const CheckoutContext = createContext<CheckoutContextValue>({
   isN8nAdded: false,
@@ -28,9 +33,15 @@ export const CheckoutProvider = ({ children }: { children: ReactNode }) => {
     setIsN8nAdded(true);
   };
 
-  const openCheckout = async () => {
+  const openCheckout = async (options?: CheckoutOpenOptions) => {
     if (isCheckoutLoading) {
       return;
+    }
+
+    const includeN8n = options?.includeN8n ?? isN8nAdded;
+
+    if (includeN8n && options?.persistN8nSelection && !isN8nAdded) {
+      setIsN8nAdded(true);
     }
 
     setIsCheckoutLoading(true);
@@ -49,7 +60,7 @@ export const CheckoutProvider = ({ children }: { children: ReactNode }) => {
         },
       ];
 
-      if (isN8nAdded) {
+      if (includeN8n) {
         items.push({
           priceId: billingConfig.n8n.priceId,
           quantity: 1,
