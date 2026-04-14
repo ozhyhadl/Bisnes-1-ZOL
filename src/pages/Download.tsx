@@ -4,9 +4,12 @@ import { CheckCircle, Download, AlertCircle, ArrowLeft, Loader2 } from "lucide-r
 
 import { SUPPORT_EMAIL } from "@/config/links";
 import {
+  claimFulfillmentAccess,
   clearPendingFulfillmentClaimAccessToken,
+  clearPendingFulfillmentTransactionId,
   PADDLE_FULFILLMENT_ACCESS_TOKEN_STORAGE_KEY,
   readPendingFulfillmentClaimAccessToken,
+  readPendingFulfillmentTransactionId,
 } from "@/lib/paddle";
 
 const PENDING_CLAIM_RETRY_DELAY_MS = 1200;
@@ -244,6 +247,18 @@ const DownloadPage = () => {
             shouldRetryPendingClaim &&
             retryAttempt < MAX_PENDING_CLAIM_RETRIES
           ) {
+            if (retryAttempt === 0) {
+              const pendingTxnId = readPendingFulfillmentTransactionId();
+              if (pendingTxnId) {
+                try {
+                  await claimFulfillmentAccess(pendingTxnId, accessToken);
+                  clearPendingFulfillmentTransactionId();
+                } catch {
+                  /* claim may have already succeeded via keepalive — retry GET will confirm */
+                }
+              }
+            }
+
             window.setTimeout(() => {
               if (!cancelled) {
                 void fetchDownloads(retryAttempt + 1);
@@ -258,6 +273,7 @@ const DownloadPage = () => {
             retryAttempt >= MAX_PENDING_CLAIM_RETRIES
           ) {
             clearPendingFulfillmentClaimAccessToken(accessToken);
+            clearPendingFulfillmentTransactionId();
             throw new Error(
               "We are still finalizing your secure access after payment. Please reload this page once or use the email download link if it already arrived.",
             );
@@ -394,8 +410,18 @@ function ReadyCard(
     onError: (message: string) => void;
   },
 ) {
+  const [usageOverrides, setUsageOverrides] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    setUsageOverrides({});
+  }, [downloads]);
+
   const availableDownloads = downloads.filter((download) => download.status === "download_allowed");
   const blockedDownloads = downloads.filter((download) => download.status === "manual_resend_required");
+
+  function getRemainingDownloads(download: DownloadLink): number {
+    return usageOverrides[download.key] ?? download.remainingSuccessfulDownloads;
+  }
 
   async function handleSecureDownload(download: DownloadLink) {
     const res = await fetch(download.url);
@@ -413,6 +439,12 @@ function ReadyCard(
 
     const data = await parseDeliverySuccessResponse(res);
     triggerBrowserDownload(data.download.url);
+
+    setUsageOverrides((prev) => ({
+      ...prev,
+      [download.key]: data.remainingSuccessfulDownloads,
+    }));
+
     onDownloadSuccess();
   }
 
@@ -444,12 +476,13 @@ function ReadyCard(
           </div>
         ) : null}
 
-        <div className="space-y-3">
+        <div className="space-y-4">
           {availableDownloads.map((download) => {
-            const usedDownloads = download.maxSuccessfulDownloads - download.remainingSuccessfulDownloads;
+            const remaining = getRemainingDownloads(download);
+            const usedDownloads = download.maxSuccessfulDownloads - remaining;
 
             return (
-              <div key={download.key} className="space-y-2">
+              <div key={download.key}>
                 <button
                   type="button"
                   onClick={() => {
@@ -470,11 +503,11 @@ function ReadyCard(
                   className="flex items-center gap-3 w-full px-4 py-3 bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 rounded-lg transition-colors"
                 >
                   <Download className="w-5 h-5 shrink-0" />
-                  <span className="text-sm font-medium flex-1 text-left">
+                  <span className="text-sm font-medium flex-1 text-left truncate">
                     {download.label}
                   </span>
                 </button>
-                <p className="px-1 text-xs text-muted-foreground">
+                <p className="mt-1.5 text-center text-xs text-muted-foreground">
                   {usedDownloads} of {download.maxSuccessfulDownloads} downloads used
                 </p>
               </div>

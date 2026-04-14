@@ -12,6 +12,7 @@ import { getPaddleBillingConfig } from "@/config/billing";
 const paddleBillingConfig = getPaddleBillingConfig();
 export const PADDLE_FULFILLMENT_ACCESS_TOKEN_STORAGE_KEY = "aicb:last-fulfillment-access-token";
 export const PADDLE_PENDING_FULFILLMENT_CLAIM_STORAGE_KEY = "aicb:pending-fulfillment-claim";
+export const PADDLE_PENDING_FULFILLMENT_TXN_STORAGE_KEY = "aicb:pending-fulfillment-txn";
 const FULFILLMENT_ACCESS_TOKEN_QUERY_PARAM = "access";
 const FULFILLMENT_ACCESS_TOKEN_PREFIX = "fac_";
 
@@ -80,6 +81,29 @@ export function clearPendingFulfillmentClaimAccessToken(accessToken?: string): v
   }
 }
 
+export function readPendingFulfillmentTransactionId(): string | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  return window.sessionStorage.getItem(PADDLE_PENDING_FULFILLMENT_TXN_STORAGE_KEY);
+}
+
+export function clearPendingFulfillmentTransactionId(): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.sessionStorage.removeItem(PADDLE_PENDING_FULFILLMENT_TXN_STORAGE_KEY);
+}
+
+function storePendingFulfillmentTransactionId(transactionId: string): void {
+  window.sessionStorage.setItem(
+    PADDLE_PENDING_FULFILLMENT_TXN_STORAGE_KEY,
+    transactionId,
+  );
+}
+
 function extractFulfillmentAccessToken(customData: unknown): string | null {
   if (!customData || typeof customData !== "object" || Array.isArray(customData)) {
     return null;
@@ -91,7 +115,7 @@ function extractFulfillmentAccessToken(customData: unknown): string | null {
     : null;
 }
 
-async function claimFulfillmentAccess(
+export async function claimFulfillmentAccess(
   transactionId: string,
   accessToken: string,
 ): Promise<void> {
@@ -140,9 +164,12 @@ function handleCheckoutEvent(event: PaddleEventData): void {
     return;
   }
 
+  storePendingFulfillmentTransactionId(transactionId);
+
   void claimFulfillmentAccess(transactionId, accessToken)
     .then(() => {
       clearPendingFulfillmentClaimAccessToken(accessToken);
+      clearPendingFulfillmentTransactionId();
     })
     .catch((error: unknown) => {
       console.error("[Paddle] Failed to claim secure fulfillment access.", error);
