@@ -1,6 +1,11 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { randomBytes } from "node:crypto";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import {
+  sendConversionEvent,
+  extractClientIp,
+  extractUserAgent,
+} from "./_lib/meta-capi";
 
 /* ── Price-ID → Storage-file mapping ─────────────────────────────── */
 
@@ -1464,6 +1469,38 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     source: fulfillmentSource,
     raw_transaction_payload: transaction,
   });
+
+  /* ── Meta Conversions API: Purchase event (fire-and-forget) ───── */
+
+  try {
+    const purchaseEmail = extractEmail(transaction);
+    const purchaseIp = extractClientIp(req.headers as Record<string, string | string[] | undefined>);
+    const purchaseUa = extractUserAgent(req.headers as Record<string, string | string[] | undefined>);
+
+    const contentIds = items
+      .map((item) => item.price?.id)
+      .filter((id): id is string => Boolean(id));
+
+    await sendConversionEvent({
+      event_name: "Purchase",
+      event_id: txn,
+      event_source_url: buildAbsoluteSiteUrl("/download"),
+      user_data: {
+        em: purchaseEmail,
+        client_ip_address: purchaseIp,
+        client_user_agent: purchaseUa,
+      },
+      custom_data: {
+        value: financials.total_amount ?? 0,
+        currency: (financials.currency_code ?? "USD").toUpperCase(),
+        content_ids: contentIds,
+        content_type: "product",
+      },
+    });
+  } catch (error: unknown) {
+    const capiMessage = error instanceof Error ? error.message : "Unknown error";
+    console.error("[fulfill] Meta CAPI Purchase event failed:", capiMessage);
+  }
 
   try {
     await ensureOrderDeliveryEmail({

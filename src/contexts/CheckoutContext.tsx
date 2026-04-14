@@ -1,6 +1,7 @@
 import { toast } from "@/components/ui/sonner";
 import { getPaddleBillingConfig } from "@/config/billing";
 import { getPaddle, openPaddleCheckout, type PaddleCheckoutItem } from "@/lib/paddle";
+import { trackInitiateCheckout } from "@/lib/meta-events";
 import { createContext, useContext, useState, type ReactNode } from "react";
 
 type CheckoutOpenOptions = {
@@ -68,6 +69,9 @@ export const CheckoutProvider = ({ children }: { children: ReactNode }) => {
       }
 
       openPaddleCheckout(paddle, items);
+
+      // Fire InitiateCheckout after Paddle overlay is opened
+      trackInitiateCheckout();
     } catch (error: unknown) {
       console.error("[Paddle] Unable to open checkout.", error);
       toast.error("Unable to open checkout. Please try again.");

@@ -11,6 +11,8 @@ import FinalCTASection from "@/components/FinalCTASection";
 import SiteFooter from "@/components/SiteFooter";
 import { CheckoutProvider } from "@/contexts/CheckoutContext";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { useEffect } from "react";
+import { trackViewContent } from "@/lib/meta-events";
 
 const Index = () => {
   usePageMeta({
@@ -18,6 +20,10 @@ const Index = () => {
     description: "Get 500+ pre-built Claude AI skills that handle content, marketing, finance, legal, and operations. One-time $15 purchase. Instant digital delivery.",
     canonical: "https://aicldbase.com/",
   });
+
+  useEffect(() => {
+    trackViewContent();
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">

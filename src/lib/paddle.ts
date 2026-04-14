@@ -8,6 +8,7 @@ import {
 } from "@paddle/paddle-js";
 
 import { getPaddleBillingConfig } from "@/config/billing";
+import { trackPurchase } from "@/lib/meta-events";
 
 const paddleBillingConfig = getPaddleBillingConfig();
 export const PADDLE_FULFILLMENT_ACCESS_TOKEN_STORAGE_KEY = "aicb:last-fulfillment-access-token";
@@ -163,6 +164,10 @@ function handleCheckoutEvent(event: PaddleEventData): void {
   if (!transactionId || !accessToken) {
     return;
   }
+
+  // Fire Pixel Purchase event (CAPI Purchase is fired server-side in fulfill.ts)
+  // Uses transactionId as event_id for deduplication
+  trackPurchase({ transactionId });
 
   storePendingFulfillmentTransactionId(transactionId);
 
