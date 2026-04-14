@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ArrowRight, Check, Sparkles } from "lucide-react";
 
-import heroUpsellImage from "@/assets/n8n-workflows-upsell.svg";
+import heroUpsellImage from "@/assets/n8n-workflows-upsell.png";
 import { useCheckout } from "@/contexts/CheckoutContext";
 import {
   Dialog,
