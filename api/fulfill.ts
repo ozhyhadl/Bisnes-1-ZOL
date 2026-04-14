@@ -550,6 +550,15 @@ async function sendOrderEmailViaResendApi(params: {
   downloadLinks: Array<{ key: string; label: string; filename: string; url: string }>;
   attempt: number;
 }): Promise<void> {
+  const resendPayload = {
+    from: params.from,
+    to: [params.recipient],
+    subject: buildEmailSubject(params.environment),
+    html: buildEmailHtml(params.orderReference, params.downloadLinks),
+    text: buildEmailText(params.orderReference, params.downloadLinks),
+    ...(params.replyTo ? { reply_to: params.replyTo } : {}),
+  };
+
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
@@ -557,14 +566,7 @@ async function sendOrderEmailViaResendApi(params: {
       "Content-Type": "application/json",
       "Idempotency-Key": `${params.transactionId}-delivery-links-${params.attempt}`,
     },
-    body: JSON.stringify({
-      from: params.from,
-      to: [params.recipient],
-      replyTo: params.replyTo ?? undefined,
-      subject: buildEmailSubject(params.environment),
-      html: buildEmailHtml(params.orderReference, params.downloadLinks),
-      text: buildEmailText(params.orderReference, params.downloadLinks),
-    }),
+    body: JSON.stringify(resendPayload),
   });
 
   if (response.ok) {
