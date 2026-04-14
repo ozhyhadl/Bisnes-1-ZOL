@@ -3,7 +3,14 @@ import { Link, useSearchParams } from "react-router-dom";
 import { CheckCircle, Download, AlertCircle, ArrowLeft, Loader2 } from "lucide-react";
 
 import { SUPPORT_EMAIL } from "@/config/links";
-import { PADDLE_FULFILLMENT_ACCESS_TOKEN_STORAGE_KEY } from "@/lib/paddle";
+import {
+  clearPendingFulfillmentClaimAccessToken,
+  PADDLE_FULFILLMENT_ACCESS_TOKEN_STORAGE_KEY,
+  readPendingFulfillmentClaimAccessToken,
+} from "@/lib/paddle";
+
+const PENDING_CLAIM_RETRY_DELAY_MS = 1200;
+const MAX_PENDING_CLAIM_RETRIES = 8;
 
 type DownloadLink = {
   key: string;
@@ -156,6 +163,7 @@ function clearTechnicalQueryParams(searchParams: URLSearchParams) {
 const DownloadPage = () => {
   const [searchParams] = useSearchParams();
   const [state, setState] = useState<FulfillmentState>({ phase: "loading" });
+  const [refreshNonce, setRefreshNonce] = useState(0);
 
   useEffect(() => {
     document.title = "Your Download Is Ready — AI Cloud Base";
@@ -179,6 +187,9 @@ const DownloadPage = () => {
     const accessToken = readFulfillmentAccessToken(searchParams);
     const selectedFileKey = searchParams.get("file");
     const hasTechnicalParams = searchParams.has("access");
+    const pendingClaimAccessToken = readPendingFulfillmentClaimAccessToken();
+    const shouldRetryPendingClaim = pendingClaimAccessToken === accessToken;
+    const shouldAutoStartDownloads = refreshNonce === 0;
 
     if (!accessToken) {
       setState({
@@ -190,6 +201,10 @@ const DownloadPage = () => {
     }
 
     let cancelled = false;
+
+    function refreshDownloads() {
+      setRefreshNonce((current) => current + 1);
+    }
 
     async function requestDelivery(download: DownloadLink) {
       const res = await fetch(download.url);
@@ -210,7 +225,7 @@ const DownloadPage = () => {
       return data;
     }
 
-    async function fetchDownloads() {
+    async function fetchDownloads(retryAttempt = 0) {
       try {
         const res = await fetch(`/api/fulfill?access=${encodeURIComponent(accessToken)}`);
 
@@ -224,11 +239,37 @@ const DownloadPage = () => {
             return;
           }
 
+          if (
+            res.status === 404 &&
+            shouldRetryPendingClaim &&
+            retryAttempt < MAX_PENDING_CLAIM_RETRIES
+          ) {
+            window.setTimeout(() => {
+              if (!cancelled) {
+                void fetchDownloads(retryAttempt + 1);
+              }
+            }, PENDING_CLAIM_RETRY_DELAY_MS);
+            return;
+          }
+
+          if (
+            res.status === 404 &&
+            shouldRetryPendingClaim &&
+            retryAttempt >= MAX_PENDING_CLAIM_RETRIES
+          ) {
+            clearPendingFulfillmentClaimAccessToken(accessToken);
+            throw new Error(
+              "We are still finalizing your secure access after payment. Please reload this page once or use the email download link if it already arrived.",
+            );
+          }
+
           throw new Error(body.error ?? `Request failed (${res.status})`);
         }
 
         const data = await parseFulfillmentSuccessResponse(res);
         if (cancelled) return;
+
+        clearPendingFulfillmentClaimAccessToken(accessToken);
 
         setState({
           phase: "ready",
@@ -248,29 +289,41 @@ const DownloadPage = () => {
           ? allowedDownloads.filter((download) => download.key === selectedFileKey)
           : allowedDownloads;
 
-        if (downloadsToAutoStart.length > 0) {
-          downloadsToAutoStart.forEach((download, index) => {
-            setTimeout(() => {
-              if (!cancelled) {
-                void requestDelivery(download).catch((error: unknown) => {
-                  if (cancelled) {
-                    return;
-                  }
+        if (shouldAutoStartDownloads && downloadsToAutoStart.length > 0) {
+          void (async () => {
+            try {
+              for (let index = 0; index < downloadsToAutoStart.length; index += 1) {
+                if (index > 0) {
+                  await new Promise((resolve) => window.setTimeout(resolve, 2500));
+                }
 
-                  const message = error instanceof Error
-                    ? error.message
-                    : "We couldn't prepare your secure download right now.";
-                  const manualResend = error instanceof Error && "code" in error && error.code === "manual_resend_required";
+                if (cancelled) {
+                  return;
+                }
 
-                  setState(
-                    manualResend
-                      ? { phase: "manual-resend", message }
-                      : { phase: "error", message },
-                  );
-                });
+                await requestDelivery(downloadsToAutoStart[index]);
               }
-            }, index * 2500 + 800);
-          });
+
+              if (!cancelled) {
+                refreshDownloads();
+              }
+            } catch (error: unknown) {
+              if (cancelled) {
+                return;
+              }
+
+              const message = error instanceof Error
+                ? error.message
+                : "We couldn't prepare your secure download right now.";
+              const manualResend = error instanceof Error && "code" in error && error.code === "manual_resend_required";
+
+              setState(
+                manualResend
+                  ? { phase: "manual-resend", message }
+                  : { phase: "error", message },
+              );
+            }
+          })();
         }
       } catch (err: unknown) {
         if (cancelled) return;
@@ -286,7 +339,7 @@ const DownloadPage = () => {
     return () => {
       cancelled = true;
     };
-  }, [searchParams]);
+  }, [searchParams, refreshNonce]);
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4 py-16">
@@ -297,6 +350,7 @@ const DownloadPage = () => {
             downloads={state.downloads}
             deliveryPolicy={state.deliveryPolicy}
             orderReference={state.orderReference}
+            onDownloadSuccess={() => setRefreshNonce((current) => current + 1)}
             onManualResend={(message) => setState({ phase: "manual-resend", message })}
             onError={(message) => setState({ phase: "error", message })}
           />
@@ -328,12 +382,14 @@ function ReadyCard(
     downloads,
     deliveryPolicy,
     orderReference,
+    onDownloadSuccess,
     onManualResend,
     onError,
   }: {
     downloads: DownloadLink[];
     deliveryPolicy: DeliveryPolicy;
     orderReference: string | null;
+    onDownloadSuccess: () => void;
     onManualResend: (message: string) => void;
     onError: (message: string) => void;
   },
@@ -357,6 +413,7 @@ function ReadyCard(
 
     const data = await parseDeliverySuccessResponse(res);
     triggerBrowserDownload(data.download.url);
+    onDownloadSuccess();
   }
 
   return (
@@ -388,33 +445,41 @@ function ReadyCard(
         ) : null}
 
         <div className="space-y-3">
-          {availableDownloads.map((download) => (
-            <button
-              key={download.key}
-              type="button"
-              onClick={() => {
-                void handleSecureDownload(download).catch((error: unknown) => {
-                  const message = error instanceof Error
-                    ? error.message
-                    : "We couldn't prepare your secure download right now.";
-                  const manualResend = error instanceof Error && "code" in error && error.code === "manual_resend_required";
+          {availableDownloads.map((download) => {
+            const usedDownloads = download.maxSuccessfulDownloads - download.remainingSuccessfulDownloads;
 
-                  if (manualResend) {
-                    onManualResend(message);
-                    return;
-                  }
+            return (
+              <div key={download.key} className="space-y-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    void handleSecureDownload(download).catch((error: unknown) => {
+                      const message = error instanceof Error
+                        ? error.message
+                        : "We couldn't prepare your secure download right now.";
+                      const manualResend = error instanceof Error && "code" in error && error.code === "manual_resend_required";
 
-                  onError(message);
-                });
-              }}
-              className="flex items-center gap-3 w-full px-4 py-3 bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 rounded-lg transition-colors"
-            >
-              <Download className="w-5 h-5 shrink-0" />
-              <span className="text-sm font-medium truncate flex-1 text-left">
-                {download.label} • {download.maxSuccessfulDownloads - download.remainingSuccessfulDownloads} of {download.maxSuccessfulDownloads} downloads used
-              </span>
-            </button>
-          ))}
+                      if (manualResend) {
+                        onManualResend(message);
+                        return;
+                      }
+
+                      onError(message);
+                    });
+                  }}
+                  className="flex items-center gap-3 w-full px-4 py-3 bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 rounded-lg transition-colors"
+                >
+                  <Download className="w-5 h-5 shrink-0" />
+                  <span className="text-sm font-medium flex-1 text-left">
+                    {download.label}
+                  </span>
+                </button>
+                <p className="px-1 text-xs text-muted-foreground">
+                  {usedDownloads} of {download.maxSuccessfulDownloads} downloads used
+                </p>
+              </div>
+            );
+          })}
         </div>
 
         {blockedDownloads.length > 0 ? (

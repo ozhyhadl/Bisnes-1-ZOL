@@ -11,6 +11,7 @@ import { getPaddleBillingConfig } from "@/config/billing";
 
 const paddleBillingConfig = getPaddleBillingConfig();
 export const PADDLE_FULFILLMENT_ACCESS_TOKEN_STORAGE_KEY = "aicb:last-fulfillment-access-token";
+export const PADDLE_PENDING_FULFILLMENT_CLAIM_STORAGE_KEY = "aicb:pending-fulfillment-claim";
 const FULFILLMENT_ACCESS_TOKEN_QUERY_PARAM = "access";
 const FULFILLMENT_ACCESS_TOKEN_PREFIX = "fac_";
 
@@ -45,8 +46,38 @@ function storeFulfillmentAccessToken(accessToken: string): void {
   );
 }
 
+function storePendingFulfillmentClaim(accessToken: string): void {
+  window.sessionStorage.setItem(
+    PADDLE_PENDING_FULFILLMENT_CLAIM_STORAGE_KEY,
+    accessToken,
+  );
+}
+
 function readStoredFulfillmentAccessToken(): string | null {
   return window.sessionStorage.getItem(PADDLE_FULFILLMENT_ACCESS_TOKEN_STORAGE_KEY);
+}
+
+export function readPendingFulfillmentClaimAccessToken(): string | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  return window.sessionStorage.getItem(PADDLE_PENDING_FULFILLMENT_CLAIM_STORAGE_KEY);
+}
+
+export function clearPendingFulfillmentClaimAccessToken(accessToken?: string): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const pendingAccessToken = readPendingFulfillmentClaimAccessToken();
+  if (!pendingAccessToken) {
+    return;
+  }
+
+  if (!accessToken || pendingAccessToken === accessToken) {
+    window.sessionStorage.removeItem(PADDLE_PENDING_FULFILLMENT_CLAIM_STORAGE_KEY);
+  }
 }
 
 function extractFulfillmentAccessToken(customData: unknown): string | null {
@@ -66,6 +97,7 @@ async function claimFulfillmentAccess(
 ): Promise<void> {
   const res = await fetch("/api/fulfill", {
     method: "POST",
+    keepalive: true,
     headers: {
       "Content-Type": "application/json",
     },
@@ -89,18 +121,10 @@ async function claimFulfillmentAccess(
   throw new Error(bodyText || `Request failed (${res.status})`);
 }
 
-function redirectToDownload(accessToken?: string): void {
-  if (typeof window === "undefined") {
-    return;
-  }
-
+function buildDownloadUrl(accessToken: string): string {
   const targetUrl = new URL(`${window.location.origin}${DOWNLOAD_ROUTE}`);
-  if (accessToken) {
-    targetUrl.searchParams.set(FULFILLMENT_ACCESS_TOKEN_QUERY_PARAM, accessToken);
-    storeFulfillmentAccessToken(accessToken);
-  }
-
-  window.location.assign(targetUrl.toString());
+  targetUrl.searchParams.set(FULFILLMENT_ACCESS_TOKEN_QUERY_PARAM, accessToken);
+  return targetUrl.toString();
 }
 
 function handleCheckoutEvent(event: PaddleEventData): void {
@@ -113,16 +137,15 @@ function handleCheckoutEvent(event: PaddleEventData): void {
     readStoredFulfillmentAccessToken();
 
   if (!transactionId || !accessToken) {
-    redirectToDownload(accessToken ?? undefined);
     return;
   }
 
   void claimFulfillmentAccess(transactionId, accessToken)
+    .then(() => {
+      clearPendingFulfillmentClaimAccessToken(accessToken);
+    })
     .catch((error: unknown) => {
       console.error("[Paddle] Failed to claim secure fulfillment access.", error);
-    })
-    .finally(() => {
-      redirectToDownload(accessToken);
     });
 }
 
@@ -176,6 +199,7 @@ export function openPaddleCheckout(paddle: Paddle, items: CheckoutOpenLineItem[]
 
   const accessToken = createFulfillmentAccessToken();
   storeFulfillmentAccessToken(accessToken);
+  storePendingFulfillmentClaim(accessToken);
 
   const checkoutOptions: CheckoutOpenOptions = {
     items,
@@ -184,7 +208,7 @@ export function openPaddleCheckout(paddle: Paddle, items: CheckoutOpenLineItem[]
     },
     settings: {
       displayMode: "overlay",
-      successUrl: `${window.location.origin}${DOWNLOAD_ROUTE}`,
+      successUrl: buildDownloadUrl(accessToken),
     },
   };
 
