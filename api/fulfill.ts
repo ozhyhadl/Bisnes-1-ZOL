@@ -5,7 +5,7 @@ import {
   sendConversionEvent,
   extractClientIp,
   extractUserAgent,
-} from "./_lib/meta-capi";
+} from "./_lib/meta-capi.js";
 
 /* ── Price-ID → Storage-file mapping ─────────────────────────────── */
 

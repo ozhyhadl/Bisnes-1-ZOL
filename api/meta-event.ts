@@ -3,7 +3,7 @@ import {
   sendConversionEvent,
   extractClientIp,
   extractUserAgent,
-} from "./_lib/meta-capi";
+} from "./_lib/meta-capi.js";
 
 /* ── Allowed event names (client-initiated only) ─────────────────── */
 

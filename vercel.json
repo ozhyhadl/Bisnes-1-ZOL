@@ -7,6 +7,10 @@
       "config": { "distDir": "dist" }
     },
     {
+      "src": "api/meta-event.ts",
+      "use": "@vercel/node"
+    },
+    {
       "src": "api/fulfill.ts",
       "use": "@vercel/node"
     },
@@ -47,6 +51,7 @@
       "continue": true
     },
     { "handle": "filesystem" },
+    { "src": "/api/meta-event$", "dest": "/api/meta-event.ts" },
     { "src": "/api/fulfill$", "dest": "/api/fulfill.ts" },
     { "src": "/api/deliver$", "dest": "/api/deliver.ts" },
     { "src": "/(privacy|terms|download)$", "dest": "/index.html" },
