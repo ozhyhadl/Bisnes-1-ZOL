@@ -13,6 +13,8 @@ type CheckoutContextValue = {
   isN8nAdded: boolean;
   isCheckoutLoading: boolean;
   addN8nToOrder: () => void;
+  removeN8nFromOrder: () => void;
+  toggleN8nInOrder: () => void;
   openCheckout: (options?: CheckoutOpenOptions) => Promise<void>;
 };
 
@@ -22,6 +24,8 @@ const CheckoutContext = createContext<CheckoutContextValue>({
   isN8nAdded: false,
   isCheckoutLoading: false,
   addN8nToOrder: () => {},
+  removeN8nFromOrder: () => {},
+  toggleN8nInOrder: () => {},
   openCheckout: noopAsync,
 });
 
@@ -34,6 +38,14 @@ export const CheckoutProvider = ({ children }: { children: ReactNode }) => {
     setIsN8nAdded(true);
   };
 
+  const removeN8nFromOrder = () => {
+    setIsN8nAdded(false);
+  };
+
+  const toggleN8nInOrder = () => {
+    setIsN8nAdded((currentValue) => !currentValue);
+  };
+
   const openCheckout = async (options?: CheckoutOpenOptions) => {
     if (isCheckoutLoading) {
       return;
@@ -41,8 +53,8 @@ export const CheckoutProvider = ({ children }: { children: ReactNode }) => {
 
     const includeN8n = options?.includeN8n ?? isN8nAdded;
 
-    if (includeN8n && options?.persistN8nSelection && !isN8nAdded) {
-      setIsN8nAdded(true);
+    if (options?.persistN8nSelection) {
+      setIsN8nAdded(includeN8n);
     }
 
     setIsCheckoutLoading(true);
@@ -86,6 +98,8 @@ export const CheckoutProvider = ({ children }: { children: ReactNode }) => {
         isN8nAdded,
         isCheckoutLoading,
         addN8nToOrder,
+        removeN8nFromOrder,
+        toggleN8nInOrder,
         openCheckout,
       }}
     >

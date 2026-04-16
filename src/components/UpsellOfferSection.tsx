@@ -5,7 +5,7 @@ import ScrollReveal from "./ScrollReveal";
 import n8nImage from "@/assets/n8n-workflows-upsell.png";
 
 const UpsellOfferSection = () => {
-  const { addN8nToOrder, isN8nAdded } = useCheckout();
+  const { isN8nAdded, toggleN8nInOrder } = useCheckout();
 
   const buttonClassName = isN8nAdded
     ? "bg-emerald-500 text-emerald-950 border-emerald-300 shadow-[0_0_0_1px_rgba(96,212,164,0.36),0_18px_34px_rgba(31,161,116,0.18)]"
@@ -64,20 +64,19 @@ const UpsellOfferSection = () => {
 
                 <button
                   type="button"
-                  onClick={addN8nToOrder}
-                  disabled={isN8nAdded}
+                  onClick={toggleN8nInOrder}
                   aria-pressed={isN8nAdded}
                   className={`w-full min-w-[13rem] px-8 py-3.5 text-xs uppercase tracking-[0.24em] font-semibold rounded-xl border transition-all duration-300 ${isN8nAdded ? "scale-[1.01]" : ""} ${buttonClassName}`}
                 >
                   <span className="flex items-center justify-center gap-2">
                     {isN8nAdded ? <Check className="h-4 w-4" /> : null}
-                    {isN8nAdded ? "Added to Order" : "Add to Order"}
+                    {isN8nAdded ? "Remove Add-On" : "Add to Order"}
                   </span>
                 </button>
 
                 <div className={`w-full rounded-xl px-4 py-3 text-xs leading-relaxed shadow-[0_10px_24px_rgba(15,23,42,0.05)] ${isN8nAdded ? "border border-emerald-300/70 bg-[linear-gradient(180deg,rgba(244,251,247,0.98),rgba(235,246,239,0.96))] text-slate-950" : "border border-border/70 bg-card/70 text-muted-foreground"}`}>
                   {isN8nAdded
-                    ? "This add-on is now included in your order and will be delivered with your purchase."
+                    ? "This add-on is now included in your order. Click again here if you want to remove it before checkout."
                     : "Add this now to lock in the discounted bundle price before checkout."}
                 </div>
               </div>

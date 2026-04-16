@@ -30,6 +30,11 @@ const PricingSection = () => {
   const { isCheckoutLoading, isN8nAdded, openCheckout } = useCheckout();
 
   function handlePricingCheckoutClick() {
+    if (isN8nAdded) {
+      void openCheckout();
+      return;
+    }
+
     setIsUpsellOpen(true);
   }
 
