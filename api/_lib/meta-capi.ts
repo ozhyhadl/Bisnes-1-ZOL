@@ -8,6 +8,7 @@ const META_GRAPH_BASE = "https://graph.facebook.com";
 type MetaUserData = {
   em?: string | null;
   ph?: string | null;
+  country?: string | null;
   client_ip_address?: string | null;
   client_user_agent?: string | null;
   fbc?: string | null;
@@ -63,32 +64,100 @@ export function hashUserParam(value: string): string {
     .digest("hex");
 }
 
+function normalizeOptionalValue(value: string | null | undefined): string | null {
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const normalizedValue = value.trim();
+  if (!normalizedValue) {
+    return null;
+  }
+
+  const lowerCasedValue = normalizedValue.toLowerCase();
+  if (
+    lowerCasedValue === "null"
+    || lowerCasedValue === "undefined"
+    || lowerCasedValue === "unknown"
+    || lowerCasedValue === "n/a"
+    || lowerCasedValue === "na"
+  ) {
+    return null;
+  }
+
+  return normalizedValue;
+}
+
+function normalizeEmail(value: string | null | undefined): string | null {
+  const normalizedValue = normalizeOptionalValue(value);
+  if (!normalizedValue) {
+    return null;
+  }
+
+  const normalizedEmail = normalizedValue.toLowerCase();
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)
+    ? normalizedEmail
+    : null;
+}
+
+function normalizePhone(value: string | null | undefined): string | null {
+  const normalizedValue = normalizeOptionalValue(value);
+  if (!normalizedValue) {
+    return null;
+  }
+
+  const digitsOnlyPhone = normalizedValue.replace(/\D/g, "");
+  return digitsOnlyPhone.length >= 7 ? digitsOnlyPhone : null;
+}
+
+function normalizeCountry(value: string | null | undefined): string | null {
+  const normalizedValue = normalizeOptionalValue(value);
+  if (!normalizedValue) {
+    return null;
+  }
+
+  const normalizedCountry = normalizedValue.toLowerCase();
+  return /^[a-z]{2}$/.test(normalizedCountry) ? normalizedCountry : null;
+}
+
 function buildUserData(raw: MetaUserData): Record<string, unknown> {
   const userData: Record<string, unknown> = {};
 
-  if (raw.em) {
-    userData.em = [hashUserParam(raw.em)];
+  const normalizedEmail = normalizeEmail(raw.em);
+  const normalizedPhone = normalizePhone(raw.ph);
+  const normalizedCountry = normalizeCountry(raw.country);
+  const normalizedClientIp = normalizeOptionalValue(raw.client_ip_address);
+  const normalizedClientUserAgent = normalizeOptionalValue(raw.client_user_agent);
+  const normalizedFbc = normalizeOptionalValue(raw.fbc);
+  const normalizedFbp = normalizeOptionalValue(raw.fbp);
+
+  if (normalizedEmail) {
+    userData.em = [hashUserParam(normalizedEmail)];
   }
 
-  if (raw.ph) {
-    userData.ph = [hashUserParam(raw.ph)];
+  if (normalizedPhone) {
+    userData.ph = [hashUserParam(normalizedPhone)];
+  }
+
+  if (normalizedCountry) {
+    userData.country = [hashUserParam(normalizedCountry)];
   }
 
   // IP and UA are sent as-is (not hashed)
-  if (raw.client_ip_address) {
-    userData.client_ip_address = raw.client_ip_address;
+  if (normalizedClientIp) {
+    userData.client_ip_address = normalizedClientIp;
   }
 
-  if (raw.client_user_agent) {
-    userData.client_user_agent = raw.client_user_agent;
+  if (normalizedClientUserAgent) {
+    userData.client_user_agent = normalizedClientUserAgent;
   }
 
-  if (raw.fbc) {
-    userData.fbc = raw.fbc;
+  if (normalizedFbc) {
+    userData.fbc = normalizedFbc;
   }
 
-  if (raw.fbp) {
-    userData.fbp = raw.fbp;
+  if (normalizedFbp) {
+    userData.fbp = normalizedFbp;
   }
 
   return userData;
