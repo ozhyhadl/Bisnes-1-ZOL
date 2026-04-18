@@ -130,34 +130,34 @@
       transform: translate(-50%, -50%) translate3d(246%, 94%, 0) scale(1.1) rotate(-3deg);
     }
 
-    10% {
+    8% {
       opacity: 1;
-      transform: translate(-50%, -50%) translate3d(224%, 82%, 0) scale(1.06) rotate(-3deg);
+      transform: translate(-50%, -50%) translate3d(232%, 88%, 0) scale(1.08) rotate(-3deg);
     }
 
-    38% {
+    28% {
       opacity: 1;
-      transform: translate(-50%, -50%) translate3d(136%, 46%, 0) scale(0.9) rotate(-2deg);
+      transform: translate(-50%, -50%) translate3d(172%, 58%, 0) scale(0.96) rotate(-2.4deg);
     }
 
-    62% {
+    52% {
       opacity: 1;
-      transform: translate(-50%, -50%) translate3d(52%, 14%, 0) scale(0.68) rotate(-1deg);
+      transform: translate(-50%, -50%) translate3d(98%, 28%, 0) scale(0.8) rotate(-1.6deg);
     }
 
-    78% {
+    74% {
       opacity: 1;
-      transform: translate(-50%, -50%) translate3d(0, 0, 0) scale(0.46) rotate(0deg);
+      transform: translate(-50%, -50%) translate3d(34%, 8%, 0) scale(0.62) rotate(-0.8deg);
     }
 
-    86% {
-      opacity: 0.98;
-      transform: translate(-50%, -50%) translate3d(0, 0, 0) scale(0.4) rotate(0deg);
+    90% {
+      opacity: 0.96;
+      transform: translate(-50%, -50%) translate3d(10%, 2%, 0) scale(0.5) rotate(-0.2deg);
     }
 
     100% {
       opacity: 0;
-      transform: translate(-50%, -50%) translate3d(0, 0, 0) scale(0.34) rotate(0deg);
+      transform: translate(-50%, -50%) translate3d(0, 0, 0) scale(0.38) rotate(0deg);
     }
   }
 
@@ -264,7 +264,7 @@
     height: auto;
     transform-origin: center center;
     filter: drop-shadow(0 20px 35px rgba(0, 0, 0, 0.35));
-    animation: skill-install-card-drag 5.4s cubic-bezier(0.23, 1, 0.32, 1) infinite;
+    animation: skill-install-card-drag 2.55s linear infinite;
     will-change: transform, opacity;
   }
 
