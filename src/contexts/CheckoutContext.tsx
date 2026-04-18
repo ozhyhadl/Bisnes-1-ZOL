@@ -1,8 +1,9 @@
 import { toast } from "@/components/ui/sonner";
 import { getPaddleBillingConfig } from "@/config/billing";
 import { getPaddle, openPaddleCheckout, type PaddleCheckoutItem } from "@/lib/paddle";
+import { runWhenBrowserIdle } from "@/lib/browser-idle";
 import { trackInitiateCheckout } from "@/lib/meta-events";
-import { createContext, useContext, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
 type CheckoutOpenOptions = {
   includeN8n?: boolean;
@@ -33,6 +34,16 @@ export const CheckoutProvider = ({ children }: { children: ReactNode }) => {
   const [isN8nAdded, setIsN8nAdded] = useState(false);
   const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
   const billingConfig = getPaddleBillingConfig();
+
+  useEffect(() => {
+    if (!billingConfig.token) {
+      return;
+    }
+
+    return runWhenBrowserIdle(() => {
+      void getPaddle();
+    }, 2500);
+  }, [billingConfig.token]);
 
   const addN8nToOrder = () => {
     setIsN8nAdded(true);

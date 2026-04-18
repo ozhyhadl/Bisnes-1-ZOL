@@ -1,34 +1,31 @@
-import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Analytics } from "@vercel/analytics/react";
+import { Suspense, lazy } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import TermsOfService from "./pages/TermsOfService";
-import DownloadPage from "./pages/Download";
-import NotFound from "./pages/NotFound";
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const TermsOfService = lazy(() => import("./pages/TermsOfService"));
+const DownloadPage = lazy(() => import("./pages/Download"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
-const queryClient = new QueryClient();
+const LazyRoute = ({ children }: { children: React.ReactNode }) => (
+  <Suspense fallback={null}>{children}</Suspense>
+);
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/privacy" element={<PrivacyPolicy />} />
-          <Route path="/terms" element={<TermsOfService />} />
-          <Route path="/download" element={<DownloadPage />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-        <Analytics />
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <>
+    <Sonner />
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/privacy" element={<LazyRoute><PrivacyPolicy /></LazyRoute>} />
+        <Route path="/terms" element={<LazyRoute><TermsOfService /></LazyRoute>} />
+        <Route path="/download" element={<LazyRoute><DownloadPage /></LazyRoute>} />
+        <Route path="*" element={<LazyRoute><NotFound /></LazyRoute>} />
+      </Routes>
+      <Analytics />
+    </BrowserRouter>
+  </>
 );
 
 export default App;

@@ -1,7 +1,5 @@
 import {
-  CheckoutEventNames,
   type PaddleEventData,
-  initializePaddle,
   type CheckoutOpenLineItem,
   type CheckoutOpenOptions,
   type Paddle,
@@ -21,6 +19,8 @@ const DOWNLOAD_ROUTE = "/download";
 
 let paddleInstance: Paddle | null = null;
 let paddlePromise: Promise<Paddle | null> | null = null;
+let paddleSdkPromise: Promise<typeof import("@paddle/paddle-js")> | null = null;
+let paddleSdk: typeof import("@paddle/paddle-js") | null = null;
 
 export type PaddleCheckoutItem = CheckoutOpenLineItem;
 
@@ -152,8 +152,30 @@ function buildDownloadUrl(accessToken: string): string {
   return targetUrl.toString();
 }
 
+async function loadPaddleSdk(): Promise<typeof import("@paddle/paddle-js")> {
+  if (paddleSdk) {
+    return paddleSdk;
+  }
+
+  if (!paddleSdkPromise) {
+    paddleSdkPromise = import("@paddle/paddle-js")
+      .then((module) => {
+        paddleSdk = module;
+        return module;
+      })
+      .catch((error: unknown) => {
+        paddleSdkPromise = null;
+        throw error;
+      });
+  }
+
+  return paddleSdkPromise;
+}
+
 function handleCheckoutEvent(event: PaddleEventData): void {
-  if (event.name !== CheckoutEventNames.CHECKOUT_COMPLETED) {
+  const checkoutCompletedEvent = paddleSdk?.CheckoutEventNames.CHECKOUT_COMPLETED ?? "checkout.completed";
+
+  if (event.name !== checkoutCompletedEvent) {
     return;
   }
 
@@ -200,11 +222,12 @@ export async function getPaddle(): Promise<Paddle | null> {
   }
 
   if (!paddlePromise) {
-    paddlePromise = initializePaddle({
-      token: paddleBillingConfig.token,
-      environment: paddleBillingConfig.mode,
-      eventCallback: handleCheckoutEvent,
-    })
+    paddlePromise = loadPaddleSdk()
+      .then(({ initializePaddle }) => initializePaddle({
+        token: paddleBillingConfig.token,
+        environment: paddleBillingConfig.mode,
+        eventCallback: handleCheckoutEvent,
+      }))
       .then((instance) => {
         if (!instance) {
           console.error("[Paddle] initializePaddle() returned no instance.");
