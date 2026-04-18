@@ -123,4 +123,225 @@
   .terminal-prompt {
     color: hsl(var(--terminal-green));
   }
+
+  @keyframes skill-install-card-drag {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, -50%) translate3d(246%, 94%, 0) scale(1.1) rotate(-3deg);
+    }
+
+    10% {
+      opacity: 1;
+      transform: translate(-50%, -50%) translate3d(224%, 82%, 0) scale(1.06) rotate(-3deg);
+    }
+
+    38% {
+      opacity: 1;
+      transform: translate(-50%, -50%) translate3d(136%, 46%, 0) scale(0.9) rotate(-2deg);
+    }
+
+    62% {
+      opacity: 1;
+      transform: translate(-50%, -50%) translate3d(52%, 14%, 0) scale(0.68) rotate(-1deg);
+    }
+
+    78% {
+      opacity: 1;
+      transform: translate(-50%, -50%) translate3d(0, 0, 0) scale(0.46) rotate(0deg);
+    }
+
+    86% {
+      opacity: 0.98;
+      transform: translate(-50%, -50%) translate3d(0, 0, 0) scale(0.4) rotate(0deg);
+    }
+
+    100% {
+      opacity: 0;
+      transform: translate(-50%, -50%) translate3d(0, 0, 0) scale(0.34) rotate(0deg);
+    }
+  }
+
+  @keyframes skill-install-zone-pulse {
+    0%,
+    100% {
+      box-shadow: 0 0 0 1px rgba(208, 118, 75, 0.16), 0 0 0 0 rgba(208, 118, 75, 0.12);
+      border-color: rgba(225, 138, 93, 0.6);
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    50% {
+      box-shadow: 0 0 0 1px rgba(224, 140, 97, 0.28), 0 0 0 18px rgba(208, 118, 75, 0.06);
+      border-color: rgba(241, 162, 121, 0.92);
+      transform: translate(-50%, -50%) scale(1.03);
+    }
+  }
+
+  @keyframes skill-install-stage-glow {
+    0%,
+    100% {
+      opacity: 0.5;
+      transform: translateY(0);
+    }
+
+    50% {
+      opacity: 0.88;
+      transform: translateY(4px);
+    }
+  }
+
+  .skill-install-demo {
+    color: hsl(var(--foreground));
+  }
+
+  .skill-install-divider {
+    margin-top: 1.9rem;
+    text-align: center;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(2rem, 5vw, 3.65rem);
+    line-height: 1.02;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    color: hsl(var(--foreground));
+  }
+
+  .skill-install-stage {
+    position: relative;
+    overflow: hidden;
+    border-radius: 28px;
+    background:
+      radial-gradient(circle at 50% 38%, rgba(222, 136, 94, 0.18), transparent 24%),
+      linear-gradient(180deg, rgba(33, 28, 25, 0.94) 0%, rgba(22, 18, 16, 0.98) 100%);
+    box-shadow: 0 28px 80px rgba(23, 16, 12, 0.28);
+    padding: clamp(0.95rem, 1.6vw, 1.25rem);
+    min-height: clamp(16rem, 40vw, 32rem);
+    isolation: isolate;
+  }
+
+  .skill-install-stage::before {
+    content: "";
+    position: absolute;
+    inset: auto 18% 4% 18%;
+    height: 26%;
+    border-radius: 999px;
+    background: radial-gradient(circle, rgba(216, 128, 87, 0.22) 0%, rgba(216, 128, 87, 0) 72%);
+    filter: blur(10px);
+    animation: skill-install-stage-glow 4.2s ease-in-out infinite;
+    z-index: 0;
+  }
+
+  .skill-install-cowork {
+    position: relative;
+    z-index: 1;
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    object-fit: cover;
+  }
+
+  .skill-install-drop-zone {
+    position: absolute;
+    top: 50.8%;
+    left: 43.5%;
+    z-index: 2;
+    width: min(11vw, 6rem);
+    aspect-ratio: 1 / 1;
+    transform: translate(-50%, -50%);
+    border-radius: 1.5rem;
+    border: 2px dashed rgba(233, 155, 116, 0.76);
+    background: rgba(36, 28, 24, 0.22);
+    backdrop-filter: blur(3px);
+    animation: skill-install-zone-pulse 3.2s ease-in-out infinite;
+  }
+
+  .skill-install-card {
+    position: absolute;
+    top: 50.8%;
+    left: 43.5%;
+    z-index: 3;
+    width: min(18vw, 9rem);
+    height: auto;
+    transform-origin: center center;
+    filter: drop-shadow(0 20px 35px rgba(0, 0, 0, 0.35));
+    animation: skill-install-card-drag 5.4s cubic-bezier(0.23, 1, 0.32, 1) infinite;
+    will-change: transform, opacity;
+  }
+
+  .skill-install-label {
+    margin-top: 2rem;
+    text-align: center;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.28em;
+    color: hsl(var(--primary));
+  }
+
+  .skill-install-headline {
+    margin-top: 1rem;
+    text-align: center;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(2rem, 5vw, 3.65rem);
+    line-height: 1.02;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    color: hsl(var(--foreground));
+  }
+
+  .skill-install-subcopy {
+    margin: 1rem auto 0;
+    max-width: 44rem;
+    text-align: center;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: hsl(var(--foreground) / 0.72);
+  }
+
+  @media (max-width: 768px) {
+    .skill-install-divider {
+      margin-top: 1.6rem;
+    }
+
+    .skill-install-stage {
+      padding: 0.9rem;
+      min-height: 12.5rem;
+      border-radius: 22px;
+    }
+
+    .skill-install-drop-zone {
+      top: 50%;
+      left: 44%;
+      width: min(20vw, 4.4rem);
+      border-radius: 1rem;
+    }
+
+    .skill-install-card {
+      width: min(31vw, 6.2rem);
+      top: 50%;
+      left: 44%;
+    }
+
+    .skill-install-label {
+      font-size: 0.68rem;
+      letter-spacing: 0.22em;
+    }
+
+    .skill-install-subcopy {
+      font-size: 0.92rem;
+      line-height: 1.6;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .skill-install-stage::before,
+    .skill-install-drop-zone,
+    .skill-install-card {
+      animation: none;
+    }
+
+    .skill-install-card {
+      opacity: 1;
+      transform: translate(-50%, -50%) translate3d(0, 0, 0) scale(0.46) rotate(0deg);
+    }
+  }
 }

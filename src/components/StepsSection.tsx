@@ -1,6 +1,7 @@
 import TerminalWindow from "./TerminalWindow";
 import CTAButton from "./CTAButton";
 import ScrollReveal from "./ScrollReveal";
+import SkillInstallAnimation from "./SkillInstallAnimation";
 
 const steps = [
   { num: "1", title: "Download", desc: "Get the skill files and drop them into your Claude skills folder. Step-by-step setup guide included." },
@@ -38,6 +39,12 @@ const StepsSection = () => {
       <ScrollReveal delay={0.2}>
         <div className="text-center mt-10">
           <CTAButton>Set Up in 2 Minutes — $15</CTAButton>
+
+          <p className="skill-install-divider">or</p>
+
+          <div className="mt-8">
+            <SkillInstallAnimation />
+          </div>
         </div>
       </ScrollReveal>
     </section>
