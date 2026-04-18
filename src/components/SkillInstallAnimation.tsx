@@ -3,7 +3,7 @@ import skillCardImage from "@/assets/skill-install-animation/skill-card.png";
 
 const SkillInstallAnimation = () => {
   return (
-    <div className="skill-install-demo mx-auto max-w-4xl">
+    <div className="skill-install-demo mx-auto max-w-3xl">
       <div className="skill-install-stage" aria-hidden="true">
         <img
           decoding="async"

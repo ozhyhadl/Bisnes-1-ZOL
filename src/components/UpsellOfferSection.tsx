@@ -14,7 +14,7 @@ const UpsellOfferSection = () => {
   return (
     <section className="py-10 px-4" aria-label="Upsell offer">
       <ScrollReveal>
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-3xl mx-auto">
           <div className="bg-card border border-border rounded-2xl p-6 md:p-8 grid gap-6 md:grid-cols-[minmax(0,1fr)_15.5rem] md:items-start">
             <div className="min-w-0">
               <div className="flex flex-col sm:flex-row gap-5 sm:gap-6 items-start">
