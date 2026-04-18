@@ -1,4 +1,8 @@
 import { createHash } from "node:crypto";
+import {
+  normalizeAndHashMetaUserParam,
+  sanitizeOptionalMetaValue,
+} from "./meta-capi-param-builder.js";
 
 /* ── Meta Conversions API (CAPI) Server Module ─────────────────── */
 
@@ -64,83 +68,27 @@ export function hashUserParam(value: string): string {
     .digest("hex");
 }
 
-function normalizeOptionalValue(value: string | null | undefined): string | null {
-  if (typeof value !== "string") {
-    return null;
-  }
-
-  const normalizedValue = value.trim();
-  if (!normalizedValue) {
-    return null;
-  }
-
-  const lowerCasedValue = normalizedValue.toLowerCase();
-  if (
-    lowerCasedValue === "null"
-    || lowerCasedValue === "undefined"
-    || lowerCasedValue === "unknown"
-    || lowerCasedValue === "n/a"
-    || lowerCasedValue === "na"
-  ) {
-    return null;
-  }
-
-  return normalizedValue;
-}
-
-function normalizeEmail(value: string | null | undefined): string | null {
-  const normalizedValue = normalizeOptionalValue(value);
-  if (!normalizedValue) {
-    return null;
-  }
-
-  const normalizedEmail = normalizedValue.toLowerCase();
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)
-    ? normalizedEmail
-    : null;
-}
-
-function normalizePhone(value: string | null | undefined): string | null {
-  const normalizedValue = normalizeOptionalValue(value);
-  if (!normalizedValue) {
-    return null;
-  }
-
-  const digitsOnlyPhone = normalizedValue.replace(/\D/g, "");
-  return digitsOnlyPhone.length >= 7 ? digitsOnlyPhone : null;
-}
-
-function normalizeCountry(value: string | null | undefined): string | null {
-  const normalizedValue = normalizeOptionalValue(value);
-  if (!normalizedValue) {
-    return null;
-  }
-
-  const normalizedCountry = normalizedValue.toLowerCase();
-  return /^[a-z]{2}$/.test(normalizedCountry) ? normalizedCountry : null;
-}
-
 function buildUserData(raw: MetaUserData): Record<string, unknown> {
   const userData: Record<string, unknown> = {};
 
-  const normalizedEmail = normalizeEmail(raw.em);
-  const normalizedPhone = normalizePhone(raw.ph);
-  const normalizedCountry = normalizeCountry(raw.country);
-  const normalizedClientIp = normalizeOptionalValue(raw.client_ip_address);
-  const normalizedClientUserAgent = normalizeOptionalValue(raw.client_user_agent);
-  const normalizedFbc = normalizeOptionalValue(raw.fbc);
-  const normalizedFbp = normalizeOptionalValue(raw.fbp);
+  const normalizedEmail = normalizeAndHashMetaUserParam(raw.em, "email");
+  const normalizedPhone = normalizeAndHashMetaUserParam(raw.ph, "phone");
+  const normalizedCountry = normalizeAndHashMetaUserParam(raw.country, "country");
+  const normalizedClientIp = sanitizeOptionalMetaValue(raw.client_ip_address);
+  const normalizedClientUserAgent = sanitizeOptionalMetaValue(raw.client_user_agent);
+  const normalizedFbc = sanitizeOptionalMetaValue(raw.fbc);
+  const normalizedFbp = sanitizeOptionalMetaValue(raw.fbp);
 
   if (normalizedEmail) {
-    userData.em = [hashUserParam(normalizedEmail)];
+    userData.em = [normalizedEmail];
   }
 
   if (normalizedPhone) {
-    userData.ph = [hashUserParam(normalizedPhone)];
+    userData.ph = [normalizedPhone];
   }
 
   if (normalizedCountry) {
-    userData.country = [hashUserParam(normalizedCountry)];
+    userData.country = [normalizedCountry];
   }
 
   // IP and UA are sent as-is (not hashed)

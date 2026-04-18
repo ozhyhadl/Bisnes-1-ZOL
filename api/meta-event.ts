@@ -4,6 +4,7 @@ import {
   extractClientIp,
   extractUserAgent,
 } from "./_lib/meta-capi.js";
+import { collectMetaRequestSignals } from "./_lib/meta-capi-param-builder.js";
 
 /* ── Allowed event names (client-initiated only) ─────────────────── */
 
@@ -40,19 +41,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: "Missing or invalid event_id." });
   }
 
-  // Extract IP and UA from server-side headers (not from client payload — prevents spoofing)
-  const clientIp = extractClientIp(req.headers as Record<string, string | string[] | undefined>);
+  const fallbackClientIp = extractClientIp(req.headers as Record<string, string | string[] | undefined>);
   const clientUa = extractUserAgent(req.headers as Record<string, string | string[] | undefined>);
+  const metaRequestSignals = collectMetaRequestSignals({
+    host: typeof req.headers.host === "string" ? req.headers.host : null,
+    eventSourceUrl,
+    referer: typeof req.headers.referer === "string" ? req.headers.referer : null,
+    cookieHeader: typeof req.headers.cookie === "string" ? req.headers.cookie : null,
+    xForwardedFor: typeof req.headers["x-forwarded-for"] === "string" ? req.headers["x-forwarded-for"] : null,
+    remoteAddress: req.socket?.remoteAddress ?? null,
+    fallbackFbc: fbc,
+    fallbackFbp: fbp,
+    fallbackClientIpAddress: fallbackClientIp,
+  });
 
   const result = await sendConversionEvent({
     event_name: eventName,
     event_id: eventId,
     event_source_url: eventSourceUrl ?? undefined,
     user_data: {
-      client_ip_address: clientIp,
+      client_ip_address: metaRequestSignals.clientIpAddress,
       client_user_agent: clientUa,
-      fbc,
-      fbp,
+      fbc: metaRequestSignals.fbc,
+      fbp: metaRequestSignals.fbp,
     },
   });
 
