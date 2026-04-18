@@ -13,11 +13,14 @@ type PaddleEnvironment = "sandbox" | "production";
 type BillingProductConfig = {
 	productId?: string;
 	priceId: string;
+	label: string;
+	unitPrice: number;
 };
 
 type BillingConfig = {
 	mode: PaddleEnvironment;
 	token: string;
+	currency: string;
 	skills: BillingProductConfig;
 	n8n: BillingProductConfig;
 };
@@ -57,13 +60,18 @@ export function getPaddleBillingConfig(): BillingConfig {
 		return {
 			mode: "sandbox",
 			token: import.meta.env.VITE_PADDLE_CLIENT_TOKEN_SANDBOX ?? "",
+			currency: "USD",
 			skills: {
 				productId: SANDBOX.skillsProductId,
 				priceId: SANDBOX.skillsPriceId,
+				label: "Claude Skills Ultimate Bundle",
+				unitPrice: 15,
 			},
 			n8n: {
 				productId: SANDBOX.n8nProductId,
 				priceId: SANDBOX.n8nPriceId,
+				label: "1,800+ N8N Automations",
+				unitPrice: 10,
 			},
 		};
 	}
@@ -71,11 +79,16 @@ export function getPaddleBillingConfig(): BillingConfig {
 	return {
 		mode: "production",
 		token: import.meta.env.VITE_PADDLE_CLIENT_TOKEN ?? "",
+		currency: "USD",
 		skills: {
 			priceId: LIVE.skillsPriceId,
+			label: "Claude Skills Ultimate Bundle",
+			unitPrice: 15,
 		},
 		n8n: {
 			priceId: LIVE.n8nPriceId,
+			label: "1,800+ N8N Automations",
+			unitPrice: 10,
 		},
 	};
 }

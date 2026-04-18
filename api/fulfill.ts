@@ -6,6 +6,7 @@ import {
   extractClientIp,
   extractUserAgent,
 } from "./_lib/meta-capi.js";
+import { sendPurchaseCompletedTelegramNotification } from "./_lib/telegram.js";
 
 /* ── Price-ID → Storage-file mapping ─────────────────────────────── */
 
@@ -1476,6 +1477,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const purchaseEmail = extractEmail(transaction);
     const purchaseIp = extractClientIp(req.headers as Record<string, string | string[] | undefined>);
     const purchaseUa = extractUserAgent(req.headers as Record<string, string | string[] | undefined>);
+    const purchasedItemLabels = filesToDeliver.map((file) => file.label);
 
     const contentIds = items
       .map((item) => item.price?.id)
@@ -1496,6 +1498,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         content_ids: contentIds,
         content_type: "product",
       },
+    });
+
+    await sendPurchaseCompletedTelegramNotification({
+      transactionId: txn,
+      supportReference,
+      value: financials.total_amount ?? 0,
+      currency: (financials.currency_code ?? "USD").toUpperCase(),
+      email: purchaseEmail,
+      items: purchasedItemLabels,
     });
   } catch (error: unknown) {
     const capiMessage = error instanceof Error ? error.message : "Unknown error";

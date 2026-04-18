@@ -6,6 +6,12 @@ declare global {
   }
 }
 
+type CheckoutTrackingContext = {
+  items?: string[];
+  value?: number;
+  currency?: string;
+};
+
 /* ── Event ID ────────────────────────────────────────────────────── */
 
 export function generateEventId(): string {
@@ -38,6 +44,7 @@ function getFbp(): string | null {
 async function sendCapiEvent(
   eventName: string,
   eventId: string,
+  checkoutContext?: CheckoutTrackingContext,
 ): Promise<void> {
   try {
     await fetch("/api/meta-event", {
@@ -50,6 +57,7 @@ async function sendCapiEvent(
         event_source_url: window.location.href,
         fbc: getFbc(),
         fbp: getFbp(),
+        notification_context: checkoutContext,
       }),
     });
   } catch {
@@ -94,15 +102,16 @@ export function trackViewContent(): void {
  * Track InitiateCheckout — fires when user opens checkout.
  * Pixel + CAPI with shared event_id for deduplication.
  */
-export function trackInitiateCheckout(): void {
+export function trackInitiateCheckout(checkoutContext?: CheckoutTrackingContext): void {
   const eventId = generateEventId();
+  const currency = checkoutContext?.currency ?? "USD";
 
   firePixelEvent("InitiateCheckout", {
     content_type: "product",
-    currency: "USD",
+    currency,
   }, eventId);
 
-  void sendCapiEvent("InitiateCheckout", eventId);
+  void sendCapiEvent("InitiateCheckout", eventId, checkoutContext);
 }
 
 /**

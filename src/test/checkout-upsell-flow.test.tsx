@@ -23,7 +23,7 @@ vi.mock("@/lib/paddle", () => ({
 }));
 
 vi.mock("@/lib/meta-events", () => ({
-  trackInitiateCheckout: () => mockTrackInitiateCheckout(),
+  trackInitiateCheckout: (...args: unknown[]) => mockTrackInitiateCheckout(...args),
 }));
 
 function renderCheckoutFlow() {
@@ -52,6 +52,12 @@ describe("checkout upsell flow", () => {
       expect(mockOpenPaddleCheckout).toHaveBeenCalledTimes(1);
     });
 
+    expect(mockTrackInitiateCheckout).toHaveBeenCalledWith({
+      items: ["Claude Skills Ultimate Bundle"],
+      value: 15,
+      currency: "USD",
+    });
+
     const [, items] = mockOpenPaddleCheckout.mock.calls[0] as [unknown, Array<{ priceId: string }>];
     expect(items).toHaveLength(1);
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
@@ -72,6 +78,12 @@ describe("checkout upsell flow", () => {
       expect(mockOpenPaddleCheckout).toHaveBeenCalledTimes(1);
     });
 
+    expect(mockTrackInitiateCheckout).toHaveBeenCalledWith({
+      items: ["Claude Skills Ultimate Bundle", "1,800+ N8N Automations"],
+      value: 25,
+      currency: "USD",
+    });
+
     let [, items] = mockOpenPaddleCheckout.mock.calls[0] as [unknown, Array<{ priceId: string }>];
     expect(items).toHaveLength(2);
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
@@ -85,6 +97,12 @@ describe("checkout upsell flow", () => {
 
     await waitFor(() => {
       expect(mockOpenPaddleCheckout).toHaveBeenCalledTimes(1);
+    });
+
+    expect(mockTrackInitiateCheckout).toHaveBeenCalledWith({
+      items: ["Claude Skills Ultimate Bundle"],
+      value: 15,
+      currency: "USD",
     });
 
     ;[, items] = mockOpenPaddleCheckout.mock.calls[0] as [unknown, Array<{ priceId: string }>];

@@ -5,10 +5,49 @@ import {
   extractUserAgent,
 } from "./_lib/meta-capi.js";
 import { collectMetaRequestSignals } from "./_lib/meta-capi-param-builder.js";
+import { sendCheckoutStartedTelegramNotification } from "./_lib/telegram.js";
 
 /* ── Allowed event names (client-initiated only) ─────────────────── */
 
 const ALLOWED_EVENTS = new Set(["ViewContent", "InitiateCheckout"]);
+
+type NotificationContext = {
+  items?: string[];
+  value?: number;
+  currency?: string;
+};
+
+function parseNotificationContext(value: unknown): NotificationContext | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return null;
+  }
+
+  const maybeItems = Array.isArray((value as { items?: unknown }).items)
+    ? (value as { items: unknown[] }).items
+        .filter((item): item is string => typeof item === "string")
+        .map((item) => item.trim())
+        .filter(Boolean)
+    : undefined;
+
+  const maybeValue = typeof (value as { value?: unknown }).value === "number"
+    && Number.isFinite((value as { value: number }).value)
+    ? (value as { value: number }).value
+    : undefined;
+
+  const maybeCurrency = typeof (value as { currency?: unknown }).currency === "string"
+    ? (value as { currency: string }).currency.trim() || undefined
+    : undefined;
+
+  if (!maybeItems?.length && maybeValue === undefined && !maybeCurrency) {
+    return null;
+  }
+
+  return {
+    items: maybeItems,
+    value: maybeValue,
+    currency: maybeCurrency,
+  };
+}
 
 /* ── Handler ─────────────────────────────────────────────────────── */
 
@@ -32,6 +71,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const eventSourceUrl = typeof body.event_source_url === "string" ? body.event_source_url : null;
   const fbc = typeof body.fbc === "string" ? body.fbc : null;
   const fbp = typeof body.fbp === "string" ? body.fbp : null;
+  const notificationContext = parseNotificationContext((body as { notification_context?: unknown }).notification_context);
 
   if (!eventName || !ALLOWED_EVENTS.has(eventName)) {
     return res.status(400).json({ error: "Invalid or unsupported event_name." });
@@ -66,6 +106,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       fbp: metaRequestSignals.fbp,
     },
   });
+
+  if (eventName === "InitiateCheckout") {
+    await sendCheckoutStartedTelegramNotification({
+      eventName,
+      pageUrl: eventSourceUrl,
+      eventId,
+      items: notificationContext?.items,
+      value: notificationContext?.value,
+      currency: notificationContext?.currency,
+    });
+  }
 
   return res.status(result.ok ? 200 : 502).json({
     status: result.ok ? "sent" : "error",

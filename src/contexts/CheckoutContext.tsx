@@ -91,10 +91,17 @@ export const CheckoutProvider = ({ children }: { children: ReactNode }) => {
         });
       }
 
+      const checkoutItems = [billingConfig.skills, ...(includeN8n ? [billingConfig.n8n] : [])];
+      const checkoutValue = checkoutItems.reduce((total, item) => total + item.unitPrice, 0);
+
       openPaddleCheckout(paddle, items);
 
       // Fire InitiateCheckout after Paddle overlay is opened
-      trackInitiateCheckout();
+      trackInitiateCheckout({
+        items: checkoutItems.map((item) => item.label),
+        value: checkoutValue,
+        currency: billingConfig.currency,
+      });
     } catch (error: unknown) {
       console.error("[Paddle] Unable to open checkout.", error);
       toast.error("Unable to open checkout. Please try again.");
