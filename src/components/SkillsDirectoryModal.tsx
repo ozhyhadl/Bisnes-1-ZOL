@@ -92,7 +92,7 @@ const SkillsDirectoryModal = () => {
         <Button
           variant="outline"
           size="lg"
-          className="h-12 w-full border-primary/35 bg-[linear-gradient(180deg,rgba(191,101,61,0.24),rgba(191,101,61,0.12))] px-6 text-[11px] font-semibold uppercase tracking-[0.24em] text-primary-foreground shadow-[0_10px_28px_rgba(191,101,61,0.18),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-sm transition-all duration-200 hover:border-primary/55 hover:bg-[linear-gradient(180deg,rgba(191,101,61,0.32),rgba(191,101,61,0.18))] hover:text-primary-foreground hover:shadow-[0_14px_34px_rgba(191,101,61,0.24),inset_0_1px_0_rgba(255,255,255,0.1)] focus-visible:ring-primary focus-visible:ring-offset-[hsl(var(--terminal-bg))] sm:w-auto"
+          className="h-11 w-full rounded-xl border-primary/40 bg-[linear-gradient(180deg,rgba(13,11,10,0.88),rgba(28,22,19,0.92))] px-5 text-[11px] font-semibold uppercase tracking-[0.24em] text-terminal-foreground shadow-[0_14px_26px_rgba(0,0,0,0.22),inset_0_1px_0_rgba(255,255,255,0.05),inset_0_0_0_1px_rgba(191,101,61,0.08)] transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/65 hover:bg-[linear-gradient(180deg,rgba(26,21,18,0.96),rgba(43,31,25,0.96))] hover:text-primary-foreground hover:shadow-[0_18px_32px_rgba(0,0,0,0.28),0_0_0_1px_rgba(191,101,61,0.16),inset_0_1px_0_rgba(255,255,255,0.06)] focus-visible:ring-primary focus-visible:ring-offset-[hsl(var(--terminal-bg))] sm:min-w-[16.5rem] sm:w-auto"
         >
           Browse All 501 Skills
         </Button>

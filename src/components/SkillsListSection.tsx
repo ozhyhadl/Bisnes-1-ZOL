@@ -32,8 +32,8 @@ const SkillsListSection = () => {
             ))}
           </div>
 
-          <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-xs uppercase tracking-[0.24em] text-terminal-foreground/45">
+          <div className="mt-8 flex flex-col items-stretch gap-4 border-t border-terminal-foreground/10 pt-5 sm:flex-row sm:items-center sm:justify-between">
+            <p className="max-w-[20rem] text-[10px] uppercase tracking-[0.26em] text-terminal-foreground/45 sm:text-xs">
               Full catalog available in modal directory
             </p>
             <SkillsDirectoryModal />
@@ -41,7 +41,7 @@ const SkillsListSection = () => {
         </TerminalWindow>
       </ScrollReveal>
       <ScrollReveal delay={0.2}>
-        <div className="text-center mt-10">
+        <div className="mt-8 text-center md:mt-9">
           <CTAButton>Unlock All 501 Skills — $15</CTAButton>
         </div>
       </ScrollReveal>
