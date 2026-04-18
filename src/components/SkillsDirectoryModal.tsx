@@ -7,6 +7,7 @@ import {
   skillsDirectoryCategorySlugs,
   skillsDirectoryEntries,
 } from "@/data/skillsDirectory";
+import { skillsMetadata, type SkillSlug } from "@/data/skillsMetadata";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import SkillDetailPopup from "./SkillDetailPopup";
 
 const INITIAL_EXPANDED_CATEGORIES = skillsDirectoryEntries.slice(0, 4).map(([categoryName]) => categoryName);
 
@@ -61,6 +63,7 @@ const SkillsDirectoryModal = () => {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [expandedCategories, setExpandedCategories] = useState<string[]>(INITIAL_EXPANDED_CATEGORIES);
+  const [selectedSkillSlug, setSelectedSkillSlug] = useState<SkillSlug | null>(null);
   const searchInputId = useId();
 
   const filteredDirectory = filterDirectory(query);
@@ -72,6 +75,7 @@ const SkillsDirectoryModal = () => {
     if (!open) {
       setQuery("");
       setExpandedCategories(INITIAL_EXPANDED_CATEGORIES);
+      setSelectedSkillSlug(null);
       return;
     }
 
@@ -79,6 +83,8 @@ const SkillsDirectoryModal = () => {
       setExpandedCategories(filteredCategoryNames);
     }
   }, [open, query, filteredCategoryKey]);
+
+  const selectedSkill = selectedSkillSlug ? skillsMetadata[selectedSkillSlug] : null;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -166,9 +172,14 @@ const SkillsDirectoryModal = () => {
                       <ul className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
                         {skills.map((skill) => (
                           <li key={skill}>
-                            <code className="block rounded-lg border border-terminal-foreground/10 bg-black/20 px-3 py-2 text-xs text-terminal-foreground/85 md:text-sm">
-                              {skill}
-                            </code>
+                            <button
+                              type="button"
+                              onClick={() => setSelectedSkillSlug(skill as SkillSlug)}
+                              className="block w-full rounded-lg border border-terminal-foreground/10 bg-black/20 px-3 py-2 text-left text-xs text-terminal-foreground/85 transition-colors hover:border-primary/35 hover:bg-primary/10 hover:text-terminal-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--terminal-bg))] md:text-sm"
+                              aria-label={`Open details for ${skillsMetadata[skill as SkillSlug]?.title ?? skill}`}
+                            >
+                              <code>{skill}</code>
+                            </button>
                           </li>
                         ))}
                       </ul>
@@ -186,6 +197,19 @@ const SkillsDirectoryModal = () => {
             )}
           </div>
         </div>
+
+        <SkillDetailPopup
+          open={Boolean(selectedSkillSlug && selectedSkill)}
+          onOpenChange={(nextOpen) => {
+            if (!nextOpen) {
+              setSelectedSkillSlug(null);
+            }
+          }}
+          title={selectedSkill?.title ?? ""}
+          slug={selectedSkillSlug ?? ""}
+          category={selectedSkill?.category ?? ""}
+          shortDescription={selectedSkill?.shortDescription ?? ""}
+        />
       </DialogContent>
     </Dialog>
   );
