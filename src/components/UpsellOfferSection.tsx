@@ -2,7 +2,7 @@ import { Check } from "lucide-react";
 
 import { useCheckout } from "@/contexts/CheckoutContext";
 import ScrollReveal from "./ScrollReveal";
-import n8nImage from "@/assets/n8n-workflows-upsell.png";
+import n8nImage from "@/assets/n8n-workflows-upsell-optimized.jpg";
 
 const UpsellOfferSection = () => {
   const { isN8nAdded, toggleN8nInOrder } = useCheckout();

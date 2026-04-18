@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ArrowRight, Check, Sparkles } from "lucide-react";
 
-import pricingUpsellImage from "@/assets/n8n-workflows-upsell.png";
+import pricingUpsellImage from "@/assets/n8n-workflows-upsell-optimized.jpg";
 import { useCheckout } from "@/contexts/CheckoutContext";
 import {
   Dialog,
@@ -120,6 +120,8 @@ const PricingSection = () => {
               <img
                 src={pricingUpsellImage}
                 alt="1,800 plus N8N workflows bundle artwork"
+                width={96}
+                height={96}
                 className="h-24 w-24 shrink-0 rounded-xl object-cover ring-1 ring-border/70"
                 loading="lazy"
               />
