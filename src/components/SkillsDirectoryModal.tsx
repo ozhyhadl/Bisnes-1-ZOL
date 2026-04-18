@@ -92,7 +92,7 @@ const SkillsDirectoryModal = () => {
         <Button
           variant="outline"
           size="lg"
-          className="w-full border-terminal-foreground/20 bg-transparent text-xs uppercase tracking-[0.24em] text-terminal-foreground hover:bg-terminal-foreground/10 hover:text-terminal-foreground sm:w-auto"
+          className="h-12 w-full border-primary/35 bg-[linear-gradient(180deg,rgba(191,101,61,0.24),rgba(191,101,61,0.12))] px-6 text-[11px] font-semibold uppercase tracking-[0.24em] text-primary-foreground shadow-[0_10px_28px_rgba(191,101,61,0.18),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-sm transition-all duration-200 hover:border-primary/55 hover:bg-[linear-gradient(180deg,rgba(191,101,61,0.32),rgba(191,101,61,0.18))] hover:text-primary-foreground hover:shadow-[0_14px_34px_rgba(191,101,61,0.24),inset_0_1px_0_rgba(255,255,255,0.1)] focus-visible:ring-primary focus-visible:ring-offset-[hsl(var(--terminal-bg))] sm:w-auto"
         >
           Browse All 501 Skills
         </Button>
