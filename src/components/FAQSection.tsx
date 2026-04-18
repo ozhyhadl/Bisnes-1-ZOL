@@ -1,12 +1,8 @@
+import { useState } from "react";
+
 import TerminalWindow from "./TerminalWindow";
 import CTAButton from "./CTAButton";
 import ScrollReveal from "./ScrollReveal";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 
 const faqs = [
   { q: "What exactly is a Claude skill?", a: "A SKILL.md file you add to Claude. It contains the full workflow for a specific task — the questions to ask you, the framework to apply, and the output format. Example: the SaaS Agreement skill asks about your pricing tiers, liability caps, and key clauses, then outputs a ready-to-sign contract." },
@@ -20,6 +16,12 @@ const faqs = [
 ];
 
 const FAQSection = () => {
+  const [openItem, setOpenItem] = useState<number | null>(0);
+
+  function toggleItem(index: number) {
+    setOpenItem((currentItem) => currentItem === index ? null : index);
+  }
+
   return (
     <section className="py-16 px-4" aria-label="FAQ">
       <ScrollReveal>
@@ -27,18 +29,35 @@ const FAQSection = () => {
           <h2 className="text-2xl md:text-4xl font-bold text-terminal-foreground mb-8">
             Common Questions, Straight Answers.
           </h2>
-          <Accordion type="single" collapsible className="w-full">
+          <div className="w-full">
             {faqs.map((faq, i) => (
-              <AccordionItem key={i} value={`item-${i}`} className="border-terminal-foreground/10">
-                <AccordionTrigger className="text-sm text-terminal-foreground hover:no-underline text-left">
-                  {faq.q}
-                </AccordionTrigger>
-                <AccordionContent className="text-xs text-terminal-foreground/70 leading-relaxed">
-                  {faq.a}
-                </AccordionContent>
-              </AccordionItem>
+              <div key={faq.q} className="border-b border-terminal-foreground/10">
+                <button
+                  type="button"
+                  onClick={() => toggleItem(i)}
+                  aria-expanded={openItem === i}
+                  className="flex w-full items-center justify-between gap-4 py-4 text-left text-sm text-terminal-foreground"
+                >
+                  <span>{faq.q}</span>
+                  <span
+                    aria-hidden="true"
+                    className={`shrink-0 text-terminal-foreground/60 transition-transform duration-300 ${openItem === i ? "rotate-45" : "rotate-0"}`}
+                  >
+                    +
+                  </span>
+                </button>
+                <div
+                  className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${openItem === i ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
+                >
+                  <div className="overflow-hidden">
+                    <div className="pb-4 text-xs text-terminal-foreground/70 leading-relaxed">
+                      {faq.a}
+                    </div>
+                  </div>
+                </div>
+              </div>
             ))}
-          </Accordion>
+          </div>
         </TerminalWindow>
       </ScrollReveal>
       <ScrollReveal delay={0.2}>
