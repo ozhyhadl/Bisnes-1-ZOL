@@ -1,14 +1,8 @@
-import { Suspense, lazy, useEffect, useState } from "react";
-
 import { useCheckout } from "@/contexts/CheckoutContext";
-import { runWhenBrowserIdle } from "@/lib/browser-idle";
 
 import TerminalWindow from "./TerminalWindow";
 import ScrollReveal from "./ScrollReveal";
 import CTAButton from "./CTAButton";
-
-const loadPricingUpsellDialog = () => import("./PricingUpsellDialog");
-const PricingUpsellDialog = lazy(loadPricingUpsellDialog);
 
 const pricingItems = [
   { name: "Content, Copy & Social Media (75+)", price: "$97" },
@@ -21,34 +15,10 @@ const pricingItems = [
 ];
 
 const PricingSection = () => {
-  const [isUpsellOpen, setIsUpsellOpen] = useState(false);
-  const { isCheckoutLoading, isN8nAdded, openCheckout } = useCheckout();
-
-  useEffect(() => {
-    return runWhenBrowserIdle(() => {
-      void loadPricingUpsellDialog();
-    }, 2500);
-  }, []);
-
-  function warmUpsellDialog() {
-    void loadPricingUpsellDialog();
-  }
+  const { isCheckoutLoading, openCheckout } = useCheckout();
 
   function handlePricingCheckoutClick() {
-    if (isN8nAdded) {
-      void openCheckout();
-      return;
-    }
-
-    setIsUpsellOpen(true);
-  }
-
-  function handleUpsellChoice(includeN8n: boolean) {
-    setIsUpsellOpen(false);
-    void openCheckout({
-      includeN8n,
-      persistN8nSelection: includeN8n,
-    });
+    void openCheckout();
   }
 
   return (
@@ -95,8 +65,6 @@ const PricingSection = () => {
               <CTAButton
                 onClick={handlePricingCheckoutClick}
                 disabled={isCheckoutLoading}
-                onMouseEnter={warmUpsellDialog}
-                onFocus={warmUpsellDialog}
                 className="px-10 py-4 text-sm shadow-[0_0_0_1px_rgba(211,121,74,0.18),0_12px_32px_rgba(193,98,58,0.24)] hover:shadow-[0_0_0_1px_rgba(211,121,74,0.24),0_16px_36px_rgba(193,98,58,0.3)]"
               >
                 Get Instant Access — $15
@@ -106,16 +74,6 @@ const PricingSection = () => {
           </div>
         </TerminalWindow>
       </ScrollReveal>
-
-      <Suspense fallback={null}>
-        <PricingUpsellDialog
-          open={isUpsellOpen}
-          isCheckoutLoading={isCheckoutLoading}
-          isN8nAdded={isN8nAdded}
-          onOpenChange={setIsUpsellOpen}
-          onUpsellChoice={handleUpsellChoice}
-        />
-      </Suspense>
     </section>
   );
 };
