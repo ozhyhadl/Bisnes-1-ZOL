@@ -23,7 +23,7 @@ import {
 import { Input } from "@/components/ui/input";
 import SkillDetailPopup from "./SkillDetailPopup";
 
-const INITIAL_EXPANDED_CATEGORIES = skillsDirectoryEntries.slice(0, 4).map(([categoryName]) => categoryName);
+const INITIAL_EXPANDED_CATEGORIES: string[] = [];
 
 function filterDirectory(query: string) {
   const normalizedQuery = query.trim().toLowerCase();
@@ -132,7 +132,6 @@ const SkillsDirectoryModal = () => {
                 <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-terminal-foreground/35" aria-hidden="true" />
                 <Input
                   id={searchInputId}
-                  autoFocus
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
                   placeholder="Search categories or skill slugs"

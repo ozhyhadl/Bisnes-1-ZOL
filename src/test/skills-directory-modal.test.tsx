@@ -26,6 +26,26 @@ describe("skills directory modal", () => {
     expect(screen.getByText(`${skillsCategoryCount} categories · ${skillsCount} skills`)).toBeInTheDocument();
   });
 
+  it("opens without focusing search and keeps categories collapsed by default", async () => {
+    render(<SkillsListSection />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Browse All 501 Skills" }));
+
+    const search = await screen.findByLabelText("Search categories or skill slugs");
+    expect(search).not.toHaveFocus();
+
+    const analyticsTrigger = screen.getByRole("button", { name: /Analytics & Data/i });
+    expect(analyticsTrigger).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByText("ab-test-plan")).not.toBeInTheDocument();
+
+    fireEvent.click(analyticsTrigger);
+
+    await waitFor(() => {
+      expect(analyticsTrigger).toHaveAttribute("aria-expanded", "true");
+      expect(screen.getByText("ab-test-plan")).toBeInTheDocument();
+    });
+  });
+
   it("filters categories and skills by search query and closes cleanly", async () => {
     render(<SkillsListSection />);
 
