@@ -3,6 +3,8 @@ import { Link, useSearchParams } from "react-router-dom";
 import { CheckCircle, Download, AlertCircle, ArrowLeft, Loader2, Mail } from "lucide-react";
 
 import { SUPPORT_EMAIL } from "@/config/links";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { formatSiteText, siteCopy } from "@/i18n/siteCopy";
 import {
   claimFulfillmentAccess,
   clearPendingFulfillmentClaimAccessToken,
@@ -167,9 +169,11 @@ const DownloadPage = () => {
   const [searchParams] = useSearchParams();
   const [state, setState] = useState<FulfillmentState>({ phase: "loading" });
   const [refreshNonce, setRefreshNonce] = useState(0);
+  const { currentLanguage } = useLanguage();
+  const copy = siteCopy[currentLanguage];
 
   useEffect(() => {
-    document.title = "Your Download Is Ready — AI Cloud Base";
+    document.title = `${copy.download.metaTitle} — AI Cloud Base`;
     let robotsMeta = document.querySelector<HTMLMetaElement>(
       'meta[name="robots"]',
     );
@@ -180,11 +184,10 @@ const DownloadPage = () => {
     }
     robotsMeta.content = "noindex";
     return () => {
-      document.title =
-        "500+ Claude AI Skills Bundle — Automate Your Business";
+      document.title = "AI Cloud Base";
       if (robotsMeta) robotsMeta.content = "index, follow";
     };
-  }, []);
+  }, [copy.download.metaTitle]);
 
   useEffect(() => {
     const accessToken = readFulfillmentAccessToken(searchParams);
@@ -197,8 +200,7 @@ const DownloadPage = () => {
     if (!accessToken) {
       setState({
         phase: "error",
-        message:
-          "We couldn't find your purchase details on this page. If you completed payment, check your email for the backup download link or contact support.",
+        message: copy.download.errorBody,
       });
       return;
     }
@@ -379,15 +381,17 @@ const DownloadPage = () => {
 };
 
 function LoadingCard() {
+  const { currentLanguage } = useLanguage();
+  const copy = siteCopy[currentLanguage];
+
   return (
     <div className="text-center space-y-6">
       <Loader2 className="w-12 h-12 mx-auto text-primary animate-spin" />
       <h1 className="text-2xl font-bold text-foreground">
-        Preparing your download…
+        {copy.download.loadingTitle}
       </h1>
       <p className="text-muted-foreground text-sm">
-        We are verifying your payment and preparing secure download links. Please
-        keep this page open.
+        {copy.download.loadingBody}
       </p>
     </div>
   );
@@ -411,6 +415,8 @@ function ReadyCard(
   },
 ) {
   const [usageOverrides, setUsageOverrides] = useState<Record<string, number>>({});
+  const { currentLanguage } = useLanguage();
+  const copy = siteCopy[currentLanguage];
 
   useEffect(() => {
     setUsageOverrides({});
@@ -455,16 +461,16 @@ function ReadyCard(
           <CheckCircle className="w-8 h-8 text-green-500" />
         </div>
         <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-          Your Download Is Ready
+          {copy.download.readyTitle}
         </h1>
         <p className="text-muted-foreground">
-          Thanks for your order. Your secure file links should start downloading automatically.
+          {copy.download.readyBody}
         </p>
       </div>
 
       <div className="bg-card border border-border rounded-xl p-6 space-y-5">
         <p className="text-sm text-muted-foreground text-center">
-          If nothing starts automatically, use the secure download buttons below.
+          {copy.download.fallbackBody}
         </p>
         <div className="rounded-lg border border-border/70 bg-background/70 px-4 py-3">
           <div className="flex items-start gap-3 text-left">
@@ -473,21 +479,24 @@ function ReadyCard(
             </div>
             <div className="space-y-1">
               <p className="text-sm font-medium text-foreground">
-                We've also sent secure download links to your email.
+                {copy.download.emailTitle}
               </p>
               <p className="text-xs leading-relaxed text-muted-foreground">
-                If you do not see the message yet, check Spam, Promotions, or Updates.
+                {copy.download.emailBody}
               </p>
             </div>
           </div>
         </div>
         <div className="rounded-lg border border-border/80 bg-background/70 px-4 py-3 text-center text-xs leading-relaxed text-muted-foreground">
-          Each file supports up to {deliveryPolicy.maxSuccessfulDownloads} successful downloads. Every issued file link stays active for {deliveryPolicy.signedUrlTtlSeconds / 3600} hours.
+          {formatSiteText(copy.download.deliveryPolicyNote, {
+            maxDownloads: deliveryPolicy.maxSuccessfulDownloads,
+            hours: deliveryPolicy.signedUrlTtlSeconds / 3600,
+          })}
         </div>
 
         {orderReference ? (
           <div className="rounded-lg border border-border/80 bg-background/70 px-4 py-3 text-center text-xs leading-relaxed text-muted-foreground">
-            Order reference: <span className="font-semibold text-foreground">{orderReference}</span>
+            {copy.download.orderReferenceLabel}: <span className="font-semibold text-foreground">{orderReference}</span>
           </div>
         ) : null}
 
@@ -523,7 +532,10 @@ function ReadyCard(
                   </span>
                 </button>
                 <p className="mt-1.5 text-center text-xs text-muted-foreground">
-                  {usedDownloads} of {download.maxSuccessfulDownloads} downloads used
+                  {formatSiteText(copy.download.downloadsUsed, {
+                    used: usedDownloads,
+                    total: download.maxSuccessfulDownloads,
+                  })}
                 </p>
               </div>
             );
@@ -533,22 +545,26 @@ function ReadyCard(
         {blockedDownloads.length > 0 ? (
           <div className="border border-amber-500/30 bg-amber-500/10 rounded-lg p-4 space-y-2">
             <p className="text-sm font-medium text-foreground">
-              Some files have used all {deliveryPolicy.maxSuccessfulDownloads} secure downloads and now require manual resend support.
+              {copy.download.blockedTitle}
             </p>
             <ul className="text-xs text-muted-foreground space-y-1">
               {blockedDownloads.map((download) => (
                 <li key={download.key}>{download.label}</li>
               ))}
             </ul>
+            <p className="text-xs text-muted-foreground">{copy.download.blockedSupportBody}</p>
           </div>
         ) : null}
 
         <div className="border-t border-border pt-4 space-y-2 text-center">
           <p className="text-xs text-muted-foreground">
-            Each issued file link stays active for {deliveryPolicy.signedUrlTtlSeconds / 3600} hours and is limited to {deliveryPolicy.maxSuccessfulDownloads} successful downloads per file.
+            {formatSiteText(copy.download.deliveryPolicyNote, {
+              maxDownloads: deliveryPolicy.maxSuccessfulDownloads,
+              hours: deliveryPolicy.signedUrlTtlSeconds / 3600,
+            })}
           </p>
           <p className="text-xs text-muted-foreground">
-            If that limit is exhausted, contact support for a manual resend.
+            {copy.download.blockedSupportBody}
           </p>
         </div>
       </div>
@@ -559,7 +575,7 @@ function ReadyCard(
           className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to AI Cloud Base
+          {copy.common.backHome}
         </Link>
       </div>
     </div>
@@ -567,6 +583,9 @@ function ReadyCard(
 }
 
 function ManualResendCard({ message }: { message: string }) {
+  const { currentLanguage } = useLanguage();
+  const copy = siteCopy[currentLanguage];
+
   return (
     <div className="space-y-8">
       <div className="text-center space-y-4">
@@ -574,14 +593,14 @@ function ManualResendCard({ message }: { message: string }) {
           <AlertCircle className="w-8 h-8 text-amber-500" />
         </div>
         <h1 className="text-2xl font-bold text-foreground">
-          Manual resend required
+          {copy.download.manualResendTitle}
         </h1>
         <p className="text-muted-foreground text-sm">{message}</p>
       </div>
 
       <div className="bg-card border border-border rounded-xl p-6 text-center space-y-3">
         <p className="text-sm text-muted-foreground">
-          Your order has reached the limit of 4 successful secure downloads for this file.
+          {copy.download.blockedSupportBody}
         </p>
         <p className="text-sm text-muted-foreground">
           Contact us at{" "}
@@ -591,7 +610,7 @@ function ManualResendCard({ message }: { message: string }) {
           >
             {SUPPORT_EMAIL}
           </a>{" "}
-          and we will help with a manual resend.
+          {copy.download.manualResendSupportBody}
         </p>
       </div>
 
@@ -601,7 +620,7 @@ function ManualResendCard({ message }: { message: string }) {
           className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to AI Cloud Base
+          {copy.common.backHome}
         </Link>
       </div>
     </div>
@@ -609,6 +628,9 @@ function ManualResendCard({ message }: { message: string }) {
 }
 
 function ErrorCard({ message }: { message: string }) {
+  const { currentLanguage } = useLanguage();
+  const copy = siteCopy[currentLanguage];
+
   return (
     <div className="space-y-8">
       <div className="text-center space-y-4">
@@ -616,17 +638,14 @@ function ErrorCard({ message }: { message: string }) {
           <AlertCircle className="w-8 h-8 text-red-500" />
         </div>
         <h1 className="text-2xl font-bold text-foreground">
-          We couldn't prepare your download yet
+          {copy.download.errorTitle}
         </h1>
         <p className="text-muted-foreground text-sm">{message}</p>
       </div>
 
       <div className="bg-card border border-border rounded-xl p-6 text-center space-y-3">
         <p className="text-sm text-muted-foreground">
-          If your payment went through, don't worry. We can resend fresh secure download links to your email.
-        </p>
-        <p className="text-sm text-muted-foreground">
-          Each file link stays active for 24 hours after it is issued and supports up to 4 successful downloads.
+          {copy.download.errorBody}
         </p>
         <p className="text-sm text-muted-foreground">
           You can also contact us at{" "}
@@ -636,6 +655,7 @@ function ErrorCard({ message }: { message: string }) {
           >
             {SUPPORT_EMAIL}
           </a>
+          {" "}{copy.download.errorSupportBody}
         </p>
       </div>
 
@@ -645,7 +665,7 @@ function ErrorCard({ message }: { message: string }) {
           className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to AI Cloud Base
+          {copy.common.backHome}
         </Link>
       </div>
     </div>

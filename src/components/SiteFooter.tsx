@@ -1,7 +1,10 @@
 import { SUPPORT_EMAIL } from "@/config/links";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { landingCopy } from "@/i18n/translations";
 
 const SiteFooter = () => {
   const currentYear = new Date().getFullYear();
+  const { t } = useLanguage();
 
   return (
     <footer className="bg-terminal text-terminal-foreground/70 py-10 px-4">
@@ -11,25 +14,25 @@ const SiteFooter = () => {
           <span>AI Cloud Base</span>
         </div>
         <p className="text-xs leading-relaxed max-w-md mx-auto">
-          Pre-built Claude AI skills for solopreneurs, freelancers, and small teams. Automate every department of your business.
+          {t(landingCopy.footer.body)}
         </p>
         <div className="flex items-center justify-center gap-6 text-xs">
           <a href={`mailto:${SUPPORT_EMAIL}`} className="hover:text-terminal-foreground transition-colors">
-            Contact
+            {t(landingCopy.footer.contact)}
           </a>
           <span className="text-terminal-foreground/20">|</span>
-          <span>Instant Digital Delivery</span>
+          <span>{t(landingCopy.footer.delivery)}</span>
           <span className="text-terminal-foreground/20">|</span>
           <a href="/privacy" className="hover:text-terminal-foreground transition-colors">
-            Privacy
+            {t(landingCopy.footer.privacy)}
           </a>
           <span className="text-terminal-foreground/20">|</span>
           <a href="/terms" className="hover:text-terminal-foreground transition-colors">
-            Terms
+            {t(landingCopy.footer.terms)}
           </a>
         </div>
         <p className="text-[10px] text-terminal-foreground/70 pt-2">
-          &copy; {currentYear} AI Cloud Base. All rights reserved.
+          {t(landingCopy.footer.rights, { year: currentYear })}
         </p>
       </div>
     </footer>

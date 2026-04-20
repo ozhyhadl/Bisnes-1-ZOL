@@ -1,18 +1,21 @@
 import { Check } from "lucide-react";
 
 import { useCheckout } from "@/contexts/CheckoutContext";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { landingCopy } from "@/i18n/translations";
 import ScrollReveal from "./ScrollReveal";
 import n8nImage from "@/assets/n8n-workflows-upsell-optimized.jpg";
 
 const UpsellOfferSection = () => {
   const { isN8nAdded, toggleN8nInOrder } = useCheckout();
+  const { t } = useLanguage();
 
   const buttonClassName = isN8nAdded
     ? "bg-emerald-500 text-emerald-950 border-emerald-300 shadow-[0_0_0_1px_rgba(96,212,164,0.36),0_18px_34px_rgba(31,161,116,0.18)]"
     : "upsell-cta-attention bg-primary text-primary-foreground border-primary/70 shadow-[0_0_0_1px_rgba(200,112,70,0.2),0_14px_30px_rgba(191,101,61,0.24)] hover:-translate-y-0.5 hover:shadow-[0_0_0_1px_rgba(215,126,81,0.28),0_18px_36px_rgba(191,101,61,0.34)]";
 
   return (
-    <section className="py-10 px-4" aria-label="Upsell offer">
+    <section className="py-10 px-4" aria-label={t(landingCopy.upsell.title)}>
       <ScrollReveal>
         <div className="max-w-3xl mx-auto">
           <div className="bg-card border border-border rounded-2xl p-6 md:p-8 grid gap-6 md:grid-cols-[minmax(0,1fr)_15.5rem] md:items-start">
@@ -20,7 +23,7 @@ const UpsellOfferSection = () => {
               <div className="flex flex-col sm:flex-row gap-5 sm:gap-6 items-start">
                 <img
                   src={n8nImage}
-                  alt="1,800+ N8N workflows bundle artwork preview"
+                  alt={t(landingCopy.upsell.imageAlt)}
                   loading="lazy"
                   width={96}
                   height={96}
@@ -29,13 +32,13 @@ const UpsellOfferSection = () => {
 
                 <div className="min-w-0 flex-1">
                   <span className="inline-flex items-center bg-primary/15 text-primary text-[10px] md:text-xs font-semibold uppercase tracking-wider px-3 py-1 rounded-full mb-3">
-                    Exclusive Offer
+                    {t(landingCopy.upsell.badge)}
                   </span>
                   <h3 className="font-bold text-base md:text-lg text-foreground mb-2">
-                    Add 1,800+ N8N Workflows to my order
+                    {t(landingCopy.upsell.title)}
                   </h3>
                   <p className="text-sm text-muted-foreground leading-relaxed max-w-xl">
-                    Over 1,800 ready-to-go automation templates for N8N, for a huge range of tasks. Just search a keyword, download template, and upload to your N8N workspace.
+                    {t(landingCopy.upsell.body)}
                   </p>
                 </div>
               </div>
@@ -45,7 +48,7 @@ const UpsellOfferSection = () => {
               <div className="flex flex-col items-center text-center gap-4">
                 <div className="w-full rounded-xl border border-border/70 bg-card/90 px-4 py-4">
                   <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground mb-2">
-                    Bundle Add-On
+                    {t(landingCopy.upsell.cardLabel)}
                   </div>
                   <div className="flex items-end justify-center gap-3">
                     <span className="text-base font-semibold text-[#ff5c5c] line-through decoration-2 decoration-[#ff5c5c]">
@@ -53,7 +56,7 @@ const UpsellOfferSection = () => {
                     </span>
                     <div className="flex flex-col items-center leading-none">
                       <span className="text-[10px] uppercase tracking-[0.24em] text-[#62b287] mb-1">
-                        Now
+                        {t(landingCopy.upsell.nowLabel)}
                       </span>
                       <span className="text-4xl md:text-[2.75rem] font-bold text-[#4fa878] drop-shadow-[0_8px_24px_rgba(60,138,97,0.24)]">
                         $10
@@ -70,14 +73,14 @@ const UpsellOfferSection = () => {
                 >
                   <span className="flex items-center justify-center gap-2">
                     {isN8nAdded ? <Check className="h-4 w-4" /> : null}
-                    {isN8nAdded ? "Remove Add-On" : "Add to Order"}
+                    {isN8nAdded ? t(landingCopy.upsell.removeButton) : t(landingCopy.upsell.addButton)}
                   </span>
                 </button>
 
                 <div className={`w-full rounded-xl px-4 py-3 text-xs leading-relaxed shadow-[0_10px_24px_rgba(15,23,42,0.05)] ${isN8nAdded ? "border border-emerald-300/70 bg-[linear-gradient(180deg,rgba(244,251,247,0.98),rgba(235,246,239,0.96))] text-slate-950" : "border border-border/70 bg-card/70 text-muted-foreground"}`}>
                   {isN8nAdded
-                    ? "This add-on is now included in your order. Click again here if you want to remove it before checkout."
-                    : "Add this now to lock in the discounted bundle price before checkout."}
+                    ? t(landingCopy.upsell.addedHelper)
+                    : t(landingCopy.upsell.notAddedHelper)}
                 </div>
               </div>
             </aside>

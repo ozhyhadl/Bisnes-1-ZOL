@@ -1,12 +1,18 @@
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
+import LegalEnglishNotice from "@/components/LegalEnglishNotice";
 import { SUPPORT_EMAIL } from "@/config/links";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { siteCopy } from "@/i18n/siteCopy";
 
 const TermsOfService = () => {
+  const { currentLanguage } = useLanguage();
+  const copy = siteCopy[currentLanguage];
+
   usePageMeta({
-    title: "Terms of Service — AI Cloud Base",
-    description: "Terms and conditions for purchasing and using AI Cloud Base digital products. Read our full terms of service.",
+    title: `${copy.terms.metaTitle} — AI Cloud Base`,
+    description: copy.terms.metaDescription,
     canonical: "https://aicldbase.com/terms",
   });
 
@@ -14,8 +20,9 @@ const TermsOfService = () => {
     <div className="min-h-screen bg-background">
       <SiteHeader />
       <main className="max-w-3xl mx-auto px-4 py-16">
-        <h1 className="text-3xl md:text-4xl font-bold mb-8">Terms of Service</h1>
-        <p className="text-xs text-muted-foreground mb-10">Last updated: March 14, 2026</p>
+        <h1 className="text-3xl md:text-4xl font-bold mb-8">{copy.terms.title}</h1>
+        <p className="text-xs text-muted-foreground mb-4">{copy.legal.lastUpdatedLabel}: March 14, 2026</p>
+        <LegalEnglishNotice />
 
         <div className="space-y-8 text-sm text-muted-foreground leading-relaxed">
           <section>

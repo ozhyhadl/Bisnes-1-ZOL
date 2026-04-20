@@ -8,6 +8,7 @@ import PricingSection from "@/components/PricingSection";
 import UpsellOfferSection from "@/components/UpsellOfferSection";
 import FAQSection from "@/components/FAQSection";
 import FinalCTASection from "@/components/FinalCTASection";
+import LanguageSuggestionBanner from "@/components/LanguageSuggestionBanner";
 import SiteFooter from "@/components/SiteFooter";
 import { CheckoutProvider } from "@/contexts/CheckoutContext";
 import { usePageMeta } from "@/hooks/usePageMeta";
@@ -30,6 +31,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <LanguageSuggestionBanner />
       <SiteHeader />
       <main>
         <HeroSection />

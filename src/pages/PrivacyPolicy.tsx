@@ -1,12 +1,18 @@
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
+import LegalEnglishNotice from "@/components/LegalEnglishNotice";
 import { SUPPORT_EMAIL } from "@/config/links";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { siteCopy } from "@/i18n/siteCopy";
 
 const PrivacyPolicy = () => {
+  const { currentLanguage } = useLanguage();
+  const copy = siteCopy[currentLanguage];
+
   usePageMeta({
-    title: "Privacy Policy — AI Cloud Base",
-    description: "How AI Cloud Base collects, uses, and protects your personal information. Read our full privacy policy.",
+    title: `${copy.privacy.metaTitle} — AI Cloud Base`,
+    description: copy.privacy.metaDescription,
     canonical: "https://aicldbase.com/privacy",
   });
 
@@ -14,8 +20,9 @@ const PrivacyPolicy = () => {
     <div className="min-h-screen bg-background">
       <SiteHeader />
       <main className="max-w-3xl mx-auto px-4 py-16">
-        <h1 className="text-3xl md:text-4xl font-bold mb-8">Privacy Policy</h1>
-        <p className="text-xs text-muted-foreground mb-10">Last updated: March 11, 2026</p>
+        <h1 className="text-3xl md:text-4xl font-bold mb-8">{copy.privacy.title}</h1>
+        <p className="text-xs text-muted-foreground mb-4">{copy.legal.lastUpdatedLabel}: March 11, 2026</p>
+        <LegalEnglishNotice />
 
         <div className="space-y-8 text-sm text-muted-foreground leading-relaxed">
           <section>
