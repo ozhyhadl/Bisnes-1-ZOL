@@ -41,7 +41,7 @@ describe("skills directory modal", () => {
 
     expect(screen.queryByText("instagram-carousel")).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: "Close" }));
+    fireEvent.click(screen.getByRole("button", { name: "Close directory" }));
 
     await waitFor(() => {
       expect(screen.queryByRole("dialog")).not.toBeInTheDocument();

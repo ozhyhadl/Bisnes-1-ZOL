@@ -34,12 +34,14 @@ const StepsSection = () => {
               </div>
             ))}
           </div>
+
+          <div className="mt-8 text-center">
+            <CTAButton>Set Up in 2 Minutes — $15</CTAButton>
+          </div>
         </TerminalWindow>
       </ScrollReveal>
       <ScrollReveal delay={0.2}>
         <div className="text-center mt-10">
-          <CTAButton>Set Up in 2 Minutes — $15</CTAButton>
-
           <p className="skill-install-divider">or</p>
 
           <div className="mt-8">

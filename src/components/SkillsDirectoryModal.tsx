@@ -1,5 +1,5 @@
 import { useEffect, useId, useState } from "react";
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 
 import {
   skillsCategoryCount,
@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -98,19 +99,32 @@ const SkillsDirectoryModal = () => {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="max-h-[88vh] max-w-5xl gap-0 overflow-hidden border-terminal-foreground/10 bg-terminal p-0 text-terminal-foreground shadow-2xl sm:rounded-2xl [&>button]:text-terminal-foreground/60 [&>button]:ring-offset-[hsl(var(--terminal-bg))] [&>button]:hover:bg-terminal-foreground/10 [&>button]:hover:text-terminal-foreground [&>button]:data-[state=open]:bg-transparent">
+      <DialogContent className="max-h-[88vh] max-w-5xl gap-0 overflow-hidden border-terminal-foreground/10 bg-terminal p-0 text-terminal-foreground shadow-2xl sm:rounded-2xl [&>button]:hidden">
         <div className="flex max-h-[88vh] flex-col overflow-hidden">
           <div className="sticky top-0 z-10 border-b border-terminal-foreground/10 bg-terminal/95 backdrop-blur">
-            <DialogHeader className="px-6 pb-4 pt-6 text-left">
-              <DialogTitle className="text-2xl font-bold text-terminal-foreground md:text-3xl">
-                Claude Skills Directory
-              </DialogTitle>
-              <DialogDescription className="text-sm text-terminal-foreground/65">
-                {skillsCategoryCount} categories · {skillsCount} skills
-              </DialogDescription>
-            </DialogHeader>
+            <div className="flex items-start justify-between gap-4 px-4 pb-4 pt-4 sm:px-6 sm:pt-6">
+              <DialogHeader className="min-w-0 flex-1 text-left">
+                <DialogTitle className="text-2xl font-bold text-terminal-foreground md:text-3xl">
+                  Claude Skills Directory
+                </DialogTitle>
+                <DialogDescription className="text-sm text-terminal-foreground/65">
+                  {skillsCategoryCount} categories · {skillsCount} skills
+                </DialogDescription>
+              </DialogHeader>
 
-            <div className="px-6 pb-5">
+              <DialogClose asChild>
+                <button
+                  type="button"
+                  className="inline-flex h-10 shrink-0 items-center gap-2 rounded-lg border border-terminal-foreground/15 bg-black/20 px-3 text-xs font-semibold uppercase tracking-[0.18em] text-terminal-foreground transition-colors hover:border-terminal-foreground/30 hover:bg-black/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--terminal-bg))]"
+                  aria-label="Close directory"
+                >
+                  <span className="hidden sm:inline">Close</span>
+                  <X className="h-4 w-4" aria-hidden="true" />
+                </button>
+              </DialogClose>
+            </div>
+
+            <div className="px-4 pb-4 sm:px-6 sm:pb-5">
               <label htmlFor={searchInputId} className="sr-only">
                 Search categories or skill slugs
               </label>
@@ -134,7 +148,7 @@ const SkillsDirectoryModal = () => {
             </div>
           </div>
 
-          <div className="overflow-y-auto px-6 pb-6">
+          <div className="overflow-y-auto px-4 pb-4 sm:px-6 sm:pb-6">
             {filteredDirectory.length > 0 ? (
               <Accordion
                 type="multiple"
