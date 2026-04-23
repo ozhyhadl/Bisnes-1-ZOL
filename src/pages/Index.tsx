@@ -1,20 +1,40 @@
+import DeferredSection from "@/components/DeferredSection";
 import SiteHeader from "@/components/SiteHeader";
 import HeroSection from "@/components/HeroSection";
 import StepsSection from "@/components/StepsSection";
 import WhatAreSkillsSection from "@/components/WhatAreSkillsSection";
 import TargetUsersSection from "@/components/TargetUsersSection";
-import SkillsListSection from "@/components/SkillsListSection";
 import PricingSection from "@/components/PricingSection";
 import UpsellOfferSection from "@/components/UpsellOfferSection";
-import FAQSection from "@/components/FAQSection";
-import FinalCTASection from "@/components/FinalCTASection";
 import LanguageSuggestionBanner from "@/components/LanguageSuggestionBanner";
 import SiteFooter from "@/components/SiteFooter";
 import { CheckoutProvider } from "@/contexts/CheckoutContext";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { runWhenBrowserIdle } from "@/lib/browser-idle";
-import { useEffect } from "react";
+import { lazy, useEffect } from "react";
 import { trackViewContent } from "@/lib/meta-events";
+
+const SkillsListSection = lazy(() => import("@/components/SkillsListSection"));
+const FAQSection = lazy(() => import("@/components/FAQSection"));
+const FinalCTASection = lazy(() => import("@/components/FinalCTASection"));
+
+const skillsListFallback = (
+  <section className="bg-card px-4 py-16" aria-hidden="true">
+    <div className="mx-auto h-[29rem] max-w-3xl rounded-xl border border-border/60 bg-card/35 shadow-sm" />
+  </section>
+);
+
+const faqFallback = (
+  <section className="px-4 py-16" aria-hidden="true">
+    <div className="mx-auto h-[30rem] max-w-3xl rounded-xl border border-border/60 bg-card/35 shadow-sm" />
+  </section>
+);
+
+const finalCtaFallback = (
+  <section className="bg-card px-4 py-20" aria-hidden="true">
+    <div className="mx-auto h-[20rem] max-w-4xl rounded-2xl border border-border/60 bg-card/35 shadow-sm" />
+  </section>
+);
 
 const Index = () => {
   usePageMeta({
@@ -38,13 +58,28 @@ const Index = () => {
         <StepsSection />
         <WhatAreSkillsSection />
         <TargetUsersSection />
-        <SkillsListSection />
+        <DeferredSection
+          component={SkillsListSection}
+          fallback={skillsListFallback}
+          rootMargin="900px 0px"
+          idleTimeout={2200}
+        />
         <CheckoutProvider>
           <PricingSection />
           <UpsellOfferSection />
         </CheckoutProvider>
-        <FAQSection />
-        <FinalCTASection />
+        <DeferredSection
+          component={FAQSection}
+          fallback={faqFallback}
+          rootMargin="900px 0px"
+          idleTimeout={2600}
+        />
+        <DeferredSection
+          component={FinalCTASection}
+          fallback={finalCtaFallback}
+          rootMargin="900px 0px"
+          idleTimeout={3000}
+        />
       </main>
       <SiteFooter />
     </div>

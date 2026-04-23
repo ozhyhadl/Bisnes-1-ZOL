@@ -1,4 +1,4 @@
-import { useEffect, useId, useMemo, useState } from "react";
+import { Suspense, lazy, useEffect, useId, useMemo, useState } from "react";
 import { Search, X } from "lucide-react";
 
 import {
@@ -7,7 +7,7 @@ import {
   skillsDirectoryCategorySlugs,
   skillsDirectoryEntries,
 } from "@/data/skillsDirectory";
-import { skillsMetadata, type SkillSlug } from "@/data/skillsMetadata";
+import type { SkillSlug } from "@/data/skillsMetadata";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -21,9 +21,12 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import SkillDetailPopup from "./SkillDetailPopup";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { landingCopy } from "@/i18n/translations";
+
+const SkillDetailPopup = lazy(() => import("./SkillDetailPopup"));
+
+type SkillsMetadataMap = typeof import("@/data/skillsMetadata").skillsMetadata;
 
 const INITIAL_EXPANDED_CATEGORIES: string[] = [];
 
@@ -69,6 +72,7 @@ const SkillsDirectoryModal = () => {
   const [query, setQuery] = useState("");
   const [expandedCategories, setExpandedCategories] = useState<string[]>(INITIAL_EXPANDED_CATEGORIES);
   const [selectedSkillSlug, setSelectedSkillSlug] = useState<SkillSlug | null>(null);
+  const [skillsMetadata, setSkillsMetadata] = useState<SkillsMetadataMap | null>(null);
   const searchInputId = useId();
 
   const filteredDirectory = useMemo(() => filterDirectory(query, getCategoryLabel), [query, getCategoryLabel]);
@@ -78,6 +82,24 @@ const SkillsDirectoryModal = () => {
   );
   const filteredCategoryKey = filteredCategoryNames.join("|");
   const matchedSkillsCount = filteredDirectory.reduce((total, category) => total + category.skills.length, 0);
+
+  useEffect(() => {
+    if (!open || skillsMetadata) {
+      return;
+    }
+
+    let isMounted = true;
+
+    void import("@/data/skillsMetadata").then((module) => {
+      if (isMounted) {
+        setSkillsMetadata(module.skillsMetadata);
+      }
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [open, skillsMetadata]);
 
   useEffect(() => {
     if (!open) {
@@ -92,7 +114,7 @@ const SkillsDirectoryModal = () => {
     }
   }, [open, query, filteredCategoryKey, filteredCategoryNames]);
 
-  const selectedSkill = selectedSkillSlug ? skillsMetadata[selectedSkillSlug] : null;
+  const selectedSkill = selectedSkillSlug ? skillsMetadata?.[selectedSkillSlug] ?? null : null;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -196,7 +218,7 @@ const SkillsDirectoryModal = () => {
                               type="button"
                               onClick={() => setSelectedSkillSlug(skill as SkillSlug)}
                               className="block w-full rounded-lg border border-terminal-foreground/10 bg-black/20 px-3 py-2 text-left text-xs text-terminal-foreground/85 transition-colors hover:border-primary/35 hover:bg-primary/10 hover:text-terminal-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--terminal-bg))] md:text-sm"
-                              aria-label={t(landingCopy.directoryModal.openDetailsAria, { title: skillsMetadata[skill as SkillSlug]?.title ?? skill })}
+                              aria-label={t(landingCopy.directoryModal.openDetailsAria, { title: skillsMetadata?.[skill as SkillSlug]?.title ?? skill })}
                             >
                               <code>{skill}</code>
                             </button>
@@ -218,18 +240,20 @@ const SkillsDirectoryModal = () => {
           </div>
         </div>
 
-        <SkillDetailPopup
-          open={Boolean(selectedSkillSlug && selectedSkill)}
-          onOpenChange={(nextOpen) => {
-            if (!nextOpen) {
-              setSelectedSkillSlug(null);
-            }
-          }}
-          title={selectedSkill?.title ?? ""}
-          slug={selectedSkillSlug ?? ""}
-          category={selectedSkill?.category ?? ""}
-          shortDescription={selectedSkill?.shortDescription ?? ""}
-        />
+        <Suspense fallback={null}>
+          <SkillDetailPopup
+            open={Boolean(selectedSkillSlug && selectedSkill)}
+            onOpenChange={(nextOpen) => {
+              if (!nextOpen) {
+                setSelectedSkillSlug(null);
+              }
+            }}
+            title={selectedSkill?.title ?? ""}
+            slug={selectedSkillSlug ?? ""}
+            category={selectedSkill?.category ?? ""}
+            shortDescription={selectedSkill?.shortDescription ?? ""}
+          />
+        </Suspense>
       </DialogContent>
     </Dialog>
   );
