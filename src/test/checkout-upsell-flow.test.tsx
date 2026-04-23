@@ -46,7 +46,7 @@ describe("checkout upsell flow", () => {
   it("opens checkout immediately with the main product only when no add-on was selected", async () => {
     renderCheckoutFlow();
 
-    fireEvent.click(screen.getByRole("button", { name: "Get Instant Access — $15" }));
+    fireEvent.click(screen.getByRole("button", { name: "BUY NOW AND START" }));
 
     await waitFor(() => {
       expect(mockOpenPaddleCheckout).toHaveBeenCalledTimes(1);
@@ -72,7 +72,7 @@ describe("checkout upsell flow", () => {
       expect(screen.getByRole("button", { name: "Remove Add-On" })).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByRole("button", { name: "Get Instant Access — $15" }));
+    fireEvent.click(screen.getByRole("button", { name: "BUY NOW AND START" }));
 
     await waitFor(() => {
       expect(mockOpenPaddleCheckout).toHaveBeenCalledTimes(1);
@@ -93,7 +93,7 @@ describe("checkout upsell flow", () => {
 
     mockOpenPaddleCheckout.mockClear();
 
-    fireEvent.click(screen.getByRole("button", { name: "Get Instant Access — $15" }));
+    fireEvent.click(screen.getByRole("button", { name: "BUY NOW AND START" }));
 
     await waitFor(() => {
       expect(mockOpenPaddleCheckout).toHaveBeenCalledTimes(1);

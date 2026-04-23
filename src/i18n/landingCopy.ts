@@ -1073,7 +1073,7 @@ export const landingCopy = {
       "ru": "Разовый платеж · Доступ навсегда · Мгновенная цифровая доставка"
     },
     "cta": {
-      "en": "Get Instant Access — $15",
+      "en": "BUY NOW AND START",
       "es": "Obtén acceso instantáneo — $15",
       "fr": "Accès instantané — $15",
       "de": "Sofortzugang holen — $15",
