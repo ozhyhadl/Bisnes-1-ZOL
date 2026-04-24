@@ -1,9 +1,8 @@
 import { toast } from "@/components/ui/sonner";
 import { getPaddleBillingConfig } from "@/config/billing";
 import { getPaddle, openPaddleCheckout, type PaddleCheckoutItem } from "@/lib/paddle";
-import { runWhenBrowserIdle } from "@/lib/browser-idle";
 import { trackInitiateCheckout } from "@/lib/meta-events";
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useState, type ReactNode } from "react";
 
 type CheckoutOpenOptions = {
   includeN8n?: boolean;
@@ -16,10 +15,12 @@ type CheckoutContextValue = {
   addN8nToOrder: () => void;
   removeN8nFromOrder: () => void;
   toggleN8nInOrder: () => void;
+  warmCheckout: () => void;
   openCheckout: (options?: CheckoutOpenOptions) => Promise<void>;
 };
 
 const noopAsync = async (_options?: CheckoutOpenOptions) => {};
+const noop = () => {};
 
 const CheckoutContext = createContext<CheckoutContextValue>({
   isN8nAdded: false,
@@ -27,6 +28,7 @@ const CheckoutContext = createContext<CheckoutContextValue>({
   addN8nToOrder: () => {},
   removeN8nFromOrder: () => {},
   toggleN8nInOrder: () => {},
+  warmCheckout: noop,
   openCheckout: noopAsync,
 });
 
@@ -34,16 +36,6 @@ export const CheckoutProvider = ({ children }: { children: ReactNode }) => {
   const [isN8nAdded, setIsN8nAdded] = useState(false);
   const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
   const billingConfig = getPaddleBillingConfig();
-
-  useEffect(() => {
-    if (!billingConfig.token) {
-      return;
-    }
-
-    return runWhenBrowserIdle(() => {
-      void getPaddle();
-    }, 2500);
-  }, [billingConfig.token]);
 
   const addN8nToOrder = () => {
     setIsN8nAdded(true);
@@ -55,6 +47,14 @@ export const CheckoutProvider = ({ children }: { children: ReactNode }) => {
 
   const toggleN8nInOrder = () => {
     setIsN8nAdded((currentValue) => !currentValue);
+  };
+
+  const warmCheckout = () => {
+    if (!billingConfig.token) {
+      return;
+    }
+
+    void getPaddle();
   };
 
   const openCheckout = async (options?: CheckoutOpenOptions) => {
@@ -118,6 +118,7 @@ export const CheckoutProvider = ({ children }: { children: ReactNode }) => {
         addN8nToOrder,
         removeN8nFromOrder,
         toggleN8nInOrder,
+        warmCheckout,
         openCheckout,
       }}
     >

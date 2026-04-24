@@ -1,3 +1,5 @@
+import { useEffect, useRef } from "react";
+
 import { useCheckout } from "@/contexts/CheckoutContext";
 
 import TerminalWindow from "./TerminalWindow";
@@ -7,15 +9,36 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { landingCopy } from "@/i18n/translations";
 
 const PricingSection = () => {
-  const { isCheckoutLoading, openCheckout } = useCheckout();
+  const { isCheckoutLoading, openCheckout, warmCheckout } = useCheckout();
   const { t } = useLanguage();
+  const sectionRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section || typeof window === "undefined" || !("IntersectionObserver" in window)) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          warmCheckout();
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "320px 0px" },
+    );
+
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, [warmCheckout]);
 
   function handlePricingCheckoutClick() {
     void openCheckout();
   }
 
   return (
-    <section id="pricing" className="py-16 px-4 bg-card" aria-label={t(landingCopy.pricing.title)}>
+    <section ref={sectionRef} id="pricing" className="py-16 px-4 bg-card" aria-label={t(landingCopy.pricing.title)}>
       <ScrollReveal>
         <TerminalWindow prompt="claude@skills ~ % cat pricing.conf">
           <h2 className="text-2xl md:text-4xl font-bold text-terminal-foreground mb-8">
@@ -61,6 +84,9 @@ const PricingSection = () => {
               </p>
               <CTAButton
                 onClick={handlePricingCheckoutClick}
+                onPointerEnter={warmCheckout}
+                onFocus={warmCheckout}
+                onTouchStart={warmCheckout}
                 disabled={isCheckoutLoading}
                 className="w-full px-10 py-4 text-sm shadow-[0_0_0_1px_rgba(211,121,74,0.18),0_12px_32px_rgba(193,98,58,0.24)] hover:shadow-[0_0_0_1px_rgba(211,121,74,0.24),0_16px_36px_rgba(193,98,58,0.3)] sm:w-auto sm:min-w-[18rem]"
               >
