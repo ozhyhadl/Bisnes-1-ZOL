@@ -1015,6 +1015,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   let txn: string;
   let requestedAccessToken: string;
   let requirePaddleBoundAccess = false;
+  let clientMetaExternalId: string | null = null;
+  let clientMetaFbc: string | null = null;
+  let clientMetaFbp: string | null = null;
 
   if (req.method === "GET") {
     const access = req.query.access;
@@ -1070,6 +1073,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     txn = transactionId;
     requestedAccessToken = accessToken;
     requirePaddleBoundAccess = true;
+
+    const metaHints = isRecord(body?.meta) ? body.meta : null;
+    if (metaHints) {
+      clientMetaExternalId = typeof metaHints.external_id === "string" ? metaHints.external_id : null;
+      clientMetaFbc = typeof metaHints.fbc === "string" ? metaHints.fbc : null;
+      clientMetaFbp = typeof metaHints.fbp === "string" ? metaHints.fbp : null;
+    }
   }
 
   /* ── Verify Paddle transaction ────────────────────────────────── */
@@ -1498,6 +1508,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       cookieHeader: typeof req.headers.cookie === "string" ? req.headers.cookie : null,
       xForwardedFor: typeof req.headers["x-forwarded-for"] === "string" ? req.headers["x-forwarded-for"] : null,
       remoteAddress: req.socket?.remoteAddress ?? null,
+      fallbackFbc: clientMetaFbc,
+      fallbackFbp: clientMetaFbp,
       fallbackClientIpAddress: purchaseIp,
     });
     const purchasedItemLabels = filesToDeliver.map((file) => file.label);
@@ -1506,13 +1518,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       .map((item) => item.price?.id)
       .filter((id): id is string => Boolean(id));
 
+    const paddleExternalId = extractMetaExternalId(transaction);
+    const purchaseExternalIds = Array.from(
+      new Set(
+        [clientMetaExternalId, paddleExternalId].filter(
+          (value): value is string => typeof value === "string" && value.trim().length > 0,
+        ),
+      ),
+    );
+
     await sendConversionEvent({
       event_name: "Purchase",
       event_id: txn,
       event_source_url: purchaseEventSourceUrl,
       user_data: {
         em: purchaseEmail,
-        external_id: extractMetaExternalId(transaction),
+        external_id: purchaseExternalIds,
         client_ip_address: purchaseRequestSignals.clientIpAddress,
         client_user_agent: purchaseUa,
         fbc: purchaseRequestSignals.fbc,

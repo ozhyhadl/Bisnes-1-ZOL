@@ -6,7 +6,7 @@ import {
 } from "@paddle/paddle-js";
 
 import { getPaddleBillingConfig } from "@/config/billing";
-import { trackPurchase } from "@/lib/meta-events";
+import { trackPurchase, getFbc, getFbp, getOrCreateMetaExternalId } from "@/lib/meta-events";
 
 const paddleBillingConfig = getPaddleBillingConfig();
 export const PADDLE_FULFILLMENT_ACCESS_TOKEN_STORAGE_KEY = "aicb:last-fulfillment-access-token";
@@ -129,6 +129,11 @@ export async function claimFulfillmentAccess(
     body: JSON.stringify({
       transactionId,
       accessToken,
+      meta: {
+        external_id: getOrCreateMetaExternalId(),
+        fbc: getFbc(),
+        fbp: getFbp(),
+      },
     }),
   });
 

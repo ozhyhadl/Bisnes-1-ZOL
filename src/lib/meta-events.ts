@@ -31,12 +31,49 @@ function getCookie(name: string): string | null {
   return match ? decodeURIComponent(match[1]) : null;
 }
 
-function getFbc(): string | null {
+export function getFbc(): string | null {
   return getCookie("_fbc");
 }
 
-function getFbp(): string | null {
+export function getFbp(): string | null {
   return getCookie("_fbp");
+}
+
+/* ── Stable per-browser external_id for Meta match quality ───────── */
+
+const META_EXTERNAL_ID_STORAGE_KEY = "acb_meta_external_id";
+
+function generateExternalIdValue(): string {
+  if (typeof crypto !== "undefined" && crypto.randomUUID) {
+    return `acb-${crypto.randomUUID()}`;
+  }
+
+  return `acb-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+}
+
+/**
+ * Stable per-browser visitor identifier persisted in localStorage.
+ * Reused across ViewContent / InitiateCheckout / Purchase events
+ * so Meta can stitch the same visitor across the funnel without
+ * collecting any new PII from the user.
+ */
+export function getOrCreateMetaExternalId(): string | null {
+  if (typeof window === "undefined") return null;
+
+  try {
+    const storage = window.localStorage;
+    const existingValue = storage.getItem(META_EXTERNAL_ID_STORAGE_KEY);
+    if (existingValue && existingValue.trim().length > 0) {
+      return existingValue;
+    }
+
+    const newValue = generateExternalIdValue();
+    storage.setItem(META_EXTERNAL_ID_STORAGE_KEY, newValue);
+    return newValue;
+  } catch {
+    // Private mode / quota errors: skip rather than break the funnel.
+    return null;
+  }
 }
 
 /* ── CAPI server call ────────────────────────────────────────────── */
@@ -57,6 +94,7 @@ async function sendCapiEvent(
         event_source_url: window.location.href,
         fbc: getFbc(),
         fbp: getFbp(),
+        external_id: getOrCreateMetaExternalId(),
         notification_context: checkoutContext,
       }),
     });

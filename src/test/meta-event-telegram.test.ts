@@ -80,6 +80,7 @@ describe("meta-event telegram integration", () => {
       event_id: "evt_checkout_1",
       event_source_url: "https://aicldbase.com/",
       user_data: {
+        external_id: null,
         client_ip_address: "203.0.113.10",
         client_user_agent: "Mozilla/5.0",
         fbc: "fb.1.123456789.AbCdEf",

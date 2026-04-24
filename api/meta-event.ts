@@ -71,6 +71,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const eventSourceUrl = typeof body.event_source_url === "string" ? body.event_source_url : null;
   const fbc = typeof body.fbc === "string" ? body.fbc : null;
   const fbp = typeof body.fbp === "string" ? body.fbp : null;
+  const externalId = typeof body.external_id === "string" ? body.external_id : null;
   const notificationContext = parseNotificationContext((body as { notification_context?: unknown }).notification_context);
 
   if (!eventName || !ALLOWED_EVENTS.has(eventName)) {
@@ -100,6 +101,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     event_id: eventId,
     event_source_url: eventSourceUrl ?? undefined,
     user_data: {
+      external_id: externalId,
       client_ip_address: metaRequestSignals.clientIpAddress,
       client_user_agent: clientUa,
       fbc: metaRequestSignals.fbc,

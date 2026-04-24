@@ -13,7 +13,7 @@ type MetaUserData = {
   em?: string | null;
   ph?: string | null;
   country?: string | null;
-  external_id?: string | null;
+  external_id?: string | string[] | null;
   client_ip_address?: string | null;
   client_user_agent?: string | null;
   fbc?: string | null;
@@ -81,7 +81,17 @@ function buildUserData(raw: MetaUserData): Record<string, unknown> {
   const normalizedEmail = normalizeAndHashMetaUserParam(raw.em, "email");
   const normalizedPhone = normalizeAndHashMetaUserParam(raw.ph, "phone");
   const normalizedCountry = normalizeAndHashMetaUserParam(raw.country, "country");
-  const normalizedExternalId = sanitizeOptionalMetaValue(raw.external_id);
+  const externalIdInputs = Array.isArray(raw.external_id)
+    ? raw.external_id
+    : [raw.external_id];
+  const normalizedExternalIds = Array.from(
+    new Set(
+      externalIdInputs
+        .map((value) => sanitizeOptionalMetaValue(value ?? null))
+        .filter((value): value is string => Boolean(value))
+        .map((value) => hashOpaqueUserParam(value)),
+    ),
+  );
   const normalizedClientIp = sanitizeOptionalMetaValue(raw.client_ip_address);
   const normalizedClientUserAgent = sanitizeOptionalMetaValue(raw.client_user_agent);
   const normalizedFbc = sanitizeOptionalMetaValue(raw.fbc);
@@ -99,8 +109,8 @@ function buildUserData(raw: MetaUserData): Record<string, unknown> {
     userData.country = [normalizedCountry];
   }
 
-  if (normalizedExternalId) {
-    userData.external_id = [hashOpaqueUserParam(normalizedExternalId)];
+  if (normalizedExternalIds.length > 0) {
+    userData.external_id = normalizedExternalIds;
   }
 
   // IP and UA are sent as-is (not hashed)

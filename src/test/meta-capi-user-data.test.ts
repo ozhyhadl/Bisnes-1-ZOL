@@ -90,4 +90,37 @@ describe("Meta CAPI user_data hygiene", () => {
       fbp: "fb.1.987654321.123456789",
     });
   });
+
+  it("hashes and de-duplicates multi-value external_id arrays", async () => {
+    process.env.META_PIXEL_ID = "1687132965983563";
+    process.env.META_ACCESS_TOKEN = "token-value";
+
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ events_received: 1, messages: [] }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await sendConversionEvent({
+      event_name: "Purchase",
+      event_id: "payload-hygiene-3",
+      event_source_url: "https://aicldbase.com/download",
+      user_data: {
+        external_id: [" acb-visitor-1 ", "cus_ABC123", " ", "acb-visitor-1", "unknown"],
+        client_ip_address: "203.0.113.10",
+        client_user_agent: "Mozilla/5.0",
+      },
+    });
+
+    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(String(init.body));
+
+    expect(body.data[0].user_data.external_id).toEqual([
+      hashOpaqueUserParam("acb-visitor-1"),
+      hashOpaqueUserParam("cus_ABC123"),
+    ]);
+  });
 });
