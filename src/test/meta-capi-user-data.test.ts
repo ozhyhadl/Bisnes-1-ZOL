@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { hashUserParam, sendConversionEvent } from "../../api/_lib/meta-capi";
+import { hashOpaqueUserParam, hashUserParam, sendConversionEvent } from "../../api/_lib/meta-capi";
 
 describe("Meta CAPI user_data hygiene", () => {
   afterEach(() => {
@@ -32,6 +32,7 @@ describe("Meta CAPI user_data hygiene", () => {
         em: "   ",
         ph: "undefined",
         country: "N/A",
+        external_id: " unknown ",
         client_ip_address: "  ",
         client_user_agent: "unknown",
         fbc: " null ",
@@ -67,6 +68,7 @@ describe("Meta CAPI user_data hygiene", () => {
         em: " Buyer@Example.com ",
         ph: "+1 (555) 444-3322",
         country: " us ",
+        external_id: " cus_ABC123 ",
         client_ip_address: "203.0.113.10",
         client_user_agent: "Mozilla/5.0",
         fbc: "fb.1.123456789.AbCdEf",
@@ -81,6 +83,7 @@ describe("Meta CAPI user_data hygiene", () => {
       em: [hashUserParam("buyer@example.com")],
       ph: [hashUserParam("15554443322")],
       country: [hashUserParam("us")],
+      external_id: [hashOpaqueUserParam("cus_ABC123")],
       client_ip_address: "203.0.113.10",
       client_user_agent: "Mozilla/5.0",
       fbc: "fb.1.123456789.AbCdEf",

@@ -75,6 +75,17 @@ describe("meta-event telegram integration", () => {
     await handler(req, res);
 
     expect(mockSendConversionEvent).toHaveBeenCalledTimes(1);
+    expect(mockSendConversionEvent).toHaveBeenCalledWith({
+      event_name: "InitiateCheckout",
+      event_id: "evt_checkout_1",
+      event_source_url: "https://aicldbase.com/",
+      user_data: {
+        client_ip_address: "203.0.113.10",
+        client_user_agent: "Mozilla/5.0",
+        fbc: "fb.1.123456789.AbCdEf",
+        fbp: "fb.1.987654321.123456789",
+      },
+    });
     expect(mockSendCheckoutStartedTelegramNotification).toHaveBeenCalledWith({
       eventName: "InitiateCheckout",
       pageUrl: "https://aicldbase.com/",

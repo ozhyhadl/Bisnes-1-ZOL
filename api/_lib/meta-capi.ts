@@ -13,6 +13,7 @@ type MetaUserData = {
   em?: string | null;
   ph?: string | null;
   country?: string | null;
+  external_id?: string | null;
   client_ip_address?: string | null;
   client_user_agent?: string | null;
   fbc?: string | null;
@@ -68,12 +69,19 @@ export function hashUserParam(value: string): string {
     .digest("hex");
 }
 
+export function hashOpaqueUserParam(value: string): string {
+  return createHash("sha256")
+    .update(value.trim())
+    .digest("hex");
+}
+
 function buildUserData(raw: MetaUserData): Record<string, unknown> {
   const userData: Record<string, unknown> = {};
 
   const normalizedEmail = normalizeAndHashMetaUserParam(raw.em, "email");
   const normalizedPhone = normalizeAndHashMetaUserParam(raw.ph, "phone");
   const normalizedCountry = normalizeAndHashMetaUserParam(raw.country, "country");
+  const normalizedExternalId = sanitizeOptionalMetaValue(raw.external_id);
   const normalizedClientIp = sanitizeOptionalMetaValue(raw.client_ip_address);
   const normalizedClientUserAgent = sanitizeOptionalMetaValue(raw.client_user_agent);
   const normalizedFbc = sanitizeOptionalMetaValue(raw.fbc);
@@ -89,6 +97,10 @@ function buildUserData(raw: MetaUserData): Record<string, unknown> {
 
   if (normalizedCountry) {
     userData.country = [normalizedCountry];
+  }
+
+  if (normalizedExternalId) {
+    userData.external_id = [hashOpaqueUserParam(normalizedExternalId)];
   }
 
   // IP and UA are sent as-is (not hashed)

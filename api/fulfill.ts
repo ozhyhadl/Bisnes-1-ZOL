@@ -6,6 +6,7 @@ import {
   extractClientIp,
   extractUserAgent,
 } from "./_lib/meta-capi.js";
+import { collectMetaRequestSignals } from "./_lib/meta-capi-param-builder.js";
 import { sendPurchaseCompletedTelegramNotification } from "./_lib/telegram.js";
 
 /* ── Price-ID → Storage-file mapping ─────────────────────────────── */
@@ -855,6 +856,12 @@ function extractCustomerId(
   if (typeof transaction.customer_id === "string") {
     return transaction.customer_id;
   }
+
+  const customer = transaction.customer as { id?: string } | undefined;
+  if (customer?.id) {
+    return customer.id;
+  }
+
   return null;
 }
 
@@ -867,6 +874,12 @@ function extractCheckoutId(
   const checkout = transaction.checkout as { id?: string } | undefined;
   if (checkout?.id) return checkout.id;
   return null;
+}
+
+function extractMetaExternalId(
+  transaction: Record<string, unknown>,
+): string | null {
+  return extractCustomerId(transaction) ?? extractCheckoutId(transaction);
 }
 
 function parseMoneyAmount(value: string | number | undefined): number | null {
@@ -1477,6 +1490,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const purchaseEmail = extractEmail(transaction);
     const purchaseIp = extractClientIp(req.headers as Record<string, string | string[] | undefined>);
     const purchaseUa = extractUserAgent(req.headers as Record<string, string | string[] | undefined>);
+    const purchaseEventSourceUrl = buildAbsoluteSiteUrl("/download");
+    const purchaseRequestSignals = collectMetaRequestSignals({
+      host: typeof req.headers.host === "string" ? req.headers.host : null,
+      eventSourceUrl: purchaseEventSourceUrl,
+      referer: typeof req.headers.referer === "string" ? req.headers.referer : null,
+      cookieHeader: typeof req.headers.cookie === "string" ? req.headers.cookie : null,
+      xForwardedFor: typeof req.headers["x-forwarded-for"] === "string" ? req.headers["x-forwarded-for"] : null,
+      remoteAddress: req.socket?.remoteAddress ?? null,
+      fallbackClientIpAddress: purchaseIp,
+    });
     const purchasedItemLabels = filesToDeliver.map((file) => file.label);
 
     const contentIds = items
@@ -1486,11 +1509,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     await sendConversionEvent({
       event_name: "Purchase",
       event_id: txn,
-      event_source_url: buildAbsoluteSiteUrl("/download"),
+      event_source_url: purchaseEventSourceUrl,
       user_data: {
         em: purchaseEmail,
-        client_ip_address: purchaseIp,
+        external_id: extractMetaExternalId(transaction),
+        client_ip_address: purchaseRequestSignals.clientIpAddress,
         client_user_agent: purchaseUa,
+        fbc: purchaseRequestSignals.fbc,
+        fbp: purchaseRequestSignals.fbp,
       },
       custom_data: {
         value: financials.total_amount ?? 0,
