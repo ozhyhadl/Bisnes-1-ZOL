@@ -54,7 +54,7 @@ const FAQSection = () => {
       </ScrollReveal>
       <ScrollReveal delay={0.2}>
         <div className="text-center mt-10">
-          <CTAButton>{t(landingCopy.faq.cta)}</CTAButton>
+          <CTAButton analyticsLocation="faq">{t(landingCopy.faq.cta)}</CTAButton>
         </div>
       </ScrollReveal>
     </section>

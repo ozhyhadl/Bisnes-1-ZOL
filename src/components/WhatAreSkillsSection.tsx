@@ -29,7 +29,7 @@ const WhatAreSkillsSection = () => {
       </ScrollReveal>
       <ScrollReveal delay={0.2}>
         <div className="text-center mt-10">
-          <CTAButton>{t(landingCopy.whatAreSkills.cta)}</CTAButton>
+          <CTAButton analyticsLocation="what-are-skills">{t(landingCopy.whatAreSkills.cta)}</CTAButton>
         </div>
       </ScrollReveal>
     </section>

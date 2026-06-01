@@ -1,20 +1,26 @@
 import { cn } from "@/lib/utils";
 import { scrollToPricingSection } from "@/lib/scroll";
+import { trackAnalyticsEvent } from "@/lib/analytics";
 import { type ButtonHTMLAttributes, type ReactNode } from "react";
 
 type CTAButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   children: ReactNode;
   className?: string;
+  analyticsLocation?: string;
 };
 
-const CTAButton = ({ children, className, onClick, disabled = false, ...buttonProps }: CTAButtonProps) => {
+const CTAButton = ({ children, className, onClick, disabled = false, analyticsLocation, ...buttonProps }: CTAButtonProps) => {
   function handleClick(event: Parameters<NonNullable<ButtonHTMLAttributes<HTMLButtonElement>["onClick"]>>[0]) {
+    if (analyticsLocation) {
+      trackAnalyticsEvent("cta_click", { location: analyticsLocation });
+    }
+
     if (onClick) {
       onClick(event);
       return;
     }
 
-    scrollToPricingSection();
+    scrollToPricingSection(analyticsLocation);
   }
 
   return (
@@ -24,7 +30,7 @@ const CTAButton = ({ children, className, onClick, disabled = false, ...buttonPr
       disabled={disabled}
       {...buttonProps}
       className={cn(
-        "inline-block bg-primary text-primary-foreground px-5 py-3 md:px-8 md:py-4 text-xs md:text-sm uppercase tracking-widest font-semibold rounded-lg hover:opacity-90 transition-opacity disabled:cursor-not-allowed disabled:opacity-70",
+        "inline-block rounded-lg bg-primary px-5 py-3 text-xs font-semibold uppercase tracking-widest text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70 md:px-8 md:py-4 md:text-sm",
         className,
       )}
     >

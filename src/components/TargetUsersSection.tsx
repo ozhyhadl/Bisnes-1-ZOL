@@ -18,7 +18,7 @@ const TargetUsersSection = () => {
             {t(landingCopy.targetUsers.body)}
           </p>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {landingCopy.targetUsers.users.map((user) => (
+            {landingCopy.targetUsers.users.slice(0, 3).map((user) => (
               <div
                 key={user.icon}
                 className="border border-terminal-foreground/10 rounded-lg p-5"
@@ -33,7 +33,7 @@ const TargetUsersSection = () => {
       </ScrollReveal>
       <ScrollReveal delay={0.2}>
         <div className="text-center mt-10">
-          <CTAButton>{t(landingCopy.targetUsers.cta)}</CTAButton>
+          <CTAButton analyticsLocation="target-users">{t(landingCopy.targetUsers.cta)}</CTAButton>
         </div>
       </ScrollReveal>
     </section>

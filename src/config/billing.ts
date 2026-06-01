@@ -8,6 +8,8 @@
  * Client-side env is injected by vite.config.ts via `define`.
  * ────────────────────────────────────────────────────────────────── */
 
+import { SALES_CONFIG } from "@/lib/sales";
+
 type PaddleEnvironment = "sandbox" | "production";
 
 type BillingProductConfig = {
@@ -65,13 +67,13 @@ export function getPaddleBillingConfig(): BillingConfig {
 				productId: SANDBOX.skillsProductId,
 				priceId: SANDBOX.skillsPriceId,
 				label: "Claude Skills Ultimate Bundle",
-				unitPrice: 15,
+				unitPrice: SALES_CONFIG.bundlePrice,
 			},
 			n8n: {
 				productId: SANDBOX.n8nProductId,
 				priceId: SANDBOX.n8nPriceId,
 				label: "1,800+ N8N Automations",
-				unitPrice: 10,
+				unitPrice: SALES_CONFIG.n8nPrice,
 			},
 		};
 	}
@@ -83,12 +85,12 @@ export function getPaddleBillingConfig(): BillingConfig {
 		skills: {
 			priceId: LIVE.skillsPriceId,
 			label: "Claude Skills Ultimate Bundle",
-			unitPrice: 15,
+			unitPrice: SALES_CONFIG.bundlePrice,
 		},
 		n8n: {
 			priceId: LIVE.n8nPriceId,
 			label: "1,800+ N8N Automations",
-			unitPrice: 10,
+			unitPrice: SALES_CONFIG.n8nPrice,
 		},
 	};
 }

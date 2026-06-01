@@ -6,7 +6,7 @@ interface TerminalWindowProps {
 const TerminalWindow = ({ prompt, children }: TerminalWindowProps) => {
   return (
     <div className="terminal-window shadow-xl max-w-3xl mx-auto">
-      <div className="terminal-header">
+      <div className="terminal-header hidden md:flex">
         <div className="terminal-dot terminal-dot-red" />
         <div className="terminal-dot terminal-dot-yellow" />
         <div className="terminal-dot terminal-dot-green" />
