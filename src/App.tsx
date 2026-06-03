@@ -1,8 +1,8 @@
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Analytics } from "@vercel/analytics/react";
 import { Suspense, lazy, useEffect } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { scheduleMarketingScriptsLoad } from "./lib/marketingScripts";
+import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import { scheduleMarketingScriptsLoad, trackGooglePageView } from "./lib/marketingScripts";
 import Index from "./pages/Index";
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
@@ -13,6 +13,16 @@ const LazyRoute = ({ children }: { children: React.ReactNode }) => (
   <Suspense fallback={null}>{children}</Suspense>
 );
 
+const AnalyticsRouteTracker = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    trackGooglePageView(`${location.pathname}${location.search}`);
+  }, [location.pathname, location.search]);
+
+  return null;
+};
+
 const App = () => {
   useEffect(() => {
     return scheduleMarketingScriptsLoad();
@@ -22,6 +32,7 @@ const App = () => {
     <>
       <Sonner />
       <BrowserRouter>
+        <AnalyticsRouteTracker />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/privacy" element={<LazyRoute><PrivacyPolicy /></LazyRoute>} />

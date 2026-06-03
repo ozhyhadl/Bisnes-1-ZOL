@@ -43,8 +43,13 @@ function primeGoogleTracking(marketingWindow: WindowWithMarketingScripts): void 
   marketingWindow.dataLayer = marketingWindow.dataLayer ?? [];
 
   if (!marketingWindow.gtag) {
-    marketingWindow.gtag = (...args: unknown[]) => {
-      marketingWindow.dataLayer?.push(args);
+    marketingWindow.gtag = function (...args: unknown[]) {
+      if (typeof marketingWindow.dataLayer === "undefined") {
+        marketingWindow.dataLayer = [];
+      }
+
+      // Use the native arguments object format from the official gtag snippet.
+      marketingWindow.dataLayer.push(arguments);
     };
   }
 
@@ -58,9 +63,24 @@ function primeGoogleTracking(marketingWindow: WindowWithMarketingScripts): void 
 
   if (!marketingWindow.__aicbGaPrimed) {
     marketingWindow.gtag("js", new Date());
-    marketingWindow.gtag("config", GA_MEASUREMENT_ID);
+    marketingWindow.gtag("config", GA_MEASUREMENT_ID, {
+      send_page_view: true,
+    });
     marketingWindow.__aicbGaPrimed = true;
   }
+}
+
+export function trackGooglePageView(path: string, title?: string): void {
+  if (typeof window === "undefined" || typeof window.gtag !== "function") {
+    return;
+  }
+
+  window.gtag("event", "page_view", {
+    page_path: path,
+    page_location: window.location.href,
+    page_title: title ?? document.title,
+    send_to: GA_MEASUREMENT_ID,
+  });
 }
 
 function primeMetaPixel(marketingWindow: WindowWithMarketingScripts): void {
