@@ -15,12 +15,14 @@ type WindowWithMarketingScripts = Window & {
   _fbq?: FbqFunction;
   __aicbGtmPrimed?: boolean;
   __aicbGaPrimed?: boolean;
+  __aicbGoogleAdsPrimed?: boolean;
   __aicbMetaPixelPrimed?: boolean;
   __aicbMarketingScriptsLoaded?: boolean;
 };
 
 const GTM_CONTAINER_ID = "GTM-N55PLNHK";
 const GA_MEASUREMENT_ID = "G-J8H56YCJD2";
+const GOOGLE_ADS_DESTINATION_ID = "AW-18210899199";
 const META_PIXEL_ID = "1687132965983563";
 
 const GTM_SCRIPT_ID = "aicb-gtm-script";
@@ -68,6 +70,11 @@ function primeGoogleTracking(marketingWindow: WindowWithMarketingScripts): void 
     });
     marketingWindow.__aicbGaPrimed = true;
   }
+
+  if (!marketingWindow.__aicbGoogleAdsPrimed) {
+    marketingWindow.gtag("config", GOOGLE_ADS_DESTINATION_ID);
+    marketingWindow.__aicbGoogleAdsPrimed = true;
+  }
 }
 
 export function trackGooglePageView(path: string, title?: string): void {
@@ -79,7 +86,18 @@ export function trackGooglePageView(path: string, title?: string): void {
     page_path: path,
     page_location: window.location.href,
     page_title: title ?? document.title,
-    send_to: GA_MEASUREMENT_ID,
+    send_to: [GA_MEASUREMENT_ID, GOOGLE_ADS_DESTINATION_ID],
+  });
+}
+
+export function trackGoogleAdsPurchaseConversion(transactionId: string): void {
+  if (typeof window === "undefined" || typeof window.gtag !== "function") {
+    return;
+  }
+
+  window.gtag("event", "conversion", {
+    send_to: GOOGLE_ADS_DESTINATION_ID,
+    transaction_id: transactionId,
   });
 }
 

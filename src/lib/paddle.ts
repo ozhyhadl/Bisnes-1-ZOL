@@ -8,6 +8,7 @@ import {
 import { trackAnalyticsEvent } from "@/lib/analytics";
 import { getPaddleBillingConfig } from "@/config/billing";
 import { trackPurchase, getFbc, getFbp, getOrCreateMetaExternalId } from "@/lib/meta-events";
+import { trackGoogleAdsPurchaseConversion } from "@/lib/marketingScripts";
 
 const paddleBillingConfig = getPaddleBillingConfig();
 export const PADDLE_FULFILLMENT_ACCESS_TOKEN_STORAGE_KEY = "aicb:last-fulfillment-access-token";
@@ -197,6 +198,7 @@ function handleCheckoutEvent(event: PaddleEventData): void {
   // Uses transactionId as event_id for deduplication
   trackPurchase({ transactionId });
   trackAnalyticsEvent("purchase_completed", { transactionId });
+  trackGoogleAdsPurchaseConversion(transactionId);
 
   storePendingFulfillmentTransactionId(transactionId);
 
