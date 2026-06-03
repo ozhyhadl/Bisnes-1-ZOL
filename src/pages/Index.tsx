@@ -1,7 +1,5 @@
 import DeferredSection from "@/components/DeferredSection";
-import DemoVideoSection from "@/components/DemoVideoSection";
 import ExitIntentPopup from "@/components/ExitIntentPopup";
-import ForceSalePopup from "@/components/ForceSalePopup";
 import SiteHeader from "@/components/SiteHeader";
 import HeroSection from "@/components/HeroSection";
 import StepsSection from "@/components/StepsSection";
@@ -9,7 +7,6 @@ import WhatAreSkillsSection from "@/components/WhatAreSkillsSection";
 import TargetUsersSection from "@/components/TargetUsersSection";
 import PricingSection from "@/components/PricingSection";
 import LanguageSuggestionBanner from "@/components/LanguageSuggestionBanner";
-import SampleOutputSection from "@/components/SampleOutputSection";
 import SiteFooter from "@/components/SiteFooter";
 import StickyMobileCTA from "@/components/StickyMobileCTA";
 import TestimonialsSection from "@/components/TestimonialsSection";
@@ -61,6 +58,7 @@ const Index = () => {
         <SiteHeader />
         <main>
           <HeroSection />
+          <PricingSection />
           <WhatAreSkillsSection />
           <StepsSection />
           <TargetUsersSection />
@@ -70,10 +68,7 @@ const Index = () => {
             rootMargin="900px 0px"
             idleTimeout={2200}
           />
-          <SampleOutputSection />
-          <DemoVideoSection />
           <TestimonialsSection />
-          <PricingSection />
           <DeferredSection
             component={FAQSection}
             fallback={faqFallback}
@@ -88,7 +83,6 @@ const Index = () => {
           />
         </main>
         <StickyMobileCTA />
-        <ForceSalePopup />
         <ExitIntentPopup />
       </CheckoutProvider>
       <SiteFooter />

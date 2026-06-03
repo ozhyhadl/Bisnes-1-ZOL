@@ -1,4 +1,5 @@
 export const SALES_CONFIG = {
+  skillsCount: 500,
   bundlePrice: 15,
   bundleAnchorMin: 155,
   bundleAnchorMax: 155,

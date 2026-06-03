@@ -15,7 +15,7 @@ const SiteHeader = () => {
         </a>
         <div className="ml-auto flex items-center gap-2">
           <LanguageSelector />
-          <CTAButton className="px-4 py-2 text-[11px] md:px-4 md:py-2 md:text-xs" analyticsLocation="header">
+          <CTAButton variant="subtle" className="hidden px-4 py-2 text-[11px] md:inline-flex md:px-4 md:py-2 md:text-xs" analyticsLocation="header">
             {t(landingCopy.header.primaryCta)}
           </CTAButton>
         </div>

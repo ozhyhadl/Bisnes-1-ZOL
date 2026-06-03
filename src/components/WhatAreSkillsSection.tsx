@@ -8,7 +8,7 @@ const WhatAreSkillsSection = () => {
   const { t } = useLanguage();
 
   return (
-    <section className="py-16 px-4" aria-label={t(landingCopy.whatAreSkills.title)}>
+    <section className="px-4 py-12 md:py-14" aria-label={t(landingCopy.whatAreSkills.title)}>
       <ScrollReveal>
         <TerminalWindow prompt="claude@skills ~ % cat basics.md">
           <h2 className="text-2xl md:text-4xl font-bold text-terminal-foreground mb-6">

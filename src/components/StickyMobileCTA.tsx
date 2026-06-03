@@ -43,7 +43,7 @@ const StickyMobileCTA = () => {
   return (
     <div className="fixed inset-x-4 bottom-4 z-40 md:hidden">
       <div className="rounded-2xl border border-border/70 bg-background/95 p-3 shadow-[0_16px_44px_rgba(15,23,42,0.22)] backdrop-blur">
-        <CTAButton className="w-full py-3 text-[11px]" analyticsLocation="sticky-mobile">
+        <CTAButton className="sales-cta w-full py-3 text-[11px]" analyticsLocation="sticky-mobile">
           {t(salesCopy.hero.stickyCta)}
         </CTAButton>
       </div>
