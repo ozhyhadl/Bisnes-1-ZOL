@@ -11,8 +11,8 @@ const UpsellOfferSection = () => {
   const { t } = useLanguage();
 
   const buttonClassName = isN8nAdded
-    ? "bg-emerald-500 text-emerald-950 border-emerald-300 shadow-[0_0_0_1px_rgba(96,212,164,0.36),0_18px_34px_rgba(31,161,116,0.18)]"
-    : "upsell-cta-attention bg-primary text-primary-foreground border-primary/70 shadow-[0_0_0_1px_rgba(200,112,70,0.2),0_14px_30px_rgba(191,101,61,0.24)] hover:-translate-y-0.5 hover:shadow-[0_0_0_1px_rgba(215,126,81,0.28),0_18px_36px_rgba(191,101,61,0.34)]";
+    ? "border-[rgba(51,90,71,0.42)] bg-[linear-gradient(180deg,rgba(231,240,234,1),rgba(214,229,220,1))] text-[rgb(36,63,51)] shadow-[0_0_0_1px_rgba(96,128,111,0.22),0_18px_34px_rgba(41,74,60,0.14)]"
+    : "upsell-cta-attention border-[rgba(121,39,31,0.58)] bg-[linear-gradient(180deg,rgba(184,74,54,1),rgba(143,49,38,1))] text-primary-foreground shadow-[0_0_0_1px_rgba(164,61,45,0.22),0_14px_30px_rgba(115,39,31,0.24)] hover:shadow-[0_0_0_1px_rgba(164,61,45,0.28),0_18px_36px_rgba(115,39,31,0.28)]";
 
   return (
     <section className="py-10 px-4" aria-label={t(landingCopy.upsell.title)}>
@@ -51,14 +51,14 @@ const UpsellOfferSection = () => {
                     {t(landingCopy.upsell.cardLabel)}
                   </div>
                   <div className="flex items-end justify-center gap-3">
-                    <span className="text-base font-semibold text-[#ff5c5c] line-through decoration-2 decoration-[#ff5c5c]">
+                    <span className="text-base font-semibold text-foreground/45 line-through decoration-2 decoration-foreground/30">
                       $15
                     </span>
                     <div className="flex flex-col items-center leading-none">
-                      <span className="text-[10px] uppercase tracking-[0.24em] text-[#62b287] mb-1">
+                      <span className="mb-1 text-[10px] uppercase tracking-[0.24em] text-[rgb(69,120,95)]">
                         {t(landingCopy.upsell.nowLabel)}
                       </span>
-                      <span className="text-4xl md:text-[2.75rem] font-bold text-[#4fa878] drop-shadow-[0_8px_24px_rgba(60,138,97,0.24)]">
+                      <span className="text-4xl font-bold text-[rgb(50,104,82)] drop-shadow-[0_10px_24px_rgba(38,82,64,0.18)] md:text-[2.75rem]">
                         $10
                       </span>
                     </div>

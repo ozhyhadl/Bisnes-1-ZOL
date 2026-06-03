@@ -1,12 +1,15 @@
+import { cn } from "@/lib/utils";
+
 interface TerminalWindowProps {
   prompt: string;
   children: React.ReactNode;
+  className?: string;
 }
 
-const TerminalWindow = ({ prompt, children }: TerminalWindowProps) => {
+const TerminalWindow = ({ prompt, children, className }: TerminalWindowProps) => {
   return (
-    <div className="terminal-window shadow-xl max-w-3xl mx-auto">
-      <div className="terminal-header">
+    <div className={cn("terminal-window mx-auto max-w-3xl shadow-xl", className)}>
+      <div className="terminal-header hidden md:flex">
         <div className="terminal-dot terminal-dot-red" />
         <div className="terminal-dot terminal-dot-yellow" />
         <div className="terminal-dot terminal-dot-green" />

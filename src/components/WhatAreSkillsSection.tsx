@@ -8,7 +8,7 @@ const WhatAreSkillsSection = () => {
   const { t } = useLanguage();
 
   return (
-    <section className="py-16 px-4" aria-label={t(landingCopy.whatAreSkills.title)}>
+    <section className="px-4 py-12 md:py-14" aria-label={t(landingCopy.whatAreSkills.title)}>
       <ScrollReveal>
         <TerminalWindow prompt="claude@skills ~ % cat basics.md">
           <h2 className="text-2xl md:text-4xl font-bold text-terminal-foreground mb-6">
@@ -29,7 +29,7 @@ const WhatAreSkillsSection = () => {
       </ScrollReveal>
       <ScrollReveal delay={0.2}>
         <div className="text-center mt-10">
-          <CTAButton>{t(landingCopy.whatAreSkills.cta)}</CTAButton>
+          <CTAButton analyticsLocation="what-are-skills">{t(landingCopy.whatAreSkills.cta)}</CTAButton>
         </div>
       </ScrollReveal>
     </section>

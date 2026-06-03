@@ -1,7 +1,7 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { landingCopy } from "@/i18n/translations";
-import { scrollToPricingSection } from "@/lib/scroll";
 import LanguageSelector from "./LanguageSelector";
+import CTAButton from "./CTAButton";
 
 const SiteHeader = () => {
   const { t } = useLanguage();
@@ -15,13 +15,9 @@ const SiteHeader = () => {
         </a>
         <div className="ml-auto flex items-center gap-2">
           <LanguageSelector />
-          <button
-            type="button"
-            onClick={scrollToPricingSection}
-            className="rounded-lg bg-primary px-4 py-2 text-xs font-semibold uppercase tracking-wider text-primary-foreground transition-opacity hover:opacity-90"
-          >
+          <CTAButton variant="subtle" className="hidden px-4 py-2 text-[11px] md:inline-flex md:px-4 md:py-2 md:text-xs" analyticsLocation="header">
             {t(landingCopy.header.primaryCta)}
-          </button>
+          </CTAButton>
         </div>
       </div>
     </header>

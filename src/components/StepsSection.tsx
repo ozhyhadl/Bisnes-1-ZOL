@@ -34,7 +34,7 @@ const StepsSection = () => {
           </div>
 
           <div className="mt-8 text-center">
-            <CTAButton>{t(landingCopy.steps.cta)}</CTAButton>
+            <CTAButton analyticsLocation="steps">{t(landingCopy.steps.cta)}</CTAButton>
           </div>
         </TerminalWindow>
       </ScrollReveal>

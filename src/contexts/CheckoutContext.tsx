@@ -1,5 +1,6 @@
 import { toast } from "@/components/ui/sonner";
 import { getPaddleBillingConfig } from "@/config/billing";
+import { trackAnalyticsEvent } from "@/lib/analytics";
 import { getPaddle, openPaddleCheckout, type PaddleCheckoutItem } from "@/lib/paddle";
 import { trackInitiateCheckout } from "@/lib/meta-events";
 import { createContext, useContext, useState, type ReactNode } from "react";
@@ -46,7 +47,11 @@ export const CheckoutProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const toggleN8nInOrder = () => {
-    setIsN8nAdded((currentValue) => !currentValue);
+    setIsN8nAdded((currentValue) => {
+      const nextValue = !currentValue;
+      trackAnalyticsEvent("upsell_toggle", { selected: nextValue });
+      return nextValue;
+    });
   };
 
   const warmCheckout = () => {
@@ -95,6 +100,11 @@ export const CheckoutProvider = ({ children }: { children: ReactNode }) => {
       const checkoutValue = checkoutItems.reduce((total, item) => total + item.unitPrice, 0);
 
       openPaddleCheckout(paddle, items);
+      trackAnalyticsEvent("purchase_initiated", {
+        items: checkoutItems.map((item) => item.label),
+        value: checkoutValue,
+        currency: billingConfig.currency,
+      });
 
       // Fire InitiateCheckout after Paddle overlay is opened
       trackInitiateCheckout({

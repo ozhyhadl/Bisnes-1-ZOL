@@ -38,16 +38,16 @@ export const landingCopy = {
       "ru": "Выбрать язык страницы"
     },
     "primaryCta": {
-      "en": "Get the Bundle",
-      "es": "Consigue el bundle",
-      "fr": "Obtenir le bundle",
-      "de": "Bundle holen",
-      "it": "Ottieni il bundle",
-      "pt": "Garanta o bundle",
-      "pl": "Pobierz pakiet",
-      "hi": "बंडल पाएं",
-      "uk": "Отримати бандл",
-      "ru": "Получить бандл"
+      "en": "Get the Bundle — $15",
+      "es": "Consigue el bundle — $15",
+      "fr": "Obtenir le bundle — $15",
+      "de": "Bundle holen — $15",
+      "it": "Ottieni il bundle — $15",
+      "pt": "Garanta o bundle — $15",
+      "pl": "Pobierz pakiet — $15",
+      "hi": "बंडल पाएं — $15",
+      "uk": "Отримати бандл — $15",
+      "ru": "Получить бандл — $15"
     }
   },
   "banner": {
@@ -115,16 +115,16 @@ export const landingCopy = {
   },
   "hero": {
     "title": {
-      "en": "Stop Prompting. Start Running Your Business.",
-      "es": "Deja de improvisar prompts. Empieza a dirigir tu negocio.",
-      "fr": "Arrêtez les prompts à répétition. Commencez à piloter votre business.",
-      "de": "Schluss mit Prompts. Führen Sie Ihr Business.",
-      "it": "Basta con i prompt. Inizia a mandare avanti il tuo business.",
-      "pt": "Pare de escrever prompts. Comece a tocar o seu negócio.",
-      "pl": "Przestań pisać prompty. Zacznij prowadzić swój biznes.",
-      "hi": "प्रॉम्प्ट लिखना बंद करें। अपना बिज़नेस चलाना शुरू करें।",
-      "uk": "Досить писати промпти. Почніть керувати своїм бізнесом.",
-      "ru": "Хватит писать промпты. Начните управлять бизнесом."
+      "en": "Ready-made contracts, posts, and plans in minutes — 500+ Claude Skills in one bundle.",
+      "es": "Contratos, posts y planes listos en minutos: más de 500 Claude Skills en un solo bundle.",
+      "fr": "Contrats, contenus et plans prêts en quelques minutes : plus de 500 Claude Skills dans un seul bundle.",
+      "de": "Fertige Verträge, Inhalte und Pläne in Minuten – über 500 Claude Skills in einem Bundle.",
+      "it": "Contratti, post e piani pronti in pochi minuti: oltre 500 Claude Skills in un solo bundle.",
+      "pt": "Contratos, posts e planos prontos em minutos: mais de 500 Claude Skills em um único bundle.",
+      "pl": "Gotowe umowy, treści i plany w kilka minut — ponad 500 Claude Skills w jednym pakiecie.",
+      "hi": "मिनटों में तैयार कॉन्ट्रैक्ट, पोस्ट और प्लान — एक ही बंडल में 500+ Claude Skills।",
+      "uk": "Готові контракти, тексти й плани за хвилини — понад 500 Claude Skills в одному bundle.",
+      "ru": "Готовые договоры, тексты и планы за минуты — 500+ Claude Skills в одном bundle."
     },
     "body": {
       "en": "{count}+ ready-made Claude skill files that turn a blank chat into a finished blog post, a signed contract, or a 90-day marketing plan before your coffee gets cold.",
@@ -177,16 +177,16 @@ export const landingCopy = {
       }
     },
     "primaryCta": {
-      "en": "Get Instant Access",
-      "es": "Obtén acceso instantáneo",
-      "fr": "Accès instantané",
-      "de": "Sofortzugang holen",
-      "it": "Ottieni accesso immediato",
-      "pt": "Acesso instantâneo",
-      "pl": "Uzyskaj natychmiastowy dostęp",
-      "hi": "तुरंत एक्सेस पाएं",
-      "uk": "Отримати миттєвий доступ",
-      "ru": "Получить мгновенный доступ"
+      "en": "Get the Bundle — $15",
+      "es": "Consigue el bundle — $15",
+      "fr": "Obtenir le bundle — $15",
+      "de": "Bundle holen — $15",
+      "it": "Ottieni il bundle — $15",
+      "pt": "Garanta o bundle — $15",
+      "pl": "Pobierz pakiet — $15",
+      "hi": "बंडल पाएं — $15",
+      "uk": "Отримати бандл — $15",
+      "ru": "Получить бандл — $15"
     },
     "helper": {
       "en": "One-time purchase · Instant download · Lifetime access",
@@ -227,16 +227,16 @@ export const landingCopy = {
       "ru": "Добавьте skill-файлы в Claude, скажите, что вам нужно, и получите готовый результат, а не черновик, который еще надо переписывать."
     },
     "cta": {
-      "en": "Set Up in 2 Minutes — $15",
-      "es": "Configúralo en 2 minutos — $15",
-      "fr": "Installez en 2 minutes — $15",
-      "de": "In 2 Minuten einrichten — $15",
-      "it": "Configuralo in 2 minuti — $15",
-      "pt": "Configure em 2 minutos — $15",
-      "pl": "Skonfiguruj w 2 minuty — $15",
-      "hi": "2 मिनट में सेट अप करें — $15",
-      "uk": "Налаштувати за 2 хвилини — $15",
-      "ru": "Настроить за 2 минуты — $15"
+      "en": "Get the Bundle — $15",
+      "es": "Consigue el bundle — $15",
+      "fr": "Obtenir le bundle — $15",
+      "de": "Bundle holen — $15",
+      "it": "Ottieni il bundle — $15",
+      "pt": "Garanta o bundle — $15",
+      "pl": "Pobierz pakiet — $15",
+      "hi": "बंडल पाएं — $15",
+      "uk": "Отримати бандл — $15",
+      "ru": "Получить бандл — $15"
     },
     "divider": {
       "en": "or",
@@ -398,16 +398,16 @@ export const landingCopy = {
       "ru": "Skill — это файл SKILL.md, который вы добавляете в Claude. Он точно говорит Claude, как выполнять конкретную задачу: какие вопросы задавать, какой framework применять (PAS, AIDA, Jobs-to-Be-Done) и как оформлять финальный результат. На выходе получается работа уровня специалиста, а не чат-бота."
     },
     "cta": {
-      "en": "Try Skills Risk-Free — $15",
-      "es": "Prueba las skills sin riesgo — $15",
-      "fr": "Essayez les skills sans risque — $15",
-      "de": "Skills ohne Risiko testen — $15",
-      "it": "Prova le skill senza rischi — $15",
-      "pt": "Teste as skills sem risco — $15",
-      "pl": "Wypróbuj skille bez ryzyka — $15",
-      "hi": "Skills बिना जोखिम आज़माएँ — $15",
-      "uk": "Спробувати skills без ризику — $15",
-      "ru": "Попробовать skills без риска — $15"
+      "en": "Get the Bundle — $15",
+      "es": "Consigue el bundle — $15",
+      "fr": "Obtenir le bundle — $15",
+      "de": "Bundle holen — $15",
+      "it": "Ottieni il bundle — $15",
+      "pt": "Garanta o bundle — $15",
+      "pl": "Pobierz pakiet — $15",
+      "hi": "बंडल पाएं — $15",
+      "uk": "Отримати бандл — $15",
+      "ru": "Получить бандл — $15"
     },
     "items": [
       {
@@ -731,16 +731,16 @@ export const landingCopy = {
     },
     "previewPattern": "📁 {categorySlug} / {sampleSkillSlugs} …",
     "cta": {
-      "en": "Unlock All 501 Skills — $15",
-      "es": "Desbloquea las 501 skills — $15",
-      "fr": "Débloquez les 501 skills — $15",
-      "de": "Alle 501 Skills freischalten — $15",
-      "it": "Sblocca tutte le 501 skill — $15",
-      "pt": "Desbloqueie as 501 skills — $15",
-      "pl": "Odblokuj wszystkie 501 skilli — $15",
-      "hi": "सभी 501 skills अनलॉक करें — $15",
-      "uk": "Відкрити всі 501 skills — $15",
-      "ru": "Открыть все 501 skills — $15"
+      "en": "Get the Bundle — $15",
+      "es": "Consigue el bundle — $15",
+      "fr": "Obtenir le bundle — $15",
+      "de": "Bundle holen — $15",
+      "it": "Ottieni il bundle — $15",
+      "pt": "Garanta o bundle — $15",
+      "pl": "Pobierz pakiet — $15",
+      "hi": "बंडल पाएं — $15",
+      "uk": "Отримати бандл — $15",
+      "ru": "Получить бандл — $15"
     }
   },
   "directoryModal": {
@@ -1073,16 +1073,16 @@ export const landingCopy = {
       "ru": "Разовый платеж · Доступ навсегда · Мгновенная цифровая доставка"
     },
     "cta": {
-      "en": "BUY NOW AND START",
-      "es": "Obtén acceso instantáneo — $15",
-      "fr": "Accès instantané — $15",
-      "de": "Sofortzugang holen — $15",
-      "it": "Ottieni accesso immediato — $15",
-      "pt": "Acesso instantâneo — $15",
-      "pl": "Uzyskaj natychmiastowy dostęp — $15",
-      "hi": "तुरंत एक्सेस पाएं — $15",
-      "uk": "Отримати миттєвий доступ — $15",
-      "ru": "Получить мгновенный доступ — $15"
+      "en": "Buy Now — $15",
+      "es": "Compra ahora — $15",
+      "fr": "Acheter maintenant — $15",
+      "de": "Jetzt kaufen — $15",
+      "it": "Acquista ora — $15",
+      "pt": "Compre agora — $15",
+      "pl": "Kup teraz — $15",
+      "hi": "अभी खरीदें — $15",
+      "uk": "Купити зараз — $15",
+      "ru": "Купить сейчас — $15"
     },
     "secureHelper": {
       "en": "Secure checkout · Instant delivery to your email",
@@ -1494,16 +1494,16 @@ export const landingCopy = {
       "ru": "500+ skills для задач, которые вы постоянно откладываете. Статьи, договоры, кампании и финансовые модели — готовые, а не просто в черновике. $15 один раз — и навсегда ваши."
     },
     "cta": {
-      "en": "Get Instant Access",
-      "es": "Obtén acceso instantáneo",
-      "fr": "Accès instantané",
-      "de": "Sofortzugang holen",
-      "it": "Ottieni accesso immediato",
-      "pt": "Acesso instantâneo",
-      "pl": "Uzyskaj natychmiastowy dostęp",
-      "hi": "तुरंत एक्सेस पाएं",
-      "uk": "Отримати миттєвий доступ",
-      "ru": "Получить мгновенный доступ"
+      "en": "Get the Bundle — $15",
+      "es": "Consigue el bundle — $15",
+      "fr": "Obtenir le bundle — $15",
+      "de": "Bundle holen — $15",
+      "it": "Ottieni il bundle — $15",
+      "pt": "Garanta o bundle — $15",
+      "pl": "Pobierz pakiet — $15",
+      "hi": "बंडल पाएं — $15",
+      "uk": "Отримати бандл — $15",
+      "ru": "Получить бандл — $15"
     }
   },
   "footer": {

@@ -1,4 +1,5 @@
-import { Suspense, lazy, useEffect, useId, useMemo, useState } from "react";
+import { Suspense, lazy, useEffect, useId, useMemo, useRef, useState } from "react";
+import type { ReactNode } from "react";
 import { Search, X } from "lucide-react";
 
 import {
@@ -27,6 +28,10 @@ import { landingCopy } from "@/i18n/translations";
 const SkillDetailPopup = lazy(() => import("./SkillDetailPopup"));
 
 type SkillsMetadataMap = typeof import("@/data/skillsMetadata").skillsMetadata;
+type SkillsDirectoryModalProps = {
+  initialCategory?: string;
+  trigger?: ReactNode;
+};
 
 const INITIAL_EXPANDED_CATEGORIES: string[] = [];
 
@@ -66,7 +71,7 @@ function filterDirectory(query: string, getCategoryLabel: (categoryName: string)
   });
 }
 
-const SkillsDirectoryModal = () => {
+const SkillsDirectoryModal = ({ initialCategory, trigger }: SkillsDirectoryModalProps) => {
   const { t, getCategoryLabel } = useLanguage();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -74,6 +79,7 @@ const SkillsDirectoryModal = () => {
   const [selectedSkillSlug, setSelectedSkillSlug] = useState<SkillSlug | null>(null);
   const [skillsMetadata, setSkillsMetadata] = useState<SkillsMetadataMap | null>(null);
   const searchInputId = useId();
+  const categoryTriggerRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
   const filteredDirectory = useMemo(() => filterDirectory(query, getCategoryLabel), [query, getCategoryLabel]);
   const filteredCategoryNames = useMemo(
@@ -109,23 +115,44 @@ const SkillsDirectoryModal = () => {
       return;
     }
 
+    if (initialCategory && !query.trim()) {
+      setExpandedCategories([initialCategory]);
+      return;
+    }
+
     if (query.trim()) {
       setExpandedCategories(filteredCategoryNames);
     }
-  }, [open, query, filteredCategoryKey, filteredCategoryNames]);
+  }, [open, query, filteredCategoryKey, filteredCategoryNames, initialCategory]);
+
+  useEffect(() => {
+    if (!open || !initialCategory || query.trim()) {
+      return;
+    }
+
+    const focusTimer = window.setTimeout(() => {
+      const categoryTrigger = categoryTriggerRefs.current[initialCategory];
+      categoryTrigger?.scrollIntoView({ block: "start", behavior: "smooth" });
+      categoryTrigger?.focus({ preventScroll: true });
+    }, 220);
+
+    return () => window.clearTimeout(focusTimer);
+  }, [open, initialCategory, query]);
 
   const selectedSkill = selectedSkillSlug ? skillsMetadata?.[selectedSkillSlug] ?? null : null;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button
-          variant="outline"
-          size="lg"
-          className="h-11 w-full rounded-xl border-primary/40 bg-[linear-gradient(180deg,rgba(13,11,10,0.88),rgba(28,22,19,0.92))] px-5 text-[11px] font-semibold uppercase tracking-[0.24em] text-terminal-foreground shadow-[0_14px_26px_rgba(0,0,0,0.22),inset_0_1px_0_rgba(255,255,255,0.05),inset_0_0_0_1px_rgba(191,101,61,0.08)] transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/65 hover:bg-[linear-gradient(180deg,rgba(26,21,18,0.96),rgba(43,31,25,0.96))] hover:text-primary-foreground hover:shadow-[0_18px_32px_rgba(0,0,0,0.28),0_0_0_1px_rgba(191,101,61,0.16),inset_0_1px_0_rgba(255,255,255,0.06)] focus-visible:ring-primary focus-visible:ring-offset-[hsl(var(--terminal-bg))] sm:min-w-[16.5rem] sm:w-auto"
-        >
-          {t(landingCopy.directoryModal.trigger)}
-        </Button>
+        {trigger ?? (
+          <Button
+            variant="outline"
+            size="lg"
+            className="h-11 w-full rounded-xl border-primary/40 bg-[linear-gradient(180deg,rgba(13,11,10,0.88),rgba(28,22,19,0.92))] px-5 text-[11px] font-semibold uppercase tracking-[0.24em] text-terminal-foreground shadow-[0_14px_26px_rgba(0,0,0,0.22),inset_0_1px_0_rgba(255,255,255,0.05),inset_0_0_0_1px_rgba(191,101,61,0.08)] transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/65 hover:bg-[linear-gradient(180deg,rgba(26,21,18,0.96),rgba(43,31,25,0.96))] hover:text-primary-foreground hover:shadow-[0_18px_32px_rgba(0,0,0,0.28),0_0_0_1px_rgba(191,101,61,0.16),inset_0_1px_0_rgba(255,255,255,0.06)] focus-visible:ring-primary focus-visible:ring-offset-[hsl(var(--terminal-bg))] sm:min-w-[16.5rem] sm:w-auto"
+          >
+            {t(landingCopy.directoryModal.trigger)}
+          </Button>
+        )}
       </DialogTrigger>
 
       <DialogContent className="max-h-[88vh] max-w-5xl gap-0 overflow-hidden border-terminal-foreground/10 bg-terminal p-0 text-terminal-foreground shadow-2xl sm:rounded-2xl [&>button]:hidden">
@@ -190,7 +217,12 @@ const SkillsDirectoryModal = () => {
                     value={categoryName}
                     className="rounded-2xl border border-terminal-foreground/10 bg-black/15 px-4"
                   >
-                    <AccordionTrigger className="items-center gap-4 py-4 text-left hover:no-underline">
+                    <AccordionTrigger
+                      ref={(node) => {
+                        categoryTriggerRefs.current[categoryName] = node;
+                      }}
+                      className="items-center gap-4 py-4 text-left hover:no-underline"
+                    >
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
                           <span className="text-sm font-semibold text-terminal-foreground md:text-base">

@@ -5,6 +5,7 @@ import {
   type Paddle,
 } from "@paddle/paddle-js";
 
+import { trackAnalyticsEvent } from "@/lib/analytics";
 import { getPaddleBillingConfig } from "@/config/billing";
 import { trackPurchase, getFbc, getFbp, getOrCreateMetaExternalId } from "@/lib/meta-events";
 
@@ -195,6 +196,7 @@ function handleCheckoutEvent(event: PaddleEventData): void {
   // Fire Pixel Purchase event (CAPI Purchase is fired server-side in fulfill.ts)
   // Uses transactionId as event_id for deduplication
   trackPurchase({ transactionId });
+  trackAnalyticsEvent("purchase_completed", { transactionId });
 
   storePendingFulfillmentTransactionId(transactionId);
 

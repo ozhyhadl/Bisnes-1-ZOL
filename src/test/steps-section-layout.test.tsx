@@ -14,7 +14,7 @@ describe("steps section layout", () => {
     const terminalWindow = container.querySelector(".terminal-window");
     expect(terminalWindow).not.toBeNull();
 
-    const setupButton = screen.getByRole("button", { name: "Set Up in 2 Minutes — $15" });
+    const setupButton = screen.getByRole("button", { name: "Get the Bundle — $15" });
     expect(terminalWindow).toContainElement(setupButton);
 
     const divider = screen.getByText("or");

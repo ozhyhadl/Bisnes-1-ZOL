@@ -1,13 +1,15 @@
 import DeferredSection from "@/components/DeferredSection";
+import ExitIntentPopup from "@/components/ExitIntentPopup";
 import SiteHeader from "@/components/SiteHeader";
 import HeroSection from "@/components/HeroSection";
 import StepsSection from "@/components/StepsSection";
 import WhatAreSkillsSection from "@/components/WhatAreSkillsSection";
 import TargetUsersSection from "@/components/TargetUsersSection";
 import PricingSection from "@/components/PricingSection";
-import UpsellOfferSection from "@/components/UpsellOfferSection";
 import LanguageSuggestionBanner from "@/components/LanguageSuggestionBanner";
 import SiteFooter from "@/components/SiteFooter";
+import StickyMobileCTA from "@/components/StickyMobileCTA";
+import TestimonialsSection from "@/components/TestimonialsSection";
 import { CheckoutProvider } from "@/contexts/CheckoutContext";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { runWhenBrowserIdle } from "@/lib/browser-idle";
@@ -52,35 +54,37 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <LanguageSuggestionBanner />
-      <SiteHeader />
-      <main>
-        <HeroSection />
-        <StepsSection />
-        <WhatAreSkillsSection />
-        <TargetUsersSection />
-        <DeferredSection
-          component={SkillsListSection}
-          fallback={skillsListFallback}
-          rootMargin="900px 0px"
-          idleTimeout={2200}
-        />
-        <CheckoutProvider>
+      <CheckoutProvider>
+        <SiteHeader />
+        <main>
+          <HeroSection />
           <PricingSection />
-          <UpsellOfferSection />
-        </CheckoutProvider>
-        <DeferredSection
-          component={FAQSection}
-          fallback={faqFallback}
-          rootMargin="900px 0px"
-          idleTimeout={2600}
-        />
-        <DeferredSection
-          component={FinalCTASection}
-          fallback={finalCtaFallback}
-          rootMargin="900px 0px"
-          idleTimeout={3000}
-        />
-      </main>
+          <WhatAreSkillsSection />
+          <StepsSection />
+          <TargetUsersSection />
+          <DeferredSection
+            component={SkillsListSection}
+            fallback={skillsListFallback}
+            rootMargin="900px 0px"
+            idleTimeout={2200}
+          />
+          <TestimonialsSection />
+          <DeferredSection
+            component={FAQSection}
+            fallback={faqFallback}
+            rootMargin="900px 0px"
+            idleTimeout={2600}
+          />
+          <DeferredSection
+            component={FinalCTASection}
+            fallback={finalCtaFallback}
+            rootMargin="900px 0px"
+            idleTimeout={3000}
+          />
+        </main>
+        <StickyMobileCTA />
+        <ExitIntentPopup />
+      </CheckoutProvider>
       <SiteFooter />
     </div>
   );

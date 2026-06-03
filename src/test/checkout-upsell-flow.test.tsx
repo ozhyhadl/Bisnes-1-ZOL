@@ -2,7 +2,6 @@ import { describe, expect, it, beforeEach, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 import PricingSection from "@/components/PricingSection";
-import UpsellOfferSection from "@/components/UpsellOfferSection";
 import { CheckoutProvider } from "@/contexts/CheckoutContext";
 
 const mockGetPaddle = vi.fn();
@@ -30,7 +29,6 @@ function renderCheckoutFlow() {
   return render(
     <CheckoutProvider>
       <PricingSection />
-      <UpsellOfferSection />
     </CheckoutProvider>,
   );
 }
@@ -46,7 +44,7 @@ describe("checkout upsell flow", () => {
   it("opens checkout immediately with the main product only when no add-on was selected", async () => {
     renderCheckoutFlow();
 
-    fireEvent.click(screen.getByRole("button", { name: "BUY NOW AND START" }));
+    fireEvent.click(screen.getByRole("button", { name: "Buy Now — $15" }));
 
     await waitFor(() => {
       expect(mockOpenPaddleCheckout).toHaveBeenCalledTimes(1);
@@ -66,13 +64,13 @@ describe("checkout upsell flow", () => {
   it("includes the add-on in checkout when it was preselected and still never reopens a modal", async () => {
     renderCheckoutFlow();
 
-    fireEvent.click(screen.getByRole("button", { name: "Add to Order" }));
+    fireEvent.click(screen.getByRole("checkbox"));
 
     await waitFor(() => {
-      expect(screen.getByRole("button", { name: "Remove Add-On" })).toBeInTheDocument();
+      expect(screen.getByText("Order total")).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByRole("button", { name: "BUY NOW AND START" }));
+    fireEvent.click(screen.getByRole("button", { name: "Buy Now — $15" }));
 
     await waitFor(() => {
       expect(mockOpenPaddleCheckout).toHaveBeenCalledTimes(1);
@@ -88,12 +86,12 @@ describe("checkout upsell flow", () => {
     expect(items).toHaveLength(2);
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: "Remove Add-On" }));
-    expect(screen.getByRole("button", { name: "Add to Order" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("checkbox"));
+    expect(screen.getByRole("checkbox")).not.toBeChecked();
 
     mockOpenPaddleCheckout.mockClear();
 
-    fireEvent.click(screen.getByRole("button", { name: "BUY NOW AND START" }));
+    fireEvent.click(screen.getByRole("button", { name: "Buy Now — $15" }));
 
     await waitFor(() => {
       expect(mockOpenPaddleCheckout).toHaveBeenCalledTimes(1);
